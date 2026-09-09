@@ -2,7 +2,11 @@ FROM debian:bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN dpkg --add-architecture arm64 && \
+RUN SNAP=http://snapshot.debian.org/archive; STAMP=20260801T000000Z; \
+    { echo "deb $SNAP/debian/$STAMP bullseye main"; \
+      echo "deb $SNAP/debian/$STAMP bullseye-updates main"; \
+      echo "deb $SNAP/debian-security/$STAMP bullseye-security main"; } > /etc/apt/sources.list && \
+    dpkg --add-architecture arm64 && \
     apt-get -o Acquire::Check-Valid-Until=false -o Acquire::Retries=5 update && \
     apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
         ca-certificates curl wget git \
