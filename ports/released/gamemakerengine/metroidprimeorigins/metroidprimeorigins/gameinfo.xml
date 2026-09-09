@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gamelist>
+	<game>
+		<path>./Metroid Prime Origins.sh</path>
+		<name>Metroid Prime Origins</name>
+		<desc>A fan-made 2D reimagining of Metroid Prime. Explore Tallon IV as Samus, scanning and shooting your way through an interconnected world, with New Game+ and a 100%-completion Retro Mode.</desc>
+		<image>./metroidprimeorigins/cover.png</image>
+		<thumbnail>./metroidprimeorigins/thumb.png</thumbnail>
+		<releasedate>2026</releasedate>
+		<developer>Team SCU</developer>
+		<genre>Action</genre>
+	</game>
+</gamelist>

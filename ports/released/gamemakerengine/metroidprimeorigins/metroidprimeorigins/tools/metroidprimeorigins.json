@@ -1,0 +1,19 @@
+{
+    "set_flags": [
+        "Fullscreen"
+    ],
+    "clear_flags": [
+        "Scale"
+    ],
+    "compress_audio": {
+        "min_size": "auto",
+        "bitrate": 64,
+        "recompress_ogg": true
+    },
+    "code_patches": [
+        {
+            "entry": "gml_GlobalScript___InputInitializeSteam",
+            "gml": "gml/gml_GlobalScript___InputInitializeSteam.gml"
+        }
+    ]
+}
