@@ -5223,12 +5223,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/zelda-ladxhd/zelda-ladxhd/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/zelda-ladxhd/zelda-ladxhd/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zelda-ladxhd.zip",
-      "date_updated": "2026-08-25T14:17",
+      "date_updated": "2026-09-09T12:53",
       "first_seen": "2026-07-09",
-      "md5": "bc9caa0251dd3f9f25b9406b649347ce",
-      "size": 1762875,
-      "lifetime_downloads": 247,
-      "last_commit": "[LADXHD] Update for v2.0.6 handling"
+      "md5": "ffdd16dabde6204d492c7f5b25b465e0",
+      "size": 1761747,
+      "lifetime_downloads": 369,
+      "last_commit": "[LADXHD] Update for v2.0.7 support"
     }
   },
   {
