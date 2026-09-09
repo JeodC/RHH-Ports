@@ -279,6 +279,17 @@ class Downloader:
     def _ensure_gmtoolkit_binary(self, port: Port) -> None:
         if not port.runtime or "gmloadernext.squashfs" not in port.runtime:
             return
+        self._sync_gmtoolkit_binary()
+
+    def refresh_gmtoolkit_if_installed(self) -> None:
+        """Update a gmtoolkit that is already on disk."""
+        if not controlfolder:
+            return
+        if not (Path(controlfolder) / f"gmtoolkit.{DEVICE_ARCH}").exists():
+            return
+        self._sync_gmtoolkit_binary()
+
+    def _sync_gmtoolkit_binary(self) -> None:
         if DEVICE_ARCH != "aarch64":
             return
         if not controlfolder:

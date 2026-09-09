@@ -120,6 +120,12 @@ class Pharos:
             daemon=True,
         ).start()
 
+        threading.Thread(
+            target=self._refresh_gmtoolkit,
+            name="GmtoolkitRefresh",
+            daemon=True,
+        ).start()
+
         self._load_sources()
         threading.Thread(
             target=self._check_self_update,
@@ -855,6 +861,12 @@ class Pharos:
                 print("[Service] daemon binary refreshed and service restarted")
         except Exception as e:
             print(f"[ServiceRefresh] failed: {e}")
+
+    def _refresh_gmtoolkit(self) -> None:
+        try:
+            Downloader(queue.Queue(), self.progress_q).refresh_gmtoolkit_if_installed()
+        except Exception as e:
+            print(f"[GmtoolkitRefresh] failed: {e}")
 
     def _check_self_update(self) -> None:
         try:
