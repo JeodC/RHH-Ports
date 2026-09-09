@@ -1,7 +1,0 @@
-{
-    "compress_audio": {
-        "bitrate":        64,
-        "recompress_ogg": true
-    },
-    "externalize_textures": "../saves/textures"
-}
