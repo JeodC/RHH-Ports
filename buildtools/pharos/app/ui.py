@@ -423,6 +423,8 @@ class UserInterface:
         self.draw_text((10, y + 3), text, text_color_sdl)
 
     def draw_loader(self, percent: int):
+        if percent < 0:
+            return
         color_sdl = c_progress_bar
         margin = 10
         radius = 2

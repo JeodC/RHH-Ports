@@ -585,8 +585,8 @@ class Pharos:
             self.last_progress_msg = latest
             self.last_progress_time = time.time()
             dl, tot, txt, stage = latest
-            if stage == "download" and tot:
-                self.progress_percent = (dl / tot) * 100
+            if stage == "download":
+                self.progress_percent = (dl / tot) * 100 if tot else -1
         elif self.last_progress_msg is not None:
             elapsed = time.time() - self.last_progress_time
             if elapsed >= self.PROGRESS_STICKY_SECONDS:

@@ -42,6 +42,13 @@ GMTOOLKIT_API_URL = "https://api.github.com/repos/JeodC/gmtoolkit/releases/lates
 # ----------------------------------------------------------------------
 # GitHub request
 # ----------------------------------------------------------------------
+def _progress_text(prefix: str, downloaded: int, total: int, speed: float) -> str:
+    """A percentage when the server sent a size, transferred bytes when it did not."""
+    if total:
+        return f"{prefix} ({downloaded / total * 100:.1f}%) - {speed:.2f} MB/s"
+    return f"{prefix} ({downloaded / (1024 * 1024):.1f} MB) - {speed:.2f} MB/s"
+
+
 def _gh_request(url: str, timeout: int = 30) -> Tuple[bytes, dict]:
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
     token = os.environ.get("GITHUB_TOKEN")
@@ -247,10 +254,9 @@ class Downloader:
                             downloaded += len(data)
                             elapsed = time.time() - start
                             speed = (downloaded / (1024 * 1024)) / elapsed if elapsed else 0
-                            pct = (downloaded / total * 100) if total else 0
                             self.progress_q.put((
-                                downloaded, total or downloaded,
-                                f"Runtime: {rt_name} ({pct:.1f}%) - {speed:.2f} MB/s",
+                                downloaded, total,
+                                _progress_text(f"Runtime: {rt_name}", downloaded, total, speed),
                                 "download",
                             ))
 
@@ -318,10 +324,9 @@ class Downloader:
                         downloaded += len(data)
                         elapsed = time.time() - start
                         speed = (downloaded / (1024 * 1024)) / elapsed if elapsed else 0
-                        pct = (downloaded / total * 100) if total else 0
                         self.progress_q.put((
-                            downloaded, total or downloaded,
-                            f"gmtoolkit ({pct:.1f}%) - {speed:.2f} MB/s",
+                            downloaded, total,
+                            _progress_text("gmtoolkit", downloaded, total, speed),
                             "download",
                         ))
 
@@ -450,12 +455,10 @@ class Downloader:
 
                         elapsed = time.time() - start
                         speed = (downloaded / (1024*1024)) / elapsed if elapsed else 0
-                        pct = (downloaded / total * 100) if total else 100
-
                         self.progress_q.put((
                             downloaded,
-                            total or downloaded,
-                            f"{port.title} ({pct:.1f}%) - {speed:.2f} MB/s",
+                            total,
+                            _progress_text(port.title, downloaded, total, speed),
                             "download"
                         ))
 

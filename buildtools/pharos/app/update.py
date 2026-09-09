@@ -68,6 +68,7 @@ class Update:
         self.latest_version: str | None = None
         self.download_url: str | None = None
         self.expected_md5: str | None = None
+        self.expected_size: int | None = None
         self.download_percent = 0.0
 
     # ------------------------------------------------------------------
@@ -92,11 +93,35 @@ class Update:
                         src = entry.get("source", {}) or {}
                         self.download_url = src.get("download_url")
                         self.expected_md5 = src.get("md5")
+                        size = src.get("size")
+                        self.expected_size = int(size) if size else None
                         break
             except json.JSONDecodeError as e:
                 print(f"[Update] ports.json parse failed: {e}")
 
         return _version_tuple(self.current_version) < _version_tuple(self.latest_version)
+
+    def _edge_is_stale(self) -> bool:
+        """True when the CDN is still serving the previous asset."""
+        if not self.expected_size:
+            return False
+        try:
+            req = Request(self.download_url,
+                          headers={"User-Agent": "Pharos/Updater", "Range": "bytes=0-1023"})
+            with urlopen(req, timeout=15) as resp:
+                content_range = resp.getheader("Content-Range") or ""
+                served_size = int(content_range.rpartition("/")[2] or 0)
+                last_modified = resp.getheader("Last-Modified") or "unknown"
+        except (HTTPError, URLError, TimeoutError, ValueError, OSError) as e:
+            # Inconclusive, so let the full download + md5 check decide.
+            print(f"[Update] size pre-check failed ({e}); downloading anyway.")
+            return False
+
+        if served_size and served_size != self.expected_size:
+            print(f"[Update] CDN still has the previous asset "
+                  f"({served_size} bytes, dated {last_modified}; expected {self.expected_size}).")
+            return True
+        return False
 
     # ------------------------------------------------------------------
     # Download
@@ -105,6 +130,9 @@ class Update:
         """Stream the new zip into PENDING_ZIP with progress UI. Returns success."""
         if not self.download_url:
             print("[Update] No download URL; cannot download.")
+            return False
+
+        if self._edge_is_stale():
             return False
 
         # Drop any stale pending zip (e.g. canceled mid-extract) so we don't apply an old build.
@@ -117,7 +145,7 @@ class Update:
         try:
             req = Request(self.download_url, headers={"User-Agent": "Pharos/Updater"})
             with urlopen(req) as resp:
-                total = int(resp.getheader("Content-Length", 0)) or 1
+                total = int(resp.getheader("Content-Length", 0))
                 downloaded = 0
                 chunk_size = 8192
                 md5 = hashlib.md5()
