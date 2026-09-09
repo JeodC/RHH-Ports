@@ -23,14 +23,13 @@ PATCHES="$TMPDIR/patches"
 PATCHED="$TMPDIR/patchedFiles"
 UPSTREAM_BASE="https://gitlab.com/bighead.0/ladxhd_updated/-/raw"
 RESOURCES_URL="$UPSTREAM_BASE/${UPSTREAM_TAG:-main}/ladxhd_patcher_source_code/Resources"
-FUNCTIONS_CS_URL="$UPSTREAM_BASE/${UPSTREAM_TAG:-main}/ladxhd_patcher_source_code/Program/Functions.cs"
+TARGETS_NAME="file_targets_xnb.txt"
 PATCHES_COMMON="patches_allplatforms.7z"
 PATCHES_PLATFORM="patches_linux_arm64_gl.7z"
 ACHIEVEMENTS_ARCHIVE="achievements.7z"
 ACHIEVEMENTS_DIR="$DATADIR/Data/Achievements"
 TARGETS_FILE="$TMPDIR/file_targets.txt"
 DERIVED_SET="$TMPDIR/derived_targets.txt"
-PARSE_TARGETS_AWK="$GAMEDIR/../tools/parse_targets.awk"
 PATCH_VERSION_FILE="$GAMEDIR/.patch_version"
 UPDATE_CHECK_FILE="$GAMEDIR/.update_check"
 BACKUP_ZIP="$GAMEDIR/.backup/source.zip"
@@ -57,8 +56,8 @@ is_linux_elf() {
 }
 
 # Get derived files for a given source filename. Reads from $TARGETS_FILE
-# (parsed live from upstream Functions.cs by download_file_targets) so new
-# upstream derivatives are picked up automatically.
+# (fetched live from upstream by download_file_targets) so new upstream
+# derivatives are picked up automatically.
 get_derived_files() {
     [ -f "$TARGETS_FILE" ] || return
     awk -F'\t' -v s="$1" '$1==s {print $2; exit}' "$TARGETS_FILE"
@@ -261,36 +260,36 @@ extract_achievements() {
 }
 
 download_file_targets() {
-    local cs_file="$TMPDIR/Functions.cs"
-    local manual_cs="$DATADIR/Functions.cs"
+    # Upstream publishes the mapping as plaintext TSV: <source>TAB<derived...>.
+    # Comments start with '#'. Strip those and blank lines; the rest of the
+    # script consumes $TARGETS_FILE directly.
+    local raw_file="$TMPDIR/$TARGETS_NAME"
+    local manual="$DATADIR/$TARGETS_NAME"
 
     echo "Fetching upstream file targets mapping..."
-    if [ -f "$manual_cs" ]; then
-        echo "Using manually-placed Functions.cs from data/."
-        cp -f "$manual_cs" "$cs_file"
-    elif ! $FETCH "$cs_file" "$FUNCTIONS_CS_URL"; then
-        emit_fail_msg "Could not get the derived-file mapping (Functions.cs). Check your internet connection, or for an offline install place Functions.cs in the data folder next to $PATCHES_PLATFORM."
-        echo "ERROR: could not download Functions.cs and none was placed in data/."
+    if [ -f "$manual" ]; then
+        echo "Using manually-placed $TARGETS_NAME from data/."
+        cp -f "$manual" "$raw_file"
+    elif ! $FETCH "$raw_file" "$RESOURCES_URL/$TARGETS_NAME"; then
+        emit_fail_msg "Could not get the derived-file mapping ($TARGETS_NAME). Check your internet connection, or for an offline install place $TARGETS_NAME in the data folder next to $PATCHES_PLATFORM."
+        echo "ERROR: could not download $TARGETS_NAME and none was placed in data/."
         return 1
     fi
 
-    if ! awk -f "$PARSE_TARGETS_AWK" "$cs_file" > "$TARGETS_FILE" 2>&1; then
-        emit_fail_msg "The derived-file mapping (Functions.cs) could not be parsed. The file may be corrupt or from an unexpected upstream version."
-        echo "ERROR: failed to parse Functions.cs."
-        rm -f "$TARGETS_FILE"
-        return 1
-    fi
+    # Keep only lines that actually carry a tab-separated mapping.
+    awk -F'\t' '/^[ \t]*#/ {next} NF>=2 && $1!="" && $2!="" {print $1 "\t" $2}' \
+        "$raw_file" > "$TARGETS_FILE"
 
     local count
     count=$(wc -l < "$TARGETS_FILE" 2>/dev/null)
     if [ "${count:-0}" -lt 5 ]; then
-        emit_fail_msg "The derived-file mapping (Functions.cs) looks incomplete. Refusing to patch with a partial mapping - try reinstalling, or replace Functions.cs in the data folder."
-        echo "ERROR: parsed mapping has only ${count:-0} entries (expected many); refusing to continue."
+        emit_fail_msg "The derived-file mapping ($TARGETS_NAME) looks incomplete. Refusing to patch with a partial mapping - try reinstalling, or replace $TARGETS_NAME in the data folder."
+        echo "ERROR: mapping has only ${count:-0} entries (expected many); refusing to continue."
         rm -f "$TARGETS_FILE"
         return 1
     fi
 
-    echo "Parsed $count derived-file mappings from upstream."
+    echo "Read $count derived-file mappings from upstream."
 }
 
 prepare_linux_files() {
@@ -393,7 +392,7 @@ patch_game_files() {
 
     # Pass 2: log any patches the static mapping didn't cover. We can't safely
     # auto-match them (upstream encodes without checksums; vcdiff won't reject
-    # wrong sources) - surface them so Functions.cs parsing can be updated.
+    # wrong sources) - surface them so the mapping can be chased upstream.
     report_unmapped_patches
 
     # Pass 3: 1:1 patches. Now we mutate sources. Re-run find since the derived
@@ -445,7 +444,7 @@ patch_game_files() {
     fi
 
     if ! is_linux_elf "$EXECUTABLE"; then
-        emit_fail_msg "The game binary was not converted to the Linux version. Patching is incomplete - reinstall with an internet connection (offline installs also need Functions.cs in the data folder)."
+        emit_fail_msg "The game binary was not converted to the Linux version. Patching is incomplete - reinstall with an internet connection (offline installs also need $TARGETS_NAME in the data folder)."
         echo "ERROR: '$EXECUTABLE' is not a Linux ELF after patching - the binary patch did not apply."
         return 1
     fi

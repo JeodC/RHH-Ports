@@ -15,15 +15,15 @@ If the device is offline at launch, the update check is skipped silently and the
 ## Manual / offline patching
 If your device has no internet connection, you can pre-stage the patcher files on a PC and the port will use them instead of downloading.
 
-1. Find the latest upstream release tag at <https://gitlab.com/bighead.0/ladxhd_updated/-/releases> (for example, `v2.0.6`).
+1. Find the latest upstream release tag at <https://gitlab.com/bighead.0/ladxhd_updated/-/releases>.
 2. Download **both** patch archives from that tag and place them in `zelda-ladxhd/data/`. Upstream splits them between the data files every platform shares and the arm64 OpenGL build's own files:
    ```
    https://gitlab.com/bighead.0/ladxhd_updated/-/raw/<tag>/ladxhd_patcher_source_code/Resources/patches_allplatforms.7z
    https://gitlab.com/bighead.0/ladxhd_updated/-/raw/<tag>/ladxhd_patcher_source_code/Resources/patches_linux_arm64_gl.7z
    ```
-3. Download `Functions.cs` from the same tag and place it at `zelda-ladxhd/data/Functions.cs`. This file maps the upstream source files to their Linux outputs (including the game binary) and is **required** for an offline patch. Without it, the patcher cannot determine which files to patch and will stop with an error.
+3. Download `file_targets_xnb.txt` from the same tag and place it at `zelda-ladxhd/data/file_targets_xnb.txt`. This file maps the upstream source files to their Linux outputs (including the game binary) and is **required** for an offline patch. Without it, the patcher cannot determine which files to patch and will stop with an error.
    ```
-   https://gitlab.com/bighead.0/ladxhd_updated/-/raw/<tag>/ladxhd_patcher_source_code/Program/Functions.cs
+   https://gitlab.com/bighead.0/ladxhd_updated/-/raw/<tag>/ladxhd_patcher_source_code/Resources/file_targets_xnb.txt
    ```
 4. *(Optional)* Download `achievements.7z` from the same tag and place it at `zelda-ladxhd/data/achievements.7z`. This archive contains the achievement icons. Without it, achievements still function, but their icons will be missing.
    ```
