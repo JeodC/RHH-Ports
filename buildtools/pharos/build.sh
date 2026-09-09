@@ -39,8 +39,9 @@ if command -v apt-get >/dev/null 2>&1 && ! command -v objdump >/dev/null 2>&1; t
         sudoer="sudo"
     fi
     echo "Installing binutils (needed by PyInstaller for objdump)"
-    $sudoer apt-get update -qq -o Acquire::Check-Valid-Until=false
-    $sudoer env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq binutils >/dev/null
+    $sudoer apt-get -o Acquire::Check-Valid-Until=false -o Acquire::Retries=5 update -qq
+    $sudoer env DEBIAN_FRONTEND=noninteractive \
+        apt-get -o Acquire::Retries=5 install -y -q binutils >/dev/null
 fi
 
 # ---- Python deps -----------------------------------------------------------

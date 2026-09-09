@@ -3,8 +3,8 @@ FROM debian:bullseye
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN dpkg --add-architecture arm64 && \
-    apt-get update -o Acquire::Check-Valid-Until=false && \
-    apt-get install -y --no-install-recommends \
+    apt-get -o Acquire::Check-Valid-Until=false -o Acquire::Retries=5 update && \
+    apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
         ca-certificates curl wget git \
         build-essential pkg-config make cmake \
         binutils-aarch64-linux-gnu \
