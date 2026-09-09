@@ -2335,6 +2335,54 @@
   },
   {
     "version": 4,
+    "name": "metroidprimeorigins.zip",
+    "items": [
+      "Metroid Prime Origins.sh",
+      "metroidprimeorigins"
+    ],
+    "items_opt": [],
+    "attr": {
+      "title": "Metroid Prime Origins",
+      "porter": [
+        "Jeod"
+      ],
+      "desc": "A fan-made 2D reimagining of Metroid Prime. Explore Tallon IV as Samus, scanning and shooting your way through an interconnected world, with New Game+ and a 100%-completion Retro Mode.",
+      "desc_md": null,
+      "inst": "Copy the contents of the Metroid Prime Origins VM build into the assets folder. The patcher runs on first launch.",
+      "inst_md": null,
+      "genres": [
+        "action",
+        "adventure",
+        "platformer"
+      ],
+      "image": null,
+      "rtr": false,
+      "exp": false,
+      "runtime": [
+        "gmloadernext.squashfs"
+      ],
+      "store": [],
+      "availability": "free",
+      "reqs": [],
+      "arch": [
+        "aarch64"
+      ],
+      "min_glibc": ""
+    },
+    "source": {
+      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/metroidprimeorigins/metroidprimeorigins/screenshot.png",
+      "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/metroidprimeorigins/metroidprimeorigins/README.md",
+      "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/metroidprimeorigins.zip",
+      "date_updated": "2026-09-09T18:30",
+      "first_seen": "2026-09-09",
+      "md5": "99d7342a4578c72e37d98e35340f51dd",
+      "size": 5370044,
+      "lifetime_downloads": 0,
+      "last_commit": "[MPO] Release Metroid Prime Origins"
+    }
+  },
+  {
+    "version": 4,
     "name": "mimisdeliverydash.zip",
     "items": [
       "Mimi's Delivery Dash.sh",
