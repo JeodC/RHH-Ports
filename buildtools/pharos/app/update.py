@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-Pharos/update.py
 Self-update mechanism. Adapted from rommapp/muos-app's RomM/update.py.
 
 Flow: check() compares the bundled __version__ against __version__.py fetched
@@ -24,8 +23,7 @@ import __version__
 from config import DATA_DIR
 
 # ----------------------------------------------------------------------
-# Where Pharos publishes from. Hardcoded: the upgrade source is inherent
-# to the tool, not a user choice (unlike .sources for ports).
+# Where Pharos publishes from. Hardcoded, unlike .sources for ports.
 # ----------------------------------------------------------------------
 PHAROS_REPO = "JeodC/RHH-Ports"
 PHAROS_VERSION_RAW = (
@@ -109,7 +107,7 @@ class Update:
             print("[Update] No download URL; cannot download.")
             return False
 
-        # Drop any stale pending zip (e.g. cancelled mid-extract) so we don't apply an old build.
+        # Drop any stale pending zip (e.g. canceled mid-extract) so we don't apply an old build.
         if os.path.exists(PENDING_ZIP):
             try:
                 os.remove(PENDING_ZIP)
@@ -142,11 +140,9 @@ class Update:
                         self.ui.render_to_screen()
                         sdl2.SDL_Delay(16)
 
-            # Verify the bytes match what ports.json advertises. GitHub's rolling
-            # release CDN can serve a stale cached zip for a few minutes after a
-            # new build publishes, so a version-only check would install the OLD
-            # binary and re-prompt on every launch. Reject the mismatch so we stay
-            # on the current build until the correct zip is actually reachable.
+            # GitHub's release CDN can serve a stale zip for a few minutes after a
+            # new build publishes, so a version-only check would install the old
+            # binary and re-prompt every launch. Reject the mismatch instead.
             got = md5.hexdigest()
             if self.expected_md5 and got != self.expected_md5:
                 print(f"[Update] md5 mismatch: expected {self.expected_md5}, got {got}; "

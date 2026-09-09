@@ -76,8 +76,9 @@ def toggle_muted_port(name: str) -> bool | None:
     os.replace(tmp, MANIFEST_PATH)
     return new_state
 
-# Per-CFW autostart artefact paths.
+# Per-CFW autostart artifact paths.
 SYSTEMD_UNIT_PATH = Path("/storage/.config/system.d/pharos-daemon.service")
+SYSTEMD_MODULE_UNIT_PATH = Path("/storage/.config/system.d/pharos-module.service")
 USERLAND_SERVICE_PATH = Path("/userdata/system/services/pharos-daemon")
 
 # ES event-script paths (ROCKNIX + Batocera-family).
@@ -130,14 +131,9 @@ def detect_cfw() -> str:
     LibreELEC family (ROCKNIX, AmberELEC, JELOS, EmuELEC, UnofficialOS),
     'userland' = the Batocera family (Knulli, Batocera, REGLinux).
 
-    Detection order:
-      1. PortMaster's $CFW_NAME - authoritative when present.
-      2. Filesystem markers - fallback for the init-launched daemon (no
-         inherited env) and Pharos runs outside PortMaster.
-      3. Capability verification - if env/markers point at a supported
-         bucket but its prereqs aren't on disk, downgrade to 'unknown'.
-
-    Cached: detection is process-invariant and the log line should fire once."""
+    $CFW_NAME first, then filesystem markers for the init-launched daemon
+    that inherits no env, then a capability check that downgrades a bucket
+    whose prereqs aren't on disk."""
     env_name = (os.environ.get("CFW_NAME") or "").lower()
     bucket: str | None = None
 
@@ -181,10 +177,12 @@ def _systemd_unit(daemon_path: Path) -> str:
     # TMPDIR points PyInstaller's --onefile extraction at disk, not /tmp: /tmp
     # is tmpfs (RAM) on these CFWs, so the ~15 MB extraction would stay pinned
     # in memory. ExecStartPre recreates the dir (cleanup/uninstall wipes it).
+    # After= the ES units since ES serves the :1234 endpoint notify posts to.
+    # essway on current ROCKNIX, emustation on older; naming a dead unit is a no-op.
     tmpdir = daemon_path.parent / "tmp"
     return f"""[Unit]
 Description=Pharos update checker daemon
-After=emustation.service
+After=essway.service emustation.service
 Wants=network-online.target
 
 [Service]
@@ -194,6 +192,30 @@ ExecStartPre=/bin/sh -c 'mkdir -p "{tmpdir}"'
 ExecStart={daemon_path}
 Restart=on-failure
 RestartSec=10
+
+[Install]
+WantedBy=default.target
+"""
+
+
+def _systemd_module_unit(daemon_path: Path) -> str:
+    """The ES Tools entry, as its own unit."""
+    # Split from the daemon since the ordering is reversed: ROCKNIX's autostart
+    # rsyncs --delete over /storage/.config/modules each boot, ES reads the
+    # gamelist once, and this has to land between them. oneshot so Before= waits.
+    tmpdir = daemon_path.parent / "tmp"
+    return f"""[Unit]
+Description=Pharos ES Tools entry
+After=rocknix-autostart.service jelos-autostart.service autostart.service
+Before=essway.service emustation.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Environment=TMPDIR={tmpdir}
+ExecStartPre=/bin/sh -c 'mkdir -p "{tmpdir}"'
+ExecStart={daemon_path} --install-module
+TimeoutStartSec=30
 
 [Install]
 WantedBy=default.target
@@ -370,7 +392,7 @@ class Service:
 
     @property
     def installed(self) -> bool:
-        """Detect by the presence of the per-CFW autostart artefact."""
+        """Detect by the presence of the per-CFW autostart artifact."""
         if self.cfw == "systemd":
             return SYSTEMD_UNIT_PATH.exists()
         if self.cfw == "userland":
@@ -403,15 +425,18 @@ class Service:
             _safe_run([str(USERLAND_SERVICE_PATH), "start"])
 
     def _refresh_launch_config(self) -> None:
-        """Re-emit the per-CFW autostart artefact during a refresh so template
-        changes (e.g. the TMPDIR line) reach existing installs, not just the
-        swapped binary - otherwise updaters keep their old unit until a manual
-        reinstall. Idempotent: writes exactly what install() would. (Tied to a
-        binary refresh, so a template-only release wouldn't retrigger it.)"""
+        """Re-emit the per-CFW autostart artifact so template changes reach
+        existing installs, not just the swapped binary."""
         (self.daemon_path.parent / "tmp").mkdir(parents=True, exist_ok=True)
         if self.cfw == "systemd":
             _write_executable(SYSTEMD_UNIT_PATH, _systemd_unit(self.daemon_path))
+            _write_executable(
+                SYSTEMD_MODULE_UNIT_PATH, _systemd_module_unit(self.daemon_path)
+            )
             _safe_run(["systemctl", "daemon-reload"])
+            # Pre-1.2.1 installs have no module unit; enable it on refresh so
+            # updaters get the Tools fix without a manual reinstall.
+            _safe_run(["systemctl", "enable", "pharos-module.service"])
         elif self.cfw == "userland":
             _write_executable(USERLAND_SERVICE_PATH, _userland_service(self.daemon_path))
 
@@ -420,11 +445,7 @@ class Service:
         swap it in and restart the service, verifying the new daemon starts
         and rolling back to the previous binary if it doesn't. Returns True if
         a refresh happened (including a successful rollback). Called once on
-        Pharos startup so a Pharos self-update brings the daemon with it.
-
-        Rollback matters because otherwise a single bad release would brick
-        the daemon for everyone who self-updates - the old binary is already
-        overwritten, so a failed restart leaves no working daemon."""
+        Pharos startup so a Pharos self-update brings the daemon with it."""
         if not self.installed:
             return False
         if not DAEMON_BUNDLED_PATH.exists() or not DAEMON_EXTRACTED_PATH.exists():
@@ -525,10 +546,19 @@ class Service:
 
         print(f"[Service] writing systemd unit -> {SYSTEMD_UNIT_PATH}")
         _write_executable(SYSTEMD_UNIT_PATH, _systemd_unit(self.daemon_path))
+        print(f"[Service] writing module unit -> {SYSTEMD_MODULE_UNIT_PATH}")
+        _write_executable(
+            SYSTEMD_MODULE_UNIT_PATH, _systemd_module_unit(self.daemon_path)
+        )
         rc, msg = _safe_run(["systemctl", "daemon-reload"])
         print(f"[Service] systemctl daemon-reload (rc={rc}) {msg}")
         rc, msg = _safe_run(["systemctl", "enable", "pharos-daemon.service"])
         print(f"[Service] systemctl enable (rc={rc}) {msg}")
+        rc, msg = _safe_run(["systemctl", "enable", "pharos-module.service"])
+        print(f"[Service] systemctl enable module (rc={rc}) {msg}")
+        # Run it now so the Tools entry appears without waiting for a reboot.
+        rc, msg = _safe_run(["systemctl", "start", "pharos-module.service"])
+        print(f"[Service] systemctl start module (rc={rc}) {msg}")
         rc, msg = _safe_run(["systemctl", "start", "pharos-daemon.service"])
         print(f"[Service] systemctl start (rc={rc}) {msg}")
         if rc != 0:
@@ -538,13 +568,15 @@ class Service:
         return True, "Installed (systemd unit enabled + ES hook)"
 
     def _uninstall_systemd(self) -> tuple[bool, str]:
-        rc, msg = _safe_run(["systemctl", "stop", "pharos-daemon.service"])
-        print(f"[Service] systemctl stop (rc={rc}) {msg}")
-        rc, msg = _safe_run(["systemctl", "disable", "pharos-daemon.service"])
-        print(f"[Service] systemctl disable (rc={rc}) {msg}")
-        existed = SYSTEMD_UNIT_PATH.exists()
-        SYSTEMD_UNIT_PATH.unlink(missing_ok=True)
-        print(f"[Service] removed unit file {SYSTEMD_UNIT_PATH} (existed={existed})")
+        for unit in ("pharos-daemon.service", "pharos-module.service"):
+            rc, msg = _safe_run(["systemctl", "stop", unit])
+            print(f"[Service] systemctl stop {unit} (rc={rc}) {msg}")
+            rc, msg = _safe_run(["systemctl", "disable", unit])
+            print(f"[Service] systemctl disable {unit} (rc={rc}) {msg}")
+        for path in (SYSTEMD_UNIT_PATH, SYSTEMD_MODULE_UNIT_PATH):
+            existed = path.exists()
+            path.unlink(missing_ok=True)
+            print(f"[Service] removed unit file {path} (existed={existed})")
         existed = SYSTEMD_ES_SCRIPT.exists()
         SYSTEMD_ES_SCRIPT.unlink(missing_ok=True)
         print(f"[Service] removed ES script {SYSTEMD_ES_SCRIPT} (existed={existed})")

@@ -51,10 +51,8 @@ $PYTHON_BIN -m pip install --upgrade -r "$SCRIPT_DIR/requirements.txt"
 rm -rf "$DIST_DIR" "$BUILD_DIR"
 cd "$SCRIPT_DIR"
 
-# Build the daemon as its own --onefile binary first. No SDL2; the daemon
-# is headless. Source is daemon.py (sibling of Pharos's main.py); --name
-# gives the binary the user-facing "pharos-daemon" identifier the systemd
-# unit / init.d hook reference.
+# Build the daemon as its own --onefile binary first. No SDL2, since it is
+# headless. The --name is what the systemd unit and init.d hook reference.
 pyinstaller \
     --onefile \
     --clean \

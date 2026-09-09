@@ -14,9 +14,10 @@ no notification backend (MuOS users invoke Pharos directly).
 
 Usage (the Service installer handles this; direct invocation is for
 diagnostics):
-  pharos-daemon              # daemon loop
-  pharos-daemon --once       # single check + exit
-  pharos-daemon --verbose    # echo logs to stderr
+  pharos-daemon                   # daemon loop
+  pharos-daemon --once            # single check + exit
+  pharos-daemon --install-module  # restore the ES Tools entry + exit
+  pharos-daemon --verbose         # echo logs to stderr
 """
 from __future__ import annotations
 
@@ -247,11 +248,13 @@ def ensure_es_module() -> None:
     if not MODULES_DIR.is_dir():
         return
     try:
-        if not MODULE_SCRIPT.exists():
-            ports_dir = INSTALL_DIR.parent
-            MODULE_SCRIPT.write_text(
-                _MODULE_SCRIPT_TEMPLATE.format(ports_dir=ports_dir), encoding="utf-8"
-            )
+        desired = _MODULE_SCRIPT_TEMPLATE.format(ports_dir=INSTALL_DIR.parent)
+        try:
+            current = MODULE_SCRIPT.read_text("utf-8")
+        except OSError:
+            current = None
+        if current != desired:
+            MODULE_SCRIPT.write_text(desired, encoding="utf-8")
             MODULE_SCRIPT.chmod(0o755)
             log("INFO", f"installed ES module {MODULE_SCRIPT}")
 
@@ -554,12 +557,11 @@ _retrying = False  # last check hit network errors; SIGALRM scheduled for ~60s r
 # from a boot-time network race rather than wait the full rate-limit window.
 NETWORK_RETRY_S = 60
 
-# Which primitive backs _wait_for_wake. signal.sigsuspend (the textbook idle-
-# wait) is ABSENT in python:3.11-slim-bullseye - the image our daemon is frozen
-# in - so the old code raised AttributeError on the first wait and got respawned
-# in a tight crash-loop. sigwaitinfo / sigtimedwait ARE present and dequeue a
-# blocked signal synchronously (no handler-race). hasattr-guarded; if neither
-# exists we degrade to a periodic poll.
+# Which primitive backs _wait_for_wake. signal.sigsuspend is absent in
+# python:3.11-slim-bullseye, the image the daemon is frozen in, so using it
+# raised AttributeError on the first wait and crash-looped. sigwaitinfo /
+# sigtimedwait are present and dequeue a blocked signal synchronously, with no
+# handler race. If neither exists we degrade to a periodic poll.
 _HAVE_SIGWAITINFO = hasattr(signal, "sigwaitinfo")
 _HAVE_SIGTIMEDWAIT = hasattr(signal, "sigtimedwait")
 
@@ -648,20 +650,8 @@ def remove_pidfile() -> None:
 
 def daemon_loop() -> None:
     """Initial check on startup, then idle until a wake signal. Each wake
-    re-runs the check, gated by MIN_FETCH_INTERVAL_S. Two deferral mechanisms
-    keep events from being silently dropped:
-
-      _pending  - SIGHUP arrived while rate-limited; schedule SIGALRM at
-                  window-end so the deferred check still fires.
-      _retrying - last check hit transport errors; schedule SIGALRM in
-                  NETWORK_RETRY_S so a boot-time network race recovers without
-                  waiting for a game to end. last_fetch left stale so the rate
-                  limit doesn't block the retry.
-
-    Wake signals are blocked and consumed synchronously by _wait_for_wake, so a
-    signal arriving mid-check queues as pending rather than being lost. SIGTERM
-    / Ctrl+C exit cleanly via _on_sigterm (unblocked, so they interrupt
-    promptly)."""
+    re-runs the check, gated by MIN_FETCH_INTERVAL_S; _pending and _retrying
+    defer a check that would otherwise be dropped."""
     global _pending, _retrying
     write_pidfile()
     try:
@@ -732,9 +722,21 @@ def main() -> int:
     global _verbose
     p = argparse.ArgumentParser(description="Pharos update-check daemon.")
     p.add_argument("--once", action="store_true", help="run one check and exit")
+    p.add_argument(
+        "--install-module",
+        action="store_true",
+        help="restore the ES Tools entry and exit (no network)",
+    )
     p.add_argument("--verbose", action="store_true", help="echo logs to stderr")
     args = p.parse_args()
     _verbose = args.verbose
+
+    # pharos-module.service runs this with ES ordered after it, so keep it to
+    # local file writes - boot must never wait on the network here.
+    if args.install_module:
+        log("INFO", f"pharos-daemon --install-module (pid {os.getpid()})")
+        ensure_es_module()
+        return 0
 
     if args.once:
         log("INFO", f"pharos-daemon --once (pid {os.getpid()})")

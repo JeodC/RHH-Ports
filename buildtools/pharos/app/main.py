@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-Pharos/main.py
 Entrypoint to the Pharos companion app.
 """
 
@@ -21,15 +20,11 @@ import sdl2
 
 _log_fd = None
 
-# ----------------------------------------------------------------------
-# Logging setup
-# ----------------------------------------------------------------------
-def initialise_logging() -> None:
+def initialize_logging() -> None:
     global _log_fd
     log_dir = os.path.join(DATA_DIR, "logs")
     os.makedirs(log_dir, exist_ok=True)
 
-    # Delete oldest logs if more than 5 exist
     log_files = sorted(glob.glob(os.path.join(log_dir, "*.txt")), key=os.path.getmtime)
     while len(log_files) >= 5:
         os.remove(log_files[0])
@@ -43,9 +38,6 @@ def initialise_logging() -> None:
         print(f"Failed to open log file {log_file}: {e}", file=sys.__stdout__)
         _log_fd = sys.__stdout__
 
-# ----------------------------------------------------------------------
-# Cleanup helper
-# ----------------------------------------------------------------------
 def cleanup(pharos_instance, exit_code: int) -> None:
     if pharos_instance:
         try:
@@ -69,13 +61,10 @@ def cleanup(pharos_instance, exit_code: int) -> None:
 
     os._exit(exit_code)
 
-# ----------------------------------------------------------------------
-# Main entry point
-# ----------------------------------------------------------------------
 def main() -> None:
     from pharos import Pharos
 
-    initialise_logging()
+    initialize_logging()
 
     if sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO | sdl2.SDL_INIT_GAMECONTROLLER) < 0:
         print(f"SDL2 init failed: {sdl2.SDL_GetError()}")

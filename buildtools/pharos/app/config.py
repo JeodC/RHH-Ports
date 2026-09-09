@@ -18,7 +18,7 @@ DATA_DIR = os.environ["XDG_DATA_HOME"]
 INSTALL_DIR = os.path.dirname(os.path.abspath(sys.executable))
 
 # ----------------------------------------------------------------------
-# Button colours (used by UI)
+# Button colors
 # ----------------------------------------------------------------------
 color_btn_a = "#2f843e"
 color_btn_b = "#ad3c3c"
@@ -27,12 +27,12 @@ color_btn_y = "#d3b948"
 color_btn_shoulder = "#383838"
 
 # ----------------------------------------------------------------------
-# TypedDict definitions - only the fields that are actually read
+# TypedDict definitions
 # ----------------------------------------------------------------------
 class Button(TypedDict):
     key: str          # SDL key name (e.g. "A")
     btn: str          # Label shown on-screen (e.g. "A")
-    color: str        # Hex colour
+    color: str        # Hex color
 
 class ButtonConfig(TypedDict):
     a: Button
@@ -65,7 +65,7 @@ BUTTON_CONFIGS: dict[str, ButtonConfig] = {
 }
 
 # ----------------------------------------------------------------------
-# Public API - only the function that Pharos actually calls
+# Public API
 # ----------------------------------------------------------------------
 def _detect_layout_from_mapping() -> str:
     """Pick layout from SDL_GAMECONTROLLERCONFIG. The `a:bN`/`b:bN` segments
@@ -80,11 +80,10 @@ def _detect_layout_from_mapping() -> str:
 
 
 def get_controller_layout() -> ButtonConfig:
-    """Return the button mapping for the detected layout."""
     return BUTTON_CONFIGS[_detect_layout_from_mapping()]
 
 # ----------------------------------------------------------------------
-# Data containers - only the fields that are used elsewhere
+# Data containers
 # ----------------------------------------------------------------------
 from dataclasses import dataclass, field
 from typing import List, Optional

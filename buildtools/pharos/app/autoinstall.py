@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AutoInstaller
+Unpacks queued zips into the ports/windows tree and merges their gameinfo.
 """
 from pathlib import Path
 from contextlib import suppress
@@ -45,8 +45,8 @@ class AutoInstaller:
             result = 255
         finally:
             # Always consume the zip, success or failure. A left-behind zip is
-            # re-globbed every batch and, if corrupt, fails forever - the
-            # "autoinstall never clears" symptom. A real retry re-downloads it anyway.
+            # re-globbed every batch and, if corrupt, never clears. A real retry
+            # re-downloads it anyway.
             zip_path.unlink(missing_ok=True)
 
         if result == 0:
@@ -257,7 +257,6 @@ class AutoInstaller:
             if path_elem is not None:
                 path = path_elem.text
                 if path in existing_games:
-                    # Update the existing entry
                     existing_game = existing_games[path]
                     for elem in game:
                         existing = existing_game.find(elem.tag)
@@ -267,7 +266,6 @@ class AutoInstaller:
                             existing_game.append(elem)
                     count_updated += 1
                 else:
-                    # Add as new entry
                     root.append(game)
                     existing_games[path] = game
                     count_added += 1

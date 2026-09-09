@@ -51,6 +51,14 @@ notify() {
     echo "[Pharos.sh] $(date '+%H:%M:%S') $1" >> "${RUN_LOG}"
 }
 
+# PortMaster closes the pm_message dialog from an EXIT trap, and `exec` does not
+# run EXIT traps, so the re-exec below has to close it here or pugwash is orphaned.
+notify_end() {
+    if command -v pm_message_end >/dev/null 2>&1; then
+        pm_message_end
+    fi
+}
+
 apply_pending_update() {
     seven_zip="${controlfolder}/7zzs.${DEVICE_ARCH}"
     tmpdir=""
@@ -125,6 +133,7 @@ apply_pending_update() {
     rm -f "${PENDING_ZIP}"
     chmod +x "${GAMEDIR}/Pharos" 2>>"${RUN_LOG}"
     export _PHAROS_UPDATE_APPLIED=1
+    notify_end
     exec "${SCRIPT_DIR}/${launcher_name}" "$@"
 }
 

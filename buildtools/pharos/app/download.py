@@ -250,7 +250,7 @@ class Downloader:
                             pct = (downloaded / total * 100) if total else 0
                             self.progress_q.put((
                                 downloaded, total or downloaded,
-                                f"Runtime: {rt_name} ({pct:.1f}%) \u2013 {speed:.2f} MB/s",
+                                f"Runtime: {rt_name} ({pct:.1f}%) - {speed:.2f} MB/s",
                                 "download",
                             ))
 
