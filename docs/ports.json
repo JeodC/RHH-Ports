@@ -2486,12 +2486,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/momodora_rutm/momodora_rutm/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/momodora_rutm/momodora_rutm/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/momodora_rutm.zip",
-      "date_updated": "2026-09-10T13:15",
+      "date_updated": "2026-09-10T15:28",
       "first_seen": "2026-01-17",
-      "md5": "8e665193b8316512f1581916709ecad2",
-      "size": 149749,
-      "lifetime_downloads": 143,
-      "last_commit": "[MRUTM] Add resolution rounding for westonpack"
+      "md5": "11dbd39e1d6bda0a112e98caca631240",
+      "size": 149557,
+      "lifetime_downloads": 145,
+      "last_commit": "[MRUTM] Use BOX64_NOPERSONA32BITS instead of resolution rounding"
     }
   },
   {
