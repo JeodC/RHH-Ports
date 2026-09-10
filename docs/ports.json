@@ -2486,12 +2486,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/momodora_rutm/momodora_rutm/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/momodora_rutm/momodora_rutm/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/momodora_rutm.zip",
-      "date_updated": "2026-07-19T18:29",
+      "date_updated": "2026-09-10T13:15",
       "first_seen": "2026-01-17",
-      "md5": "58f710e9dda64fc39ab56341bd1e4426",
-      "size": 149544,
-      "lifetime_downloads": 41,
-      "last_commit": "[BOXPORTS] Update boxports with autobuilds and new runtime/template"
+      "md5": "8e665193b8316512f1581916709ecad2",
+      "size": 149749,
+      "lifetime_downloads": 143,
+      "last_commit": "[MRUTM] Add resolution rounding for westonpack"
     }
   },
   {
