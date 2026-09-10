@@ -99,6 +99,14 @@ $ESUDO mount "$controlfolder/libs/${weston_runtime}.squashfs" "$weston_dir"
 # Library search path
 game_libs="$BOX/box64-i386-linux-gnu:$BOX/box64-x86_64-linux-gnu:$weston_dir/lib_aarch64:$GAMEDIR/data"
 
+# Mali's fbdev EGL won't allocate a surface whose width isn't 32-aligned
+WESTON_W=${DISPLAY_WIDTH:-640}
+WESTON_H=${DISPLAY_HEIGHT:-480}
+if [ $(( WESTON_W % 32 )) -ne 0 ]; then
+    WESTON_W=$(( (WESTON_W + 31) / 32 * 32 ))
+    echo "[LOG]: Display width ${DISPLAY_WIDTH} is not 32-aligned; using ${WESTON_W} for the weston output."
+fi
+
 # Run it
 cd "$GAMEDIR/data"
 $GPTOKEYB "MomodoraRUtM" -c "$GAMEDIR/momodora.gptk" &
@@ -106,6 +114,8 @@ pm_platform_helper "$GAME" > /dev/null
 $ESUDO env \
     WRAPPED_LIBRARY_PATH="$game_libs" \
     BOX64_LD_LIBRARY_PATH="$game_libs" \
+    WESTON_HEADLESS_WIDTH="$WESTON_W" \
+    WESTON_HEADLESS_HEIGHT="$WESTON_H" \
     $weston_dir/westonwrap.sh headless noop kiosk crusty_glx_gl4es \
     "$BOX64" "$GAME"
 
