@@ -185,6 +185,74 @@ strip_upstream_cpu_option() {
     echo ">>> strip_upstream_cpu_option: removed $hits assignment(s)"
 }
 
+disable_upstream_scripting() {
+    local cml="$PROJECT_DIR/CMakeLists.txt"
+    local on='set(ENABLE_SCRIPTING ON CACHE' hits
+
+    if [[ ! -f "$cml" ]]; then
+        echo "disable_upstream_scripting: ERROR: $cml not found" >&2
+        return 1
+    fi
+
+    hits=$(grep -cF "$on" "$cml" || true)
+    if (( hits == 0 )); then
+        if grep -qF 'set(ENABLE_SCRIPTING OFF CACHE' "$cml"; then
+            echo ">>> disable_upstream_scripting: already off"
+            return 0
+        fi
+        echo "disable_upstream_scripting: ERROR: no ENABLE_SCRIPTING assignment in $cml" >&2
+        echo "  Upstream changed how scripting is enabled. Confirm TCC is still off" >&2
+        echo "  before dropping this call, or the port regains the .tcc runtime." >&2
+        return 1
+    fi
+
+    sed -i "s/$on/set(ENABLE_SCRIPTING OFF CACHE/" "$cml"
+    if grep -qF "$on" "$cml"; then
+        echo "disable_upstream_scripting: ERROR: patch did not take" >&2
+        return 1
+    fi
+    echo ">>> disable_upstream_scripting: flipped $hits assignment(s) to OFF"
+}
+
+fix_upstream_ucustom_precision() {
+    local dir="$PROJECT_DIR/libultraship/src/fast/shaders/opengl"
+    local from='uniform vec4 uCustom[32];'
+    local to='uniform highp vec4 uCustom[32];'
+    local pat='uniform vec4 uCustom\[32\];'
+    local f hits
+
+    for f in "$dir/default.shader.glsl" "$dir/include/fast3d_vs.glsli"; do
+        if [[ ! -f "$f" ]]; then
+            echo "fix_upstream_ucustom_precision: ERROR: $f not found" >&2
+            return 1
+        fi
+
+        hits=$(grep -cF "$from" "$f" || true)
+        if (( hits == 0 )); then
+            if grep -qF "$to" "$f"; then
+                echo ">>> fix_upstream_ucustom_precision: ${f##*/} already highp"
+                continue
+            fi
+            echo "fix_upstream_ucustom_precision: ERROR: no uCustom declaration in $f" >&2
+            echo "  Upstream changed the uniform shared between VS and FS. Confirm both" >&2
+            echo "  stages agree on precision before dropping this call, or Mesa refuses" >&2
+            echo "  to link every program on GLES and the port renders black." >&2
+            return 1
+        fi
+        if (( hits != 1 )); then
+            echo "fix_upstream_ucustom_precision: ERROR: expected 1 declaration in $f, found $hits" >&2
+            return 1
+        fi
+
+        sed -i "s/$pat/$to/" "$f"
+        if grep -qF "$from" "$f" || ! grep -qF "$to" "$f"; then
+            echo "fix_upstream_ucustom_precision: ERROR: patch did not take in $f" >&2
+            return 1
+        fi
+        echo ">>> fix_upstream_ucustom_precision: ${f##*/} -> highp"
+    done
+}
+
 # project_configure_and_build <generate-target> [extra cmake -D args...]
 #   <generate-target>  — name of the asset-generation target (e.g. GenerateSohOtr,
 #                        GeneratePortO2R), or "" to skip

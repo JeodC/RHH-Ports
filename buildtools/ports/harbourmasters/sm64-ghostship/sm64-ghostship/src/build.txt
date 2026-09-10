@@ -3,6 +3,8 @@ source /root/buildtools/ports/harbourmasters/lib_build.sh
 
 project_clone https://github.com/HarbourMasters/Ghostship.git
 strip_upstream_cpu_option
+disable_upstream_scripting
+fix_upstream_ucustom_precision
 
 build_sdl2
 build_libzip
@@ -13,6 +15,7 @@ build_spdlog
 
 project_configure_and_build GeneratePortO2R \
     -DUSE_OPENGLES=1 \
+    -DUSE_SATELLA=OFF \
     -DUSE_NETWORKING=OFF \
     -DBUILD_CROWD_CONTROL=0 \
     -DCPU_OPTION=-mcpu=cortex-a53 \

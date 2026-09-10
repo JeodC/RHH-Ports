@@ -1,5 +1,6 @@
 {
     "CVars": {
+        "gControlNav": 1,
         "gAdvancedResolution": {
             "Enabled": 1
         },
@@ -18,7 +19,6 @@
             "Notifications": 1
         },
         "gSettings": {
-            "ControlNav": 1,
             "MatchRefreshRate": 1,
             "Menu": {
                 "ActiveHeader": "Dev Tools",
@@ -31,7 +31,7 @@
     "Window": {
         "AudioBackend": "sdl",
         "Backend": {
-            "Id": 1,
+            "Id": 2,
             "Name": "OpenGL"
         }
     }

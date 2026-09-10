@@ -10,7 +10,7 @@ copy_binary Ghostship
 copy_o2r ghostship.o2r
 copy_extra gamecontrollerdb.txt
 replace_libs
-copy_tcc_runtime
-package_torch_assets assets/
+copy_extra config.yml
+package_source_zip assets.zip assets
 
 echo "Packaging complete."
