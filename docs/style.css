@@ -703,7 +703,7 @@ details[open] summary {
 
 .port-store {
 	flex: 1 1 6.5rem;
-	min-width: 6.5rem;
+	min-width: auto;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -1218,6 +1218,20 @@ details[open] summary {
 @media (max-width: 600px) {
 	body {
 		padding: 0.5rem;
+	}
+
+	.port-store {
+		flex-basis: 5.5rem;
+		padding: 0.4rem 0.6rem;
+		gap: 0.3rem;
+		font-size: 0.9rem;
+	}
+	.port-store i {
+		font-size: 1.05rem;
+	}
+	.port-store-discount {
+		padding: 0.1rem 0.35rem;
+		font-size: 0.72rem;
 	}
 
 	.site-header {
