@@ -13,7 +13,7 @@
     ],
     "desc": "Delve into an isekai world full of tiny monsters ready to battle, learn a new language on the way, and explore the land of Tinymon! A refreshing but retro take on the monster-taming genre.",
     "desc_md": null,
-    "inst": "Add the game files to `tinymon/assets`.",
+    "inst": "Buy the game on Steam and copy all the data to `ports/tinymon/assets`. The patcher will run whenever it finds new files in the assets folder.",
     "inst_md": null,
     "genres": [
       "adventure",
