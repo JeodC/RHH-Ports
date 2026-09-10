@@ -3,10 +3,14 @@
 ## Installation
 This port comes with the free Doom shareware and Freedoom1 and Freedoom2 WAD files. To use your own, place your WAD files in `ports/doomengines/iwads`.
 
-## Versions
-GZDoom has two versions available, `4.14.2` and `4.11.3`. The latest version is used by default. See the `Mod` section below to use the older version -- add line `ENGINE=gzdoom_4.11.3/gzdoom` to your `.doom` file.
+## Engines
+Three engines are included, selected with the Left and Right Shoulder buttons in the launcher.
 
-Crispy Doom is on version `7.0.0`.
+**Crispy Doom** `7.1` -- the vanilla-accurate option. Separate binaries for Doom, Heretic, Hexen and Strife; the launcher picks the right one from the IWAD. Limited mod support, but the lightest of the three.
+
+**GZDoom** `4.14.2` and `4.11.3` -- the mod-compatible option. The newer version is used by default; to pin the older one, add `ENGINE=gzdoom_4.11.3/gzdoom` to your `.doom` file. Some mods only work on one or the other.
+
+**UZDoom** `5.0.1` -- a fork of GZDoom that is actively developed. Behaves like GZDoom for mod purposes and is worth trying when a mod misbehaves on GZDoom, though anything depending on very recent GZDoom behaviour may differ.
 
 ## Play
 To use addon mods, place `.pk3` files in `ports/doomengines/mods` (or whatever folder you want really) and list the `.pk3` files to load in `doomfiles/*.doom` for the relevant game. The launcher will search `doomfiles` and list its subfolders as well as any `.doom` files. Selecting a folder within the launcher will move into that subfolder, and pressing B will move backwards in the hierarchy.
@@ -21,7 +25,7 @@ Use the Left Shoulder and Right Shoulder buttons in the launcher to select which
 | START            | Use Inv Item          |
 | DPAD U/D         | Move forward/back     |
 | DPAD L/R         | Scroll inventory      |
-| LEFT ANALOG      | Move / strafe         |
+| LEFT ANALOG      | Move / Strafe         |
 | RIGHT ANALOG     | Look / Turn           |
 | L1               | Prev Weapon           |
 | R1               | Next Weapon           |
@@ -58,7 +62,7 @@ When saving a game, using the key combination `START + DPAD DOWN` will enable an
 ## Mod
 The launcher lists `*.doom` files in `doomengines/doomfiles` and uses their information to construct arguments passed to the engines. It performs file validation and will not display menu options for any games that are missing data. To create a `*.doom` file, open a text editor and add the following:
 
-- `ENGINE` - The engine to use (crispydoom or gzdoom). This line can be used to enforce a specific engine regardless of the engine selected in the launcher.
+- `ENGINE` - The engine to use (`crispydoom`, `gzdoom` or `uzdoom`). This line can be used to enforce a specific engine regardless of the engine selected in the launcher. A specific version can be pinned with a path, e.g. `gzdoom_4.11.3/gzdoom`.
 - `IWAD` - File name of the WAD to use.
 - `MOD` - Any `.pk3`, `.wad`, or `.zip` files to load after the data. You can load any number of files this way.
 - `DIFF` - Sets the difficulty level (0 = I'm too young to die, 4 = Nightmare).
@@ -98,13 +102,14 @@ You do not need to adhere to the existing folder structure. For example, one tes
 Doom II comes with an addon called The Master Levels, but they're sometimes packaged as one WAD per level. You can use a WAD editor to merge them into one WAD (example, `masterlevels.wad` how it is for the commercial `Doom + Doom II` release) and load that as a mod to `DOOM2`. If you manage to do this, you will want to also load the [Master Levels Menu Interface](https://www.doomworld.com/idgames/utils/frontends/zdmlmenu) mod so you can actually select the addon.
 
 ## Heretic + Hexen
-The `Heretic + Hexen` release by Nightdive Studios is partially compatible with Doom Engines. You may copy `heretic.wad`, `hexen.wad`, and `hexdd.wad` to play Heretic, Hexen, and Deathkings of the Dark Citadel. The two new episodes, Heretic: Faith Renewed and Hexen: Vestiges of Grandeur, are not compatible with GZDoom yet and will not function despite the base wads containing the new content.
+The `Heretic + Hexen` release by Nightdive Studios is partially compatible with Doom Engines. You may copy `heretic.wad`, `hexen.wad`, and `hexdd.wad` to play Heretic, Hexen, and Deathkings of the Dark Citadel. The two new episodes, Heretic: Faith Renewed and Hexen: Vestiges of Grandeur, do not work in either GZDoom or UZDoom yet, despite the base wads containing the new content -- neither engine has an entry for the re-released Heretic and Hexen, only for the KEX versions of Doom, Doom II, TNT and Plutonia.
 
 A list of files included with `Heretic + Hexen` can be found at the [Doom Wiki page](https://doomwiki.org/wiki/Heretic_+_Hexen) and may be useful in determining what can and cannot be used--and why.
 
 ## Thanks
 id Software -- Original games  
 GZDoom Team -- GZDoom, see license file for individual contributions.  
+UZDoom Team -- UZDoom, see license file for individual contributions.  
 Crispy Team -- Crispy engines, see license files for individual contributions.  
 Andrew Hushult -- The [music](https://www.youtube.com/watch?v=Yctbs7A4KHk) used for the launcher.  
 Slayer366 -- Original GZDoom push and port assistance.  

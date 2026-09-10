@@ -139,29 +139,32 @@ IWAD_BASE=$(basename "$IWAD")
 # Switch the engine based on the IWAD selected or default if no ENGINE key provided
 if [ "$ENGINE_BASE" = "crispydoom" ]; then
     case "$IWAD_BASE" in
-        "heretic.wad") ENGINE="crispy/crispyheretic" ;;
-        "hexen.wad") ENGINE="crispy/crispyhexen" ;;
-        "strife1.wad") ENGINE="crispy/crispystrife" ;;
-        *) ENGINE="crispy/crispydoom" ;;
+        "heretic.wad") ENGINE="crispy/crispy-heretic" ;;
+        "hexen.wad") ENGINE="crispy/crispy-hexen" ;;
+        "strife1.wad") ENGINE="crispy/crispy-strife" ;;
+        *) ENGINE="crispy/crispy-doom" ;;
     esac
 elif [ "$ENGINE" = "gzdoom" ]; then
     ENGINE="gzdoom_4.14.2/$ENGINE"
 elif [ "$ENGINE" = "uzdoom" ]; then
-    ENGINE="uzdoom_4.14.3/$ENGINE"
+    ENGINE="uzdoom_5.0.1/$ENGINE"
 fi
 
-# Switch INI if it's empty
-if [ -z "$INI" ] && { [ "$ENGINE_BASE" = "gzdoom" ] || [ "$ENGINE_BASE" = "uzdoom" ]; }; then
-    INI="configs/$ENGINE_BASE/$ENGINE_BASE.ini"
+# Route the config to the engine actually selected.
+if [ "$ENGINE_BASE" = "gzdoom" ] || [ "$ENGINE_BASE" = "uzdoom" ]; then
+    [ -n "$INI" ] && INI="configs/$ENGINE_BASE/$(basename "$INI")"
+    if [ -z "$INI" ] || [ ! -f "$GAMEDIR/$INI" ]; then
+        INI="configs/$ENGINE_BASE/$ENGINE_BASE.ini"
+    fi
 fi
 
 # Add supplemental arguments for gzdoom/uzdoom (shared GLES2 backend)
 if [ "$ENGINE_BASE" = "gzdoom" ] || [ "$ENGINE_BASE" = "uzdoom" ]; then
-    ARGS="$ARGS -config $INI +gl_es 1 +vid_preferbackend 3 +gles_use_mapped_buffer true +cl_capfps 0 +vid_fps 0"
+    ARGS="$ARGS -config $INI +gl_es 1 +vid_preferbackend 2 +gles_use_mapped_buffer true +cl_capfps 0 +vid_fps 0"
 fi
 
 # Determine analog sticks available and start gptokeyb
-$GPTOKEYB "$ENGINE_BASE" -c "configs/$ANALOG_STICKS.gptk" & 
+$GPTOKEYB "$(basename "$ENGINE")" -c "configs/$ANALOG_STICKS.gptk" &
 
 # Disable gamepad
 export LD_PRELOAD="$GAMEDIR/libs/hacksdl.so"
