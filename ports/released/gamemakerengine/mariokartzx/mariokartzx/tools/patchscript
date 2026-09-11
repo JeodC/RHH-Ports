@@ -80,7 +80,7 @@ prepare_files() {
     # Delete excess files
     find "$DATADIR" -type f \( \
         -name "*.gitkeep" -o -name "*.exe" -o -name "*.dll" -o -name "*.hashdb" -o \
-        -name "*.ico" -o -name "*.lnk" -o -name "*.msg" -o -name "*.zip" \
+        -name "*.ico" -o -name "*.lnk" -o -name "*.msg" \
     \) -exec rm -f {} \;
 }
 
