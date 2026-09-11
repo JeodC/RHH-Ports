@@ -4258,12 +4258,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mariokartzx/mariokartzx/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mariokartzx/mariokartzx/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/mariokartzx.zip",
-      "date_updated": "2026-07-16T21:22",
+      "date_updated": "2026-09-11T23:06",
       "first_seen": "2026-02-08",
-      "md5": "6f2a7d72fd410db620672fb0f6a72d6b",
-      "size": 2744261,
-      "lifetime_downloads": 102,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "md5": "eb796689012e608de6cf0c9ac5a91d68",
+      "size": 2744257,
+      "lifetime_downloads": 172,
+      "last_commit": "[MKZX] Keep tracks zip file intact"
     }
   },
   {
