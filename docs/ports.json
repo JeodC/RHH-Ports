@@ -3334,12 +3334,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/sm64-ghostship/sm64-ghostship/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/sm64-ghostship/sm64-ghostship/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sm64-ghostship.zip",
-      "date_updated": "2026-09-11T00:06",
+      "date_updated": "2026-09-11T00:21",
       "first_seen": "2026-01-18",
-      "md5": "f725db505944988d6c2d50d25ca14014",
-      "size": 7359620,
+      "md5": "addee5561d571f9f6056e42a376b27c3",
+      "size": 7131341,
       "lifetime_downloads": 389,
-      "last_commit": "[GHOSTSHIP] Update to 3.0.0"
+      "last_commit": "Delete libtcc.so"
     }
   },
   {
