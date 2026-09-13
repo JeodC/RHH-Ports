@@ -1,5 +1,5 @@
 ## Installation
-Download the Linux version through Steam with `download_depot 332610 332613 3942707501747355559` and add the contents of the `assets` folder to `mystikbelle/assets`.
+Download the `default_alt` VM branch on Steam and copy the game assets to `mystikbelle/assets`.
 
 ## Runtimes
 

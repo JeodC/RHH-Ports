@@ -2,8 +2,8 @@
 <gamelist>
 	<game>
 		<path>./Mystik Belle.sh</path>
-		<name>Mystik Belle</name>
-		<desc>A colorful pixel-art metroidvania/point-and-click adventure hybrid about magic, cute witches and joys of vandalism.</desc>
+		<name>Mystik Belle: Enhanted Edition</name>
+		<desc>A colorful pixel-art metroidvania adventure hybrid about magic, cute witches and joys of vandalism.</desc>
 		<image>./mystikbelle/cover.png</image>
 		<thumbnail>./mystikbelle/thumb.png</thumbnail>
 		<releasedate>20150515</releasedate>
