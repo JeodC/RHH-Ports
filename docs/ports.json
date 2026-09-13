@@ -2503,7 +2503,7 @@
     ],
     "items_opt": [],
     "attr": {
-      "title": "Mystik Belle",
+      "title": "Mystik Belle: Enchanted Edition",
       "porter": [
         "Pridetoons",
         "Jeod",
@@ -2511,7 +2511,7 @@
       ],
       "desc": "A Metroidvania with Point and Click style elements like Psychonauts.\nHelp Belle fix the mystic Walpurgisnacht Brew by finding three rare magical ingredients in order to clear her name.",
       "desc_md": null,
-      "inst": "Download the Linux version through Steam with `download_depot 332610 332613 3942707501747355559` and add the contents of the `assets` folder to `mystikbelle/assets`.",
+      "inst": "Download the `default_alt` VM branch on Steam and copy the game assets to `mystikbelle/assets`.",
       "inst_md": null,
       "genres": [
         "action",
@@ -2546,12 +2546,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mystikbelle/mystikbelle/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mystikbelle/mystikbelle/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/mystikbelle.zip",
-      "date_updated": "2026-07-18T11:56",
+      "date_updated": "2026-09-13T18:26",
       "first_seen": "2025-05-18",
-      "md5": "0faff968cec2280c3f0b8ebc639940b3",
-      "size": 3045668,
-      "lifetime_downloads": 30,
-      "last_commit": "Fix a couple more patchscripts that were broken by gmtoolkit rollover commit"
+      "md5": "43fe590e240ae2c72883970b0eb5a393",
+      "size": 5709664,
+      "lifetime_downloads": 44,
+      "last_commit": "[MYSTIKBELLE] Update for Enchanted Edition"
     }
   },
   {
