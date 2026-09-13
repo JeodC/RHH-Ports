@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gamelist>
+	<game>
+		<path>./Paperboat.sh</path>
+		<name>Paperboat</name>
+		<desc>Paper Mario 64 brought to you by HarbourMasters!</desc>
+		<image>./paperboat/cover.png</image>
+		<thumbnail>./paperboat/thumb.png</thumbnail>
+		<releasedate>20260915</releasedate>
+		<developer>Nintendo</developer>
+		<publisher>Harbour Masters</publisher>
+		<genre>RPG</genre>
+	</game>
+</gamelist>

@@ -98,7 +98,7 @@
       "upstream_repo": "HarbourMasters/paperboat",
       "track": "release",
       "commit_prefix": "PAPERBOAT",
-      "artifacts": ["Paperboat", "paperboat.o2r", "gamecontrollerdb.txt", "libs", "tools/torch", "tools/assets.zip", "tools/config.yml"]
+      "artifacts": ["Paperboat", "paperboat.o2r", "gamecontrollerdb.txt", "config.yml", "assets.zip", "libs"]
     }
   },
   "runtimes": {

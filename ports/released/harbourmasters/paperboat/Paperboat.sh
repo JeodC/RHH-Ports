@@ -18,6 +18,7 @@ get_controls
 
 # Set variables
 GAMEDIR="/$directory/ports/paperboat"
+CONFIG="paperboat.cfg.json"
 
 # Exports
 export LD_LIBRARY_PATH="$GAMEDIR/libs:$LD_LIBRARY_PATH"
@@ -29,10 +30,48 @@ cd $GAMEDIR
 
 # Permissions
 $ESUDO chmod +x "$GAMEDIR/Paperboat"
-$ESUDO chmod +x "$GAMEDIR/tools/torch"
-$ESUDO chmod +x "$GAMEDIR/tools/otrgen"
 
 # -------------------- BEGIN FUNCTIONS --------------------
+
+unzip_assets() {
+    [ -f "$GAMEDIR/assets.zip" ] || return 0
+
+    SEVENZIP="$controlfolder/7zzs.${DEVICE_ARCH}"
+    if [ ! -x "$SEVENZIP" ]; then
+        pm_message "This port requires the latest version of PortMaster."
+        return 1
+    fi
+
+    echo "Unpacking extractor assets..."
+    $ESUDO rm -rf "$GAMEDIR/assets"
+    if $ESUDO "$SEVENZIP" x -y "$GAMEDIR/assets.zip" -o"$GAMEDIR" >/dev/null; then
+        $ESUDO rm -f "$GAMEDIR/assets.zip"
+    else
+        pm_show_error "Unable to unpack assets.zip."
+        return 1
+    fi
+}
+
+# Bridge baseroms/ into the game directory.
+STAGED_ROMS=()
+
+stage_baseroms() {
+    for rom in "$GAMEDIR/baseroms/"*.z64; do
+        [ -f "$rom" ] || continue
+        name=$(basename "$rom")
+        # Never clobber a rom the user already put in the game directory.
+        [ -e "$GAMEDIR/$name" ] && continue
+        if mv "$rom" "$GAMEDIR/$name"; then
+            STAGED_ROMS+=("$name")
+        fi
+    done
+}
+
+unstage_baseroms() {
+    for name in "${STAGED_ROMS[@]}"; do
+        [ -f "$GAMEDIR/$name" ] && mv "$GAMEDIR/$name" "$GAMEDIR/baseroms/$name"
+    done
+}
 
 # Check imgui.ini and modify if needed
 imgui_reset() {
@@ -67,51 +106,20 @@ imgui_reset() {
     mv "$temp_file" "$input_file"
 }
 
-otr_check() {
-    if [ ! -f "pm64.o2r" ]; then
-        # Ensure we have a rom file before attempting to generate otr
-        if ls "$GAMEDIR/baseroms/"*.*64 1> /dev/null 2>&1; then
-            if [ -f "$controlfolder/utils/patcher.txt" ]; then
-                export PATCHER_FILE="$GAMEDIR/tools/otrgen"
-                export PATCHER_GAME="$(basename "${0%.*}")"
-                export PATCHER_TIME="5 to 10 minutes"
-                export controlfolder
-                export DEVICE_ARCH
-                source "$controlfolder/utils/patcher.txt"
-                $ESUDO kill -9 $(pidof gptokeyb)
-            else
-                pm_message "This port requires the latest version of PortMaster."
-            fi
-        else
-            echo "Missing ROM files! Can't generate o2r!"
-        fi
-        
-        # Check if OTR files were generated
-        if [ ! -f "pm64.o2r" ]; then
-            echo "No o2r files, can't run the game!"
-            exit 1
-        fi
-    fi
-}
-
 edit_json() {
-    [ -f "paperboat.cfg.json" ] || return 0
+    [ -f "$CONFIG" ] || return 0
 
-    # Close the menu if open
-    sed -i 's/"Menu":[[:space:]]*1/"Menu": 0/' paperboat.cfg.json
-
-    # Force controller navigation on (paperboat uses libultraship's CVars block)
-    if grep -q '"gControlNav"' paperboat.cfg.json; then
-        sed -i 's/"gControlNav":[[:space:]]*[0-9]*/"gControlNav": 1/' paperboat.cfg.json
-    else
-        sed -i '/"CVars":[[:space:]]*{/a\"gControlNav": 1,' paperboat.cfg.json
-    fi
+    # Close the menu, force controller navigation
+    sed -i -e 's/"Menu":[[:space:]]*1/"Menu": 0/' \
+           -e 's/"gControlNav":[[:space:]]*[0-9]*/"gControlNav": 1/' \
+           -e 's/"Id":[[:space:]]*1,/"Id": 2,/' \
+           "$CONFIG"
 }
 
 # --------------------- END FUNCTIONS ---------------------
 
-# Perform functions
-otr_check
+# Unpack shipped assets
+unzip_assets || exit 1
 
 # Edit json
 edit_json
@@ -121,11 +129,17 @@ if [ -f "imgui.ini" ]; then
     imgui_reset
 fi
 
+# Make baseroms visible to the extractor if we still need to generate pm64.o2r
+if [ ! -f "$GAMEDIR/pm64.o2r" ]; then
+    stage_baseroms
+fi
+
 # Run the game
 $GPTOKEYB "Paperboat" -c "paperboat.gptk" &
 pm_platform_helper "$GAMEDIR/Paperboat" > /dev/null
 ./Paperboat
 
 # Cleanup
-rm -rf logs
+unstage_baseroms
+rm -rf "$GAMEDIR/logs/"
 pm_finish
