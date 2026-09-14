@@ -1,5 +1,4 @@
 {
-    "target_bytecode": 16,
     "set_flags":   ["Fullscreen"],
     "clear_flags": ["Scale"],
     "compress_audio": {
