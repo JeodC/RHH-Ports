@@ -2546,12 +2546,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mystikbelle/mystikbelle/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mystikbelle/mystikbelle/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/mystikbelle.zip",
-      "date_updated": "2026-09-13T18:26",
+      "date_updated": "2026-09-14T10:37",
       "first_seen": "2025-05-18",
-      "md5": "43fe590e240ae2c72883970b0eb5a393",
-      "size": 5709664,
-      "lifetime_downloads": 44,
-      "last_commit": "[MYSTIKBELLE] Update for Enchanted Edition"
+      "md5": "cbfacf34bc85d85d46a684ec66851669",
+      "size": 5709648,
+      "lifetime_downloads": 48,
+      "last_commit": "[MYSTIKBELLE] Don't target bytecode with new edition"
     }
   },
   {
