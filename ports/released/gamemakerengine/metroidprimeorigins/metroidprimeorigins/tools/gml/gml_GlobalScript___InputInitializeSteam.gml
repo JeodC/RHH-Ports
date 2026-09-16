@@ -4,6 +4,7 @@ function __InputInitializeSteam()
     {
         __usingSteam = false;
         __usingSteamworks = false;
+        __usingBigPicture = false;
         __onSteamDeck = false;
         __onWINE = false;
         __steamHandlesArray = [];
