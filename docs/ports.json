@@ -2373,12 +2373,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/metroidprimeorigins/metroidprimeorigins/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/metroidprimeorigins/metroidprimeorigins/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/metroidprimeorigins.zip",
-      "date_updated": "2026-09-09T18:30",
+      "date_updated": "2026-09-16T10:57",
       "first_seen": "2026-09-09",
-      "md5": "99d7342a4578c72e37d98e35340f51dd",
-      "size": 5370044,
-      "lifetime_downloads": 0,
-      "last_commit": "[MPO] Release Metroid Prime Origins"
+      "md5": "4f87b27a83c90545d144ebdb9b41c4de",
+      "size": 5370053,
+      "lifetime_downloads": 64,
+      "last_commit": "[MPO] v1.1.2 support"
     }
   },
   {
