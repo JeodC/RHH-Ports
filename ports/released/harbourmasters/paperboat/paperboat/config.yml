@@ -1,0 +1,15 @@
+# ROM Version Configuration
+# This file defines the ROM versions and their properties for the decompilation project
+
+3837f44cda784b466c9a2d99df70d77c322b97a0:
+  name: pm64
+  path: ./assets/yaml/us
+  config:
+    gbi: F3DEX2_PM64
+    gbi_floats: false
+    sort: OFFSET
+    logging: WARN
+    output:
+      binary: pm64.o2r
+      headers: include
+      code: code

@@ -16,3 +16,4 @@ project_configure_and_build GeneratePortO2R \
     -DCMAKE_CXX_FLAGS=-ldl
 
 stage_libs Paperboat
+fetch_gamecontrollerdb
