@@ -2864,6 +2864,50 @@
   },
   {
     "version": 4,
+    "name": "paperboat.zip",
+    "items": [
+      "Paperboat.sh",
+      "Paperboat"
+    ],
+    "items_opt": [],
+    "attr": {
+      "title": "Paperboat",
+      "porter": [
+        "Jeod"
+      ],
+      "desc": "Paper Mario 64 brought to you by HarbourMasters!",
+      "desc_md": null,
+      "inst": "You need to provide your own roms. See the [Paperboat](https://github.com/HarbourMasters/Paperboat) repository for a list of supported rom hashes. At first boot you will be prompted to select your Paper Mario rom file via file picker. Once chosen, Torch will generate a `pm64.o2r`.",
+      "inst_md": null,
+      "genres": [
+        "adventure"
+      ],
+      "image": null,
+      "rtr": false,
+      "exp": false,
+      "runtime": [],
+      "store": [],
+      "availability": "paid",
+      "reqs": [],
+      "arch": [
+        "aarch64"
+      ],
+      "min_glibc": null
+    },
+    "source": {
+      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/screenshot.png",
+      "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/README.md",
+      "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/paperboat.zip",
+      "date_updated": "2026-09-17T09:33",
+      "first_seen": "2026-09-17",
+      "md5": "24669dc9d37dae643bf7a1009da2216e",
+      "size": 11532708,
+      "lifetime_downloads": 0,
+      "last_commit": "[PAPERBOAT] v1.0.0"
+    }
+  },
+  {
+    "version": 4,
     "name": "pharos.zip",
     "items": [
       "Pharos.sh",
