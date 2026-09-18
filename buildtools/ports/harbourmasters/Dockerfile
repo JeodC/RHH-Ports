@@ -1,11 +1,17 @@
 FROM rhh-base
 
+RUN printf 'Acquire::ForceIPv4 "true";\nAcquire::Retries "5";\n' > /etc/apt/apt.conf.d/99force-ipv4
+
 # Clang-18 toolchain via the upstream LLVM apt script — focal's clang lags
 # upstream point releases, and pinning all HarbourMasters ports to clang-18 keeps the
 # toolchain consistent across SoH / 2s2h / Starship / SpaghettiKart / etc.
 RUN apt update && apt install -y --no-install-recommends \
         gnupg software-properties-common
-RUN wget https://apt.llvm.org/llvm.sh && \
+RUN for attempt in 1 2 3 4 5; do \
+        wget -4 https://apt.llvm.org/llvm.sh && break; \
+        echo "llvm.sh fetch failed (attempt $attempt); retrying" >&2; sleep $((attempt * 5)); \
+    done && \
+    test -s llvm.sh && \
     chmod +x llvm.sh && \
     ./llvm.sh 18 && \
     rm llvm.sh
