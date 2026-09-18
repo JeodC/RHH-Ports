@@ -2,6 +2,7 @@ set -euo pipefail
 source /root/buildtools/ports/harbourmasters/lib_build.sh
 
 project_clone https://github.com/HarbourMasters/paperboat.git --recursive
+strip_upstream_cpu_option
 
 build_sdl2
 build_libzip
@@ -12,6 +13,7 @@ build_spdlog
 
 project_configure_and_build GeneratePortO2R \
     -DUSE_OPENGLES=1 \
+    -DCPU_OPTION=-mcpu=cortex-a53 \
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE:-Release} \
     -DCMAKE_CXX_FLAGS=-ldl
 
