@@ -3,6 +3,7 @@
 Pharos download worker
 """
 import os
+import errno
 import json
 import queue
 import hashlib
@@ -47,6 +48,21 @@ def _progress_text(prefix: str, downloaded: int, total: int, speed: float) -> st
     if total:
         return f"{prefix} ({downloaded / total * 100:.1f}%) - {speed:.2f} MB/s"
     return f"{prefix} ({downloaded / (1024 * 1024):.1f} MB) - {speed:.2f} MB/s"
+
+
+def _check_free_space(dest_dir: Path, needed: int) -> None:
+    if not needed:
+        return
+    free = shutil.disk_usage(dest_dir).free
+    if free >= needed:
+        return
+    mount = dest_dir
+    while not os.path.ismount(mount) and mount.parent != mount:
+        mount = mount.parent
+    raise OSError(
+        errno.ENOSPC,
+        f"No space on {mount} (need {needed / (1024 * 1024):.0f} MB, {free / (1024 * 1024):.0f} MB free)",
+    )
 
 
 def _gh_request(url: str, timeout: int = 30) -> Tuple[bytes, dict]:
@@ -241,6 +257,7 @@ class Downloader:
                 req = urllib.request.Request(url, headers={"User-Agent": "Pharos/1.0"})
                 with urllib.request.urlopen(req, timeout=60) as resp:
                     total = int(resp.headers.get("Content-Length", 0))
+                    _check_free_space(LIBS_DIR, total)
                     downloaded = 0
                     chunk = 64 * 1024
                     start = time.time()
@@ -269,7 +286,11 @@ class Downloader:
 
             except Exception as e:
                 print(f"[RUNTIME ERROR] {rt_name}: {type(e).__name__}: {e}")
-                self.progress_q.put((0, 1, f"Runtime failed: {rt_name}", "download"))
+                if getattr(e, "errno", None) == errno.ENOSPC:
+                    msg = f"{rt_name}: {e.strerror}"
+                else:
+                    msg = f"Runtime failed: {rt_name}"
+                self.progress_q.put((0, 1, msg, "download"))
                 with suppress(OSError):
                     tmp_path.unlink()
 
@@ -324,6 +345,7 @@ class Downloader:
             req = urllib.request.Request(url, headers={"User-Agent": "Pharos/1.0"})
             with urllib.request.urlopen(req, timeout=60) as resp:
                 total = int(resp.headers.get("Content-Length", 0))
+                _check_free_space(Path(controlfolder), total * 2)
                 downloaded = 0
                 start = time.time()
                 with open(zip_tmp, "wb") as f:
@@ -355,7 +377,11 @@ class Downloader:
             print(f"[GMTOOLKIT] Installed {dest}")
         except Exception as e:
             print(f"[GMTOOLKIT ERROR] {type(e).__name__}: {e}")
-            self.progress_q.put((0, 1, "gmtoolkit failed", "download"))
+            if getattr(e, "errno", None) == errno.ENOSPC:
+                msg = f"gmtoolkit: {e.strerror}"
+            else:
+                msg = "gmtoolkit failed"
+            self.progress_q.put((0, 1, msg, "download"))
             with suppress(OSError):
                 zip_tmp.unlink()
 
@@ -452,6 +478,7 @@ class Downloader:
             with urllib.request.urlopen(req, timeout=60) as resp:
                 total = int(resp.headers.get("Content-Length", 0))
                 print(f"[DOWNLOAD] Content-Length: {total} bytes")
+                _check_free_space(self.autoinstall_dir, total)
                 downloaded = 0
                 chunk = 64 * 1024
                 start = time.time()
@@ -489,7 +516,10 @@ class Downloader:
 
         except Exception as e:
             print(f"[DOWNLOAD ERROR] {port.name}: {type(e).__name__}: {e}")
-            self._fail(port, f"{type(e).__name__}: {e}")
+            if getattr(e, "errno", None) == errno.ENOSPC:
+                self._fail(port, e.strerror)
+            else:
+                self._fail(port, f"{type(e).__name__}: {e}")
             with suppress(OSError):
                 tmp_path.unlink()
 
