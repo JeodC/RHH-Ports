@@ -52,6 +52,14 @@
       "commit_prefix": "SOH",
       "artifacts": ["soh.elf", "soh.o2r", "libs", "assets/extractor.zip"]
     },
+    "soh2": {
+      "port_dir": "buildtools/ports/harbourmasters/soh2/soh2",
+      "target_dirs": ["ports/released/harbourmasters/soh2/soh2"],
+      "upstream_repo": "HarbourMasters/2ship2harkinian",
+      "track": "release",
+      "commit_prefix": "SOH2",
+      "artifacts": ["*.elf", "2ship.o2r", "libs", "assets/extractor.zip"]
+    },
     "starship": {
       "port_dir": "buildtools/ports/harbourmasters/starship/starship",
       "target_dirs": ["ports/released/harbourmasters/starship/starship"],
