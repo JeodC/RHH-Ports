@@ -1,0 +1,420 @@
+window.mods content pane.mod-list {
+    flex: 0 0 360dp;
+    padding: var(--space-lg);
+    padding-bottom: 0dp;
+    gap: var(--space-xs);
+}
+
+@media (max-height: 640dp) {
+    window.mods content pane.mod-list {
+        flex: 1 1 0;
+    }
+}
+
+window.mods content pane.mod-detail {
+    gap: var(--space-md);
+}
+
+mod-entry.online {
+    min-height: 76dp;
+}
+
+mod-entry.online mod-icon {
+    color: var(--color-accent);
+    decorator: text("&#xe2c0;" center center);
+}
+
+mod-list-separator {
+    display: block;
+    height: 1dp;
+    margin: var(--space-sm) 10dp;
+    background-color: rgba(var(--color-border-rgb), 30%);
+}
+
+mod-info-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-xs) 0;
+}
+
+mod-info-row > b {
+    font-family: var(--font-family-heading);
+    opacity: 0.55;
+    flex: 0 0 auto;
+}
+
+mod-info-row > span {
+    flex: 1 1 0;
+}
+
+mod-entry {
+    display: flex;
+    flex-flow: row;
+    flex: 0 0 auto;
+    gap: var(--space-md);
+    padding: 10dp;
+    border-radius: 10dp;
+    decorator: vertical-gradient(rgba(var(--color-accent-rgb), 0%) rgba(var(--color-accent-rgb), 0%));
+    transition: decorator 0.1s linear-in-out;
+    cursor: pointer;
+    focus: auto;
+}
+
+mod-entry.current {
+    box-shadow: rgba(var(--color-border-rgb), 40%) 0 0 0 1dp;
+}
+
+mod-entry:hover,
+mod-entry:focus-visible {
+    decorator: vertical-gradient(rgba(var(--color-accent-rgb), 0) rgba(var(--color-accent-rgb), 38));
+}
+
+mod-entry:selected {
+    decorator: vertical-gradient(rgba(var(--color-accent-rgb), 16) rgba(var(--color-accent-rgb), 64));
+}
+
+mod-entry mod-icon {
+    mod-icon-tint: rgba(var(--color-text-rgb), 45%);
+    mod-icon-background: rgba(var(--color-control-rgb), 20%);
+}
+
+mod-info {
+    display: flex;
+    flex-flow: column;
+    flex: 1 1 0;
+    min-width: 0;
+    gap: var(--space-2xs);
+}
+
+mod-info header {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    gap: 6dp;
+}
+
+mod-info header b {
+    flex: 0 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+mod-info header update-badge {
+    margin-left: 0;
+}
+
+mod-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 5dp;
+    min-width: 0;
+    font-size: var(--font-size-xs);
+    color: rgba(var(--color-text-rgb), 50%);
+}
+
+mod-meta > * {
+    display: block;
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+mod-meta > mod-author {
+    flex: 0 1 auto;
+    min-width: 0;
+    font-size: var(--font-size-xs);
+    color: rgba(var(--color-text-rgb), 50%);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+mod-network {
+    flex: 0 0 auto;
+    padding: 1dp 5dp;
+    font-size: var(--font-size-xs);
+    border-radius: 5dp;
+    background-color: rgba(var(--color-info-rgb), 20%);
+    color: var(--color-info);
+}
+
+mod-info > p {
+    display: block;
+    margin: 0;
+    font-size: var(--font-size-sm);
+    line-height: 1.3;
+    color: rgba(var(--color-text-rgb), 65%);
+    max-height: 2.6em;
+    overflow: hidden;
+}
+
+mod-info > small {
+    font-size: var(--font-size-xs);
+    color: rgba(var(--color-text-rgb), 50%);
+}
+
+mod-entry.inactive mod-icon {
+    image-desaturation: 1;
+}
+
+mod-entry.inactive mod-info {
+    opacity: 0.5;
+}
+
+mod-header {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+mod-header.has-banner {
+    height: 180dp;
+    margin: -24dp -24dp 0dp -24dp;
+}
+
+mod-header-image {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+    image-fade-start: 0.4;
+    image-desaturation: 0;
+}
+
+mod-header.inactive mod-header-image {
+    image-desaturation: 1;
+}
+
+mod-actions {
+    position: absolute;
+    top: 24dp;
+    left: 24dp;
+    display: flex;
+    flex-flow: row;
+    gap: var(--space-sm);
+}
+
+mod-header.no-banner {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+}
+
+mod-header.no-banner mod-actions {
+    position: static;
+}
+
+mod-title {
+    display: block;
+    font-size: var(--font-size-5xl);
+    font-weight: bold;
+}
+
+mod-title small {
+    font-weight: normal;
+    font-size: var(--font-size-md);
+    color: rgba(var(--color-text-rgb), 55%);
+}
+
+mod-restart-note {
+    font-size: var(--font-size-base);
+    color: var(--color-warning);
+    opacity: 0.85;
+}
+
+mod-description {
+    line-height: 1.5;
+}
+
+mod-info status-badge {
+    font-size: var(--font-size-xs);
+}
+
+mod-info-row > b.error {
+    color: var(--color-error);
+    opacity: 1;
+}
+
+button.browse-mods-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    margin-right: 48dp;
+    padding: 22dp;
+    text-align: left;
+    --button-background: rgba(var(--color-accent-rgb), 18%);
+    --button-background-hover: rgba(var(--color-accent-rgb), 28%);
+    --button-background-selected: rgba(var(--color-accent-rgb), 28%);
+    --button-background-active: rgba(var(--color-accent-rgb), 38%);
+    box-shadow: rgba(var(--color-accent-rgb), 65%) 0 0 0 1dp;
+}
+
+browse-copy {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-width: 0;
+    gap: var(--space-sm);
+}
+
+browse-copy h2 {
+    display: block;
+    margin: 0;
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-5xl);
+    font-weight: bold;
+}
+
+browse-copy p {
+    display: block;
+    margin: 0;
+    font-size: var(--font-size-md);
+    line-height: 1.4;
+    color: rgba(var(--color-text-rgb), 70%);
+}
+
+.browse-mods-action > icon {
+    flex: 0 0 auto;
+    font-size: var(--font-size-4xl);
+    color: var(--color-accent);
+}
+
+updates-header, update-card, update-changelog, queue-row {
+    display: block;
+}
+
+updates-header {
+    padding: var(--space-sm) 0;
+}
+
+updates-header h2, online-section-heading h2 {
+    display: block;
+    flex: 1 1 auto;
+    margin: 0;
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-3xl);
+    font-weight: bold;
+}
+
+updates-heading, online-section-heading {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+online-section-heading {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding-top: var(--space-sm);
+}
+
+online-section-heading button {
+    flex: 0 0 auto;
+    padding: 6dp 12dp;
+    font-size: var(--font-size-sm);
+}
+
+updates-heading button.icon-button {
+    flex: 0 0 30dp;
+    width: 30dp;
+    height: 30dp;
+    padding: 4dp;
+    font-size: 22dp;
+}
+
+updates-header p {
+    display: block;
+    margin: 0 0 var(--space-sm);
+    font-size: var(--font-size-sm);
+    line-height: 1.4;
+}
+
+updates-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+updates-actions button.update-all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8dp;
+    padding: 8dp 14dp;
+    font-size: var(--font-size-md);
+    box-shadow: rgba(var(--color-accent-rgb), 40%) 0 0 0 1dp;
+}
+
+updates-actions button.update-all icon {
+    flex: 0 0 20dp;
+    font-size: var(--font-size-xl);
+}
+
+updates-actions button.update-all > span {
+    white-space: nowrap;
+}
+
+queue-row {
+    border-bottom-width: 1dp;
+    border-bottom-color: rgba(var(--color-border-rgb), 30%);
+}
+
+queue-row package-row {
+    padding: 8dp 0 14dp;
+    border-bottom-width: 0;
+}
+
+window.mods package-row > section > header {
+    flex-wrap: wrap;
+}
+
+window.mods package-row h3 {
+    flex-wrap: wrap;
+}
+
+window.mods package-row.failed footer > small {
+    white-space: normal;
+    line-height: 1.3;
+}
+
+update-card {
+    padding: 12dp 0;
+    border-bottom-width: 1dp;
+    border-bottom-color: #ffffff22;
+}
+
+update-card package-row {
+    padding: 0;
+    border-bottom-width: 0;
+}
+
+update-changelog {
+    padding: 8dp 12dp;
+    margin-top: 8dp;
+    background-color: #00000022;
+    border-radius: var(--radius-small);
+    font-size: var(--font-size-md);
+    line-height: 1.5;
+}
+
+update-changelog p,
+update-changelog h1,
+update-changelog h2,
+update-changelog h3,
+update-changelog ul,
+update-changelog ol,
+update-changelog blockquote,
+update-changelog pre {
+    display: block;
+    margin: 0 0 var(--space-sm);
+}
+update-changelog h1,
+update-changelog h2,
+update-changelog h3 {
+    font-weight: bold;
+}
