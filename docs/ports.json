@@ -4971,12 +4971,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/zelda-dusklight/zelda-dusklight/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/zelda-dusklight/zelda-dusklight/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zelda-dusklight.zip",
-      "date_updated": "2026-07-06T18:30",
+      "date_updated": "2026-09-19T09:14",
       "first_seen": "2026-05-12",
-      "md5": "98111b7fe47aa370da47ffa59e32cc6d",
-      "size": 25720632,
-      "lifetime_downloads": 416,
-      "last_commit": "[DUSKLIGHT] I guess vulkan isn't required now"
+      "md5": "820ee62ce1de76a6d7c2ea7ec191c443",
+      "size": 39454554,
+      "lifetime_downloads": 612,
+      "last_commit": "[DUSKLIGHT] Update to v2.0.0"
     }
   },
   {
