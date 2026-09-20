@@ -222,6 +222,10 @@ button.modal-btn {
     text-align: center;
 }
 
+modal-actions icon {
+    margin-right: var(--space-xs);
+}
+
 achievement-total {
     position: absolute;
     top: 0;
