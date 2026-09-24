@@ -76,7 +76,7 @@ sys_requirements_check() {
     if echo "$file_info" | grep -q "PE32"; then
         echo "Please use the Linux 64-bit version of the game. See the README for details."
         return 1
-    elif ! echo "$file_info" | grep -q "ELF 64-bit.*x86-64"; then
+    elif ! echo "$file_info" | grep -Eq "ELF 64-bit.*(x86-64|aarch64)"; then
         echo "Please use the Linux 64-bit version of the game. See the README for details."
         return 1
     fi
