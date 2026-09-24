@@ -111,7 +111,7 @@ edit_json() {
 
     # Close the menu, force controller navigation
     sed -i -e 's/"Menu":[[:space:]]*1/"Menu": 0/' \
-           -e 's/"gControlNav":[[:space:]]*[0-9]*/"gControlNav": 1/' \
+           -e 's/"ControlNav":[[:space:]]*[0-9]*/"ControlNav": 1/' \
            -e 's/"Id":[[:space:]]*1,/"Id": 2,/' \
            "$CONFIG"
 }
