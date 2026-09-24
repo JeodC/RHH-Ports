@@ -4120,12 +4120,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/valleycore/valleycore/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/valleycore/valleycore/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/valleycore.zip",
-      "date_updated": "2026-07-08T22:59",
+      "date_updated": "2026-09-24T11:48",
       "first_seen": "2025-11-29",
-      "md5": "f9092500583bcea17d30c4bc32fb0e4c",
-      "size": 2097462,
-      "lifetime_downloads": 132,
-      "last_commit": "Case sensitivity in various port.json files"
+      "md5": "1c9fbd8eda913430acfbe271e9465570",
+      "size": 2097472,
+      "lifetime_downloads": 297,
+      "last_commit": "[VALLEYCORE] Accept patched aarch64 binary in game data check"
     }
   },
   {
