@@ -4395,12 +4395,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/superstartrek/superstartrek/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/superstartrek/superstartrek/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/superstartrek.zip",
-      "date_updated": "2026-05-14T16:48",
+      "date_updated": "2026-09-24T22:42",
       "first_seen": "2025-07-01",
-      "md5": "78c8de819f42e8bca25ed72fde2b366f",
-      "size": 17850273,
-      "lifetime_downloads": 7,
-      "last_commit": "Remove old ports and fix all storefronts in port.json files"
+      "md5": "96b74bb7598abad713c34568779bb2d4",
+      "size": 18016559,
+      "lifetime_downloads": 55,
+      "last_commit": "v1.0.4"
     }
   },
   {
