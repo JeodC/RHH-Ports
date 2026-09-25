@@ -4971,12 +4971,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/zelda-dusklight/zelda-dusklight/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/zelda-dusklight/zelda-dusklight/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zelda-dusklight.zip",
-      "date_updated": "2026-09-20T09:46",
+      "date_updated": "2026-09-25T10:05",
       "first_seen": "2026-05-12",
-      "md5": "78afc5dfbfa43309a588a5307df55ac6",
-      "size": 39461196,
-      "lifetime_downloads": 641,
-      "last_commit": "[DUSKLIGHT] Update to v2.0.1"
+      "md5": "dfa6eab465031f4ff047987c960d7dd7",
+      "size": 39461969,
+      "lifetime_downloads": 684,
+      "last_commit": "[DUSKLIGHT] Update to v2.0.2"
     }
   },
   {
