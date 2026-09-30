@@ -59,6 +59,7 @@ mod-entry {
     transition: decorator 0.1s linear-in-out;
     cursor: pointer;
     focus: auto;
+    contain: paint;
 }
 
 mod-entry.current {

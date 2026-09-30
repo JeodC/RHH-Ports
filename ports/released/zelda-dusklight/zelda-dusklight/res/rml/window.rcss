@@ -147,6 +147,7 @@ ui-list-content {
 
 ui-list-content > button.ui-list-row {
     flex: 0 0 auto;
+    contain: paint;
 }
 
 ui-list-empty {

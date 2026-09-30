@@ -60,19 +60,21 @@ window.logs content pane.log-view {
     padding: var(--space-md) var(--space-lg);
     padding-bottom: 0dp;
     gap: 0dp;
+    overflow-y: scroll;
 }
 
 log-lines {
     display: block;
-}
-
-log-line {
-    display: block;
     font-family: var(--font-family-monospace);
     font-size: var(--font-size-xs);
-    line-height: 1.5;
-    word-break: break-word;
+    line-height: 20dp;
+    word-break: break-all;
     white-space: pre-wrap;
+}
+
+log-line,
+log-spacer {
+    display: block;
 }
 
 log-line log-time {
