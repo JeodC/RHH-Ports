@@ -3424,12 +3424,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/soh.zip",
-      "date_updated": "2026-10-07T11:15",
+      "date_updated": "2026-10-07T11:43",
       "first_seen": "2025-11-11",
-      "md5": "618591bdba015833558012c45207b967",
-      "size": 44553140,
+      "md5": "0bd01e88ed981eafa6c320a4f670bf04",
+      "size": 60754781,
       "lifetime_downloads": 487,
-      "last_commit": "[HM PORTS] Update launchscripts, soh build steps to accommodate 9.3.0"
+      "last_commit": "[SOH] Update to 9.3.0"
     }
   },
   {
