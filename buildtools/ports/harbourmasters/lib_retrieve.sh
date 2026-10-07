@@ -10,6 +10,7 @@
 #   copy_o2r                     — copy the generated .o2r (warn if missing)
 #   copy_extra                   — copy any extra build-dir file (e.g. gamecontrollerdb.txt)
 #   package_source_zip           — zip paths straight out of the project source tree
+#   package_build_zip            — zip paths from a directory inside the build tree
 #   replace_libs                 — replace DESTDIR/libs with PROJECT_BUILD/libs
 #   package_soh_extractor_zip    — SoH/2s2h-style assets/extractor.zip
 #   package_torch_assets         — Torch-style tools/torch + tools/assets.zip + tools/config.yml
@@ -99,6 +100,25 @@ package_source_zip() {
     mkdir -p "$(dirname "$out")"
     rm -f "$out"
     (cd "$PROJECT_SRC" && zip -r "$out" "$@")
+}
+
+# package_build_zip <dest> <build-relative-dir> <paths...>
+package_build_zip() {
+    local dest=$1 base="$PROJECT_BUILD/$2"
+    shift 2
+    local out="$DESTDIR/$dest"
+
+    local p
+    for p in "$@"; do
+        if [[ ! -e "$base/$p" ]]; then
+            echo "package_build_zip: ERROR: $base/$p not found"
+            exit 1
+        fi
+    done
+
+    mkdir -p "$(dirname "$out")"
+    rm -f "$out"
+    (cd "$base" && zip -r "$out" "$@")
 }
 
 # replace_libs

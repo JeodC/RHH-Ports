@@ -18,6 +18,7 @@ get_controls
 
 # Set variables
 GAMEDIR="/$directory/ports/soh"
+CONFIG="shipofharkinian.json"
 
 # Exports
 export LD_LIBRARY_PATH="$GAMEDIR/libs":$LD_LIBRARY_PATH
@@ -30,100 +31,83 @@ export ROOMID="rhh-ports"
 cd $GAMEDIR
 > "$GAMEDIR/log.txt" && exec > >(tee "$GAMEDIR/log.txt") 2>&1
 $ESUDO chmod +x "$GAMEDIR/soh.elf"
-$ESUDO chmod +x "$GAMEDIR/tools/otrgen"
 
 # -------------------- BEGIN FUNCTIONS --------------------
 
-# Check imgui.ini and modify if needed
-imgui_reset() {
-    input_file="imgui.ini"
-    temp_file="imgui_temp.ini"
-    skip_section=0
-    # Loop through each line in the input file
-    while IFS= read -r line; do
-        # Check if the line is a window header
-        if [[ "$line" =~ ^\[Window\]\[Main\ Game\] || "$line" =~ ^\[Window\]\[Main\ -\ Deck\] ]]; then
-            skip_section=1  # Set the flag to skip modifications for this section
-        elif [[ "$line" =~ ^\[Window\] ]]; then
-            skip_section=0  # Reset the flag for other windows
-        fi
+unzip_assets() {
+    [ -f "$GAMEDIR/assets.zip" ] || return 0
 
-        # Modify Pos and Size only if the current section is not skipped
-        if [[ $skip_section -eq 0 ]]; then
-            if [[ "$line" =~ ^Pos=.* ]]; then
-                echo "Pos=30,30" >> "$temp_file"
-            elif [[ "$line" =~ ^Size=.* ]]; then
-                echo "Size=400,300" >> "$temp_file"
-            else
-                echo "$line" >> "$temp_file"
-            fi
-        else
-            # If skipping, write the line unchanged
-            echo "$line" >> "$temp_file"
-        fi
-    done < "$input_file"
+    SEVENZIP="$controlfolder/7zzs.${DEVICE_ARCH}"
+    if [ ! -x "$SEVENZIP" ]; then
+        pm_message "This port requires the latest version of PortMaster."
+        return 1
+    fi
 
-    # Replace the original file with the modified one
-    mv "$temp_file" "$input_file"
-}
-
-otr_check() {
-    if [ ! -f "oot.o2r" ] || [ ! -f "oot-mq.o2r" ]; then
-        # Ensure we have a rom file before attempting to generate otr
-        if ls "$GAMEDIR/baseroms/"*.*64 1> /dev/null 2>&1; then
-            if [ -f "$controlfolder/utils/patcher.txt" ]; then
-                export PATCHER_FILE="$GAMEDIR/tools/otrgen"
-                export PATCHER_GAME="$(basename "${0%.*}")"
-                export PATCHER_TIME="5 to 10 minutes"
-                export controlfolder
-                export DEVICE_ARCH
-                source "$controlfolder/utils/patcher.txt"
-                $ESUDO kill -9 $(pidof gptokeyb)
-            else
-                pm_message "This port requires the latest version of PortMaster."
-            fi
-        else
-            echo "Missing ROM files! Can't generate o2r!"
-        fi
-        
-        # Check if OTR files were generated
-        if [ ! -f "oot.o2r" ] && [ ! -f "oot-mq.o2r" ]; then
-            echo "No o2r files, can't run the game!"
-            exit 1
-        fi
+    echo "Unpacking extractor assets..."
+    $ESUDO rm -rf "$GAMEDIR/assets"
+    if $ESUDO "$SEVENZIP" x -y "$GAMEDIR/assets.zip" -o"$GAMEDIR" >/dev/null; then
+        $ESUDO rm -f "$GAMEDIR/assets.zip"
+    else
+        pm_show_error "Unable to unpack assets.zip."
+        return 1
     fi
 }
 
+# Bridge baseroms/ into the game directory.
+STAGED_ROMS=()
+
+stage_baseroms() {
+    for rom in "$GAMEDIR/baseroms/"*.z64 "$GAMEDIR/baseroms/"*.n64 "$GAMEDIR/baseroms/"*.v64; do
+        [ -f "$rom" ] || continue
+        name=$(basename "$rom")
+        [ -e "$GAMEDIR/$name" ] && continue
+        if mv "$rom" "$GAMEDIR/$name"; then
+            STAGED_ROMS+=("$name")
+        fi
+    done
+}
+
+unstage_baseroms() {
+    for name in "${STAGED_ROMS[@]}"; do
+        [ -f "$GAMEDIR/$name" ] && mv "$GAMEDIR/$name" "$GAMEDIR/baseroms/$name"
+    done
+}
+
 edit_json() {
+    [ -f "$CONFIG" ] || return 0
+
     # Close the menu if open
-    sed -i 's/"Menu":[[:space:]]*1/"Menu": 0/' shipofharkinian.json
+    sed -i 's/"Menu":[[:space:]]*1/"Menu": 0/' "$CONFIG"
 
-    # Set player name (string)
-    sed -i "s/\"Name\":[[:space:]]*\"[^\"]*\"/\"Name\": \"${PLAYERNAME}\"/" shipofharkinian.json
-
-    # Set room id (string)
-    sed -i "s/\"RoomId\":[[:space:]]*\"[^\"]*\"/\"RoomId\": \"${ROOMID}\"/" shipofharkinian.json
+    # Set player name and room id
+    awk -v name="$PLAYERNAME" -v room="$ROOMID" '
+        depth == 1 {
+            sub(/"Name":[[:space:]]*"[^"]*"/, "\"Name\": \"" name "\"")
+            sub(/"RoomId":[[:space:]]*"[^"]*"/, "\"RoomId\": \"" room "\"")
+        }
+        depth { depth += gsub(/[{]/, "{") - gsub(/[}]/, "}") }
+        !depth && /"Anchor":[[:space:]]*[{]/ { depth = 1 }
+        { print }
+    ' "$CONFIG" > "$CONFIG.tmp" && mv "$CONFIG.tmp" "$CONFIG"
 
     # Force controller navigation on
-    if grep -q '"ControlNav"' shipofharkinian.json; then
-        sed -i 's/"ControlNav":[[:space:]]*[0-9]*/"ControlNav": 1/' shipofharkinian.json
+    if grep -q '"ControlNav"' "$CONFIG"; then
+        sed -i 's/"ControlNav":[[:space:]]*[0-9]*/"ControlNav": 1/' "$CONFIG"
     else
-        sed -i '/"gSettings":[[:space:]]*{/a\"ControlNav": 1,' shipofharkinian.json
+        sed -i '/"gSettings":[[:space:]]*{/a\"ControlNav": 1,' "$CONFIG"
     fi
 }
 
 # --------------------- END FUNCTIONS ---------------------
 
 # Perform functions
-otr_check
+unzip_assets || exit 1
+
+# Make baseroms visible to Torch
+stage_baseroms
 
 # Edit json
 edit_json
-
-# Edit imgui
-if [ -f "imgui.ini" ]; then
-    imgui_reset
-fi
 
 # Run the game
 $GPTOKEYB "soh.elf" -c "soh.gptk" & 
@@ -131,5 +115,6 @@ pm_platform_helper "soh.elf" >/dev/null
 ./soh.elf
 
 # Cleanup
+unstage_baseroms
 rm -rf "$GAMEDIR/logs/"
 pm_finish

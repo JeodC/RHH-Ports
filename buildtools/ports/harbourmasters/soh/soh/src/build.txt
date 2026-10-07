@@ -27,6 +27,7 @@ project_configure_and_build GenerateSohOtr \
     -DCMAKE_PREFIX_PATH=/usr/local \
     -DUSE_OPENGLES=1 \
     -DBUILD_REMOTE_CONTROL=1 \
-    -DCMAKE_BUILD_TYPE=${BUILD_TYPE:-Release}
+    -DCMAKE_BUILD_TYPE=${BUILD_TYPE:-Release} \
+    -DCMAKE_EXE_LINKER_FLAGS="-static-libstdc++ -static-libgcc"
 
 stage_libs soh/soh.elf

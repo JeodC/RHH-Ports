@@ -76,49 +76,22 @@ unstage_baseroms() {
     done
 }
 
-# Check imgui.ini and modify if needed
-imgui_reset() {
-    input_file="imgui.ini"
-    temp_file="imgui_temp.ini"
-    skip_section=0
-    # Loop through each line in the input file
-    while IFS= read -r line; do
-        # Check if the line is a window header
-        if [[ "$line" =~ ^\[Window\]\[Main\ Game\] || "$line" =~ ^\[Window\]\[Main\ -\ Deck\] ]]; then
-            skip_section=1  # Set the flag to skip modifications for this section
-        elif [[ "$line" =~ ^\[Window\] ]]; then
-            skip_section=0  # Reset the flag for other windows
-        fi
-
-        # Modify Pos and Size only if the current section is not skipped
-        if [[ $skip_section -eq 0 ]]; then
-            if [[ "$line" =~ ^Pos=.* ]]; then
-                echo "Pos=30,30" >> "$temp_file"
-            elif [[ "$line" =~ ^Size=.* ]]; then
-                echo "Size=400,300" >> "$temp_file"
-            else
-                echo "$line" >> "$temp_file"
-            fi
-        else
-            # If skipping, write the line unchanged
-            echo "$line" >> "$temp_file"
-        fi
-    done < "$input_file"
-
-    # Replace the original file with the modified one
-    mv "$temp_file" "$input_file"
-}
-
 edit_json() {
     [ -f "$CONFIG" ] || return 0
 
     # Close the menu if open
     sed -i 's/"Menu":[[:space:]]*1/"Menu": 0/' "$CONFIG"
 
-    sed -i "/\"Anchor\":[[:space:]]*{/,/}/ {
-        s/\"Name\":[[:space:]]*\"[^\"]*\"/\"Name\": \"${PLAYERNAME}\"/
-        s/\"RoomId\":[[:space:]]*\"[^\"]*\"/\"RoomId\": \"${ROOMID}\"/
-    }" "$CONFIG"
+    # Set player name and room id
+    awk -v name="$PLAYERNAME" -v room="$ROOMID" '
+        depth == 1 {
+            sub(/"Name":[[:space:]]*"[^"]*"/, "\"Name\": \"" name "\"")
+            sub(/"RoomId":[[:space:]]*"[^"]*"/, "\"RoomId\": \"" room "\"")
+        }
+        depth { depth += gsub(/[{]/, "{") - gsub(/[}]/, "}") }
+        !depth && /"Anchor":[[:space:]]*[{]/ { depth = 1 }
+        { print }
+    ' "$CONFIG" > "$CONFIG.tmp" && mv "$CONFIG.tmp" "$CONFIG"
 
     # Force controller navigation on
     if grep -q '"ControlNav"' "$CONFIG"; then
@@ -135,11 +108,6 @@ unzip_assets || exit 1
 
 # Edit json
 edit_json
-
-# Edit imgui
-if [ -f "imgui.ini" ]; then
-    imgui_reset
-fi
 
 # Make baseroms visible to the extractor if we still need to generate bk.o2r
 if [ ! -f "$GAMEDIR/bk.o2r" ]; then

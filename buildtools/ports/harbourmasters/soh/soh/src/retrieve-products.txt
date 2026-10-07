@@ -9,6 +9,6 @@ retrieve_init "$1" "$2"
 copy_binary soh/soh.elf
 copy_o2r soh/soh.o2r
 replace_libs
-package_soh_extractor_zip soh/assets/extractor soh/assets/xml
+package_build_zip assets.zip soh assets
 
 echo "Packaging complete."

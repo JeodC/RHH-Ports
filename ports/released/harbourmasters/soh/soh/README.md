@@ -11,7 +11,7 @@ Start the port, and on first run, your .o2r files will be generated from the rom
 
 Texture pack files and mods can be added to the `ports/soh/mods` folder. 
 
-Logs are recorded automatically as `ports/soh/log.txt` and `ports/soh/tools/otrlog.txt`. Please provide a log if you report an issue. HarbourMasters is not affiliated with PortMaster or RHH-Ports and this distribution is not officially supported by them. *Please report an issue to the RHH-Ports repository before going to HarbourMasters!*
+Logs are recorded automatically as `ports/soh/log.txt`. Please provide a log if you report an issue. HarbourMasters is not affiliated with PortMaster or RHH-Ports and this distribution is not officially supported by them. *Please report an issue to the RHH-Ports repository before going to HarbourMasters!*
 
 ## Menu Navigation
 Ship of Harkinian has built-in controller navigation for the imgui menu. Press `SELECT` to open the menu and use the `D-PAD` to choose a submenu, then press `A` to switch focus to it. Press `B` to back out of a submenu.
