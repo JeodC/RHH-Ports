@@ -3402,7 +3402,7 @@
       ],
       "desc": "A source port of Ocarina of Time &amp; Master Quest. Ship of Harkinian features extensive and significant enhancements over the original game, such as improved performance, increased frame-rate, native ultra-widescreen support, and extensive mod support (especially compared to emulated versions of the original), among other features.",
       "desc_md": null,
-      "inst": "Follow the guide at https://www.shipofharkinian.com/setup-guide for your desired platform to create your oot.o2r and/or oot-mq.o2r files. Once created put in the ports/soh/baseroms folder.",
+      "inst": "You need to provide your own roms. See the [Shipwright](https://github.com/HarbourMasters/Shipwright/blob/develop/docs/supportedHashes.json) repository for a list of supported rom hashes. Gather your roms and put them in the `ports/soh/baseroms` folder.",
       "inst_md": null,
       "genres": [
         "action",
@@ -3424,12 +3424,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/soh.zip",
-      "date_updated": "2026-10-07T11:43",
+      "date_updated": "2026-10-07T18:01",
       "first_seen": "2025-11-11",
-      "md5": "0bd01e88ed981eafa6c320a4f670bf04",
-      "size": 60754781,
-      "lifetime_downloads": 487,
-      "last_commit": "[SOH] Update to 9.3.0"
+      "md5": "91e557078a9a3ebd70f683e26cc6fe04",
+      "size": 60604770,
+      "lifetime_downloads": 489,
+      "last_commit": "[SOH] Trim files no longer needed after 9.3.0"
     }
   },
   {
