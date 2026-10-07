@@ -2095,12 +2095,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/lighthouse/lighthouse/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/lighthouse/lighthouse/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/lighthouse.zip",
-      "date_updated": "2026-08-17T12:39",
+      "date_updated": "2026-10-07T11:15",
       "first_seen": "2026-07-31",
-      "md5": "4736c09a336ca8efb0378ae979c026f7",
-      "size": 7914842,
-      "lifetime_downloads": 179,
-      "last_commit": "[LIGHTHOUSE] Update assets packaging and metadata for v1.1.0 release"
+      "md5": "de0813917c034553ea7f7bfb2ccdfc0d",
+      "size": 7914526,
+      "lifetime_downloads": 538,
+      "last_commit": "[HM PORTS] Update launchscripts, soh build steps to accommodate 9.3.0"
     }
   },
   {
@@ -2898,12 +2898,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/paperboat.zip",
-      "date_updated": "2026-09-28T20:47",
+      "date_updated": "2026-10-07T11:15",
       "first_seen": "2026-09-17",
-      "md5": "98b03da6b96f866eaf452a766b56c585",
-      "size": 11739335,
-      "lifetime_downloads": 343,
-      "last_commit": "[PAPERBOAT] Update to 1.0.2"
+      "md5": "b15aeb02bb67966d22143454d4d14a1a",
+      "size": 11738914,
+      "lifetime_downloads": 487,
+      "last_commit": "[HM PORTS] Update launchscripts, soh build steps to accommodate 9.3.0"
     }
   },
   {
@@ -3378,12 +3378,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/sm64-ghostship/sm64-ghostship/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/sm64-ghostship/sm64-ghostship/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sm64-ghostship.zip",
-      "date_updated": "2026-09-11T00:21",
+      "date_updated": "2026-10-07T11:15",
       "first_seen": "2026-01-18",
-      "md5": "addee5561d571f9f6056e42a376b27c3",
-      "size": 7131341,
-      "lifetime_downloads": 389,
-      "last_commit": "Delete libtcc.so"
+      "md5": "0dcf87b476b3818793f68697bd360b45",
+      "size": 7130923,
+      "lifetime_downloads": 508,
+      "last_commit": "[HM PORTS] Update launchscripts, soh build steps to accommodate 9.3.0"
     }
   },
   {
@@ -3424,12 +3424,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/soh.zip",
-      "date_updated": "2026-06-04T16:18",
+      "date_updated": "2026-10-07T11:15",
       "first_seen": "2025-11-11",
-      "md5": "22e6de1c6228c379d3ce772611da7353",
-      "size": 51020825,
-      "lifetime_downloads": 116,
-      "last_commit": "[HARBOURMASTERS] Rebuild libzip without libcrypto"
+      "md5": "618591bdba015833558012c45207b967",
+      "size": 44553140,
+      "lifetime_downloads": 487,
+      "last_commit": "[HM PORTS] Update launchscripts, soh build steps to accommodate 9.3.0"
     }
   },
   {
@@ -3470,12 +3470,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh2/soh2/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh2/soh2/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/soh2.zip",
-      "date_updated": "2026-08-26T05:26",
+      "date_updated": "2026-10-07T11:15",
       "first_seen": "2025-11-11",
-      "md5": "880281c8f7c6950e2e76e1aaca64b1a3",
-      "size": 15523334,
-      "lifetime_downloads": 254,
-      "last_commit": "[SOH2] Update to 5.0.1"
+      "md5": "013c51950240acb812f38f98d6fc0b37",
+      "size": 15522908,
+      "lifetime_downloads": 425,
+      "last_commit": "[HM PORTS] Update launchscripts, soh build steps to accommodate 9.3.0"
     }
   },
   {
