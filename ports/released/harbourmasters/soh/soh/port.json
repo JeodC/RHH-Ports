@@ -14,7 +14,7 @@
     ],
     "desc": "A source port of Ocarina of Time &amp; Master Quest. Ship of Harkinian features extensive and significant enhancements over the original game, such as improved performance, increased frame-rate, native ultra-widescreen support, and extensive mod support (especially compared to emulated versions of the original), among other features.",
     "desc_md": null,
-    "inst": "Follow the guide at https://www.shipofharkinian.com/setup-guide for your desired platform to create your oot.o2r and/or oot-mq.o2r files. Once created put in the ports/soh/baseroms folder.",
+    "inst": "You need to provide your own roms. See the [Shipwright](https://github.com/HarbourMasters/Shipwright/blob/develop/docs/supportedHashes.json) repository for a list of supported rom hashes. Gather your roms and put them in the `ports/soh/baseroms` folder.",
     "inst_md": null,
     "genres": [
       "action",

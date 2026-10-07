@@ -50,7 +50,7 @@
       "upstream_repo": "HarbourMasters/Shipwright",
       "track": "release",
       "commit_prefix": "SOH",
-      "artifacts": ["soh.elf", "soh.o2r", "libs", "assets.zip"]
+      "artifacts": ["soh.elf", "soh.o2r", "gamecontrollerdb.txt", "libs", "assets.zip"]
     },
     "soh2": {
       "port_dir": "buildtools/ports/harbourmasters/soh2/soh2",

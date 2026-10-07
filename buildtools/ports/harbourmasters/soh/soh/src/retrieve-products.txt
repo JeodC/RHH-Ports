@@ -8,6 +8,7 @@ retrieve_init "$1" "$2"
 
 copy_binary soh/soh.elf
 copy_o2r soh/soh.o2r
+copy_extra gamecontrollerdb.txt
 replace_libs
 package_build_zip assets.zip soh assets
 

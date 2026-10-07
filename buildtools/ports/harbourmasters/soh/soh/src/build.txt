@@ -17,7 +17,6 @@ build_sdl2_net
 build_libzip
 build_json
 build_bzip2
-build_tinyxml2
 build_opus
 build_opusfile
 build_fmt

@@ -18,12 +18,8 @@ RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test && apt update && \
         libstdc++-11-dev autoconf automake libtool
 
 RUN apt install -y --no-install-recommends \
-        libpng-dev libzip-dev \
-        libogg-dev libvorbis-dev \
-        libssl-dev \
-        libboost-dev libopengl-dev \
-        nlohmann-json3-dev libtinyxml2-dev libspdlog-dev \
-        zipcmp zipmerge ziptool
+        zlib1g-dev libogg-dev libvorbis-dev \
+        libssl-dev
 
 ENV CC=clang-18
 ENV CXX=clang++-18
