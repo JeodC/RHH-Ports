@@ -2942,10 +2942,10 @@
       "screenshot_url": "https://raw.githubusercontent.com/CrispyBuns/RHH-Ports/main/ports/released/apps/pharos/pharos/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/CrispyBuns/RHH-Ports/main/ports/released/apps/pharos/pharos/README.md",
       "download_url": "https://github.com/CrispyBuns/RHH-Ports/releases/download/ports-latest/pharos.zip",
-      "date_updated": "2026-10-17T20:38",
+      "date_updated": "2026-10-17T20:39",
       "first_seen": "2026-01-29",
-      "md5": "5a1e486805cc86e5558d66552553fbe7",
-      "size": 21859994,
+      "md5": "f7e58b4194b27f604bb69d2840f52156",
+      "size": 21857006,
       "lifetime_downloads": 4211,
       "last_commit": "[Pharos] Update to v1.2.5"
     }
