@@ -1,9 +1,9 @@
 set -e
 
-# Z3R is built from the upstream repository. We intentionally build only the
-# executable target so CI never extracts or redistributes copyrighted game
-# assets. Users supply their own zelda3_assets.dat.
-git clone --depth 1 https://github.com/xander-haj/Z3R.git Z3R
+# Z3R is built from the latest stable upstream release. We intentionally build
+# only the executable target so CI never extracts or redistributes copyrighted
+# game assets. Users supply their own zelda3_assets.dat.
+git clone --depth 1 --branch v0.2.4 https://github.com/xander-haj/Z3R.git Z3R
 cd Z3R
 
 # Build only the native executable; the upstream `all` target also runs
