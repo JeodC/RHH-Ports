@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+SRCDIR=$1
+DESTDIR=$2
+
+cd "$DESTDIR"
+
+cp "$SRCDIR/Z3R/zelda3" "$DESTDIR/zelda3"
+cp "$SRCDIR/zelda3.ini" "$DESTDIR/zelda3.ini"
+
+chmod +x "$DESTDIR/zelda3"
+
+echo "Z3R packaging complete. No ROM or zelda3_assets.dat was extracted or packaged."
