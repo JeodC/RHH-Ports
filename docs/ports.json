@@ -2483,12 +2483,12 @@
       "min_glibc": ""
     },
     "source": {
-      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/momodora_rutm/momodora_rutm/screenshot.png",
-      "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/momodora_rutm/momodora_rutm/README.md",
-      "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/momodora_rutm.zip",
-      "date_updated": "2026-10-12T11:59",
+      "screenshot_url": "https://raw.githubusercontent.com/CrispyBuns/RHH-Ports/main/ports/released/boxports/momodora_rutm/momodora_rutm/screenshot.png",
+      "readme_url": "https://raw.githubusercontent.com/CrispyBuns/RHH-Ports/main/ports/released/boxports/momodora_rutm/momodora_rutm/README.md",
+      "download_url": "https://github.com/CrispyBuns/RHH-Ports/releases/download/ports-latest/momodora_rutm.zip",
+      "date_updated": "2026-10-17T20:38",
       "first_seen": "2026-01-17",
-      "md5": "c1fca079181a2e5471c01b35f52ba16c",
+      "md5": "75ad2a67a23bc460d7796aabf5f06445",
       "size": 149555,
       "lifetime_downloads": 243,
       "last_commit": "[MRUTM] Fix install folder in README and port.json"
@@ -2895,14 +2895,14 @@
       "min_glibc": null
     },
     "source": {
-      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/screenshot.png",
-      "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/README.md",
-      "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/paperboat.zip",
-      "date_updated": "2026-10-12T11:15",
+      "screenshot_url": "https://raw.githubusercontent.com/CrispyBuns/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/screenshot.png",
+      "readme_url": "https://raw.githubusercontent.com/CrispyBuns/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/README.md",
+      "download_url": "https://github.com/CrispyBuns/RHH-Ports/releases/download/ports-latest/paperboat.zip",
+      "date_updated": "2026-10-17T20:38",
       "first_seen": "2026-09-17",
-      "md5": "dc992d62b38706731dfacf31b0e22c33",
+      "md5": "098f683d286b8bbc4a7dbca2257a39df",
       "size": 11851303,
-      "lifetime_downloads": 569,
+      "lifetime_downloads": 570,
       "last_commit": "[PAPERBOAT] Update to 1.0.3"
     }
   },
@@ -2939,12 +2939,12 @@
       "min_glibc": ""
     },
     "source": {
-      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/apps/pharos/pharos/screenshot.png",
-      "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/apps/pharos/pharos/README.md",
-      "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pharos.zip",
-      "date_updated": "2026-10-17T11:47",
+      "screenshot_url": "https://raw.githubusercontent.com/CrispyBuns/RHH-Ports/main/ports/released/apps/pharos/pharos/screenshot.png",
+      "readme_url": "https://raw.githubusercontent.com/CrispyBuns/RHH-Ports/main/ports/released/apps/pharos/pharos/README.md",
+      "download_url": "https://github.com/CrispyBuns/RHH-Ports/releases/download/ports-latest/pharos.zip",
+      "date_updated": "2026-10-17T20:38",
       "first_seen": "2026-01-29",
-      "md5": "2d3a0684f3daf1b067b93f62d86e8f1c",
+      "md5": "5a1e486805cc86e5558d66552553fbe7",
       "size": 21859994,
       "lifetime_downloads": 4211,
       "last_commit": "[Pharos] Update to v1.2.5"
