@@ -10,10 +10,7 @@
     },
     "rsdkv4": {
       "port_dir": "buildtools/ports/sonic/rsdkv4/rsdkv4",
-      "target_dirs": [
-        "ports/released/sonic-collection/sonic.1/sonic.1",
-        "ports/released/sonic-collection/sonic.2/sonic.2"
-      ],
+      "target_dirs": ["ports/released/sonic-collection/sonic.1/sonic.1", "ports/released/sonic-collection/sonic.2/sonic.2"],
       "upstream_repo": "RSDKModding/RSDKv4-Decompilation",
       "track": "release",
       "commit_prefix": "RSDKV4",
@@ -99,32 +96,19 @@
       "track": "release",
       "commit_prefix": "PAPERBOAT",
       "artifacts": ["Paperboat", "paperboat.o2r", "gamecontrollerdb.txt", "config.yml", "assets.zip", "libs"]
+    },
+    "z3r": {
+      "port_dir": "buildtools/ports/z3r/z3r",
+      "target_dirs": ["ports/released/z3r/z3r"],
+      "upstream_repo": "xander-haj/Z3R",
+      "upstream_branch": "main",
+      "commit_prefix": "Z3R",
+      "artifacts": ["zelda3", "zelda3.ini"]
     }
   },
   "runtimes": {
-    "box": {
-      "build_dir": "buildtools/runtimes/box",
-      "target_dir": "runtimes",
-      "upstream_repo": "ptitSeb/box64",
-      "track": "release",
-      "commit_prefix": "BOX",
-      "artifact": "box.squashfs"
-    },
-    "gmloadernext": {
-      "build_dir": "buildtools/runtimes/gmloadernext",
-      "target_dir": "runtimes",
-      "upstream_repo": "JeodC/gmloader-next",
-      "upstream_branch": "master",
-      "commit_prefix": "GMLOADER",
-      "artifact": "gmloadernext.squashfs"
-    },
-    "rlvm": {
-      "build_dir": "buildtools/runtimes/rlvm",
-      "target_dir": "runtimes",
-      "upstream_repo": "JeodC/SuperEngine",
-      "upstream_branch": "feat/sdl2",
-      "commit_prefix": "RLVM",
-      "artifact": "rlvm-sdl2.squashfs"
-    }
+    "box": {"build_dir": "buildtools/runtimes/box", "target_dir": "runtimes", "upstream_repo": "ptitSeb/box64", "track": "release", "commit_prefix": "BOX", "artifact": "box.squashfs"},
+    "gmloadernext": {"build_dir": "buildtools/runtimes/gmloadernext", "target_dir": "runtimes", "upstream_repo": "JeodC/gmloader-next", "upstream_branch": "master", "commit_prefix": "GMLOADER", "artifact": "gmloadernext.squashfs"},
+    "rlvm": {"build_dir": "buildtools/runtimes/rlvm", "target_dir": "runtimes", "upstream_repo": "JeodC/SuperEngine", "upstream_branch": "feat/sdl2", "commit_prefix": "RLVM", "artifact": "rlvm-sdl2.squashfs"}
   }
 }
