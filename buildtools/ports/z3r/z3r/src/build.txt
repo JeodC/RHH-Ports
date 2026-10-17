@@ -10,8 +10,10 @@ cd Z3R
 # assets/restool.py --extract-from-rom, which is deliberately not used here.
 make -j$(nproc) zelda3
 
-# Keep the shipped configuration alongside the executable.
-cp zelda3.ini ../zelda3.ini
+# Keep the shipped configuration alongside the executable, forcing the
+# software-independent SDL output backend for the RG35XX-H.
+sed 's/^OutputMethod = .*/OutputMethod = SDL/' zelda3.ini > ../zelda3.ini
 
-# Verify the expected executable was produced.
+# Verify the expected executable and SDL configuration were produced.
 test -x zelda3
+grep -q '^OutputMethod = SDL$' ../zelda3.ini
