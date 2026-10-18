@@ -1,0 +1,16 @@
+set -e
+
+# Build Z3R itself only. Do NOT run the upstream asset-extraction step.
+# The user supplies their own legally generated zelda3_assets.dat at runtime.
+git clone --depth 1 --branch v0.2.4 https://github.com/xander-haj/Z3R.git Z3R
+cd Z3R
+
+# Z3R's `all` target depends on zelda3_assets.dat and generates it from a ROM.
+# The executable target does not perform that extraction.
+make -j$(nproc) zelda3
+
+# Use the SDL renderer for the RG35XX-H and stage the config beside the binary.
+sed 's/^OutputMethod = .*/OutputMethod = SDL/' zelda3.ini > ../zelda3.ini
+
+test -x zelda3
+grep -q '^OutputMethod = SDL$' ../zelda3.ini

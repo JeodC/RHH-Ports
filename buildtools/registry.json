@@ -10,11 +10,7 @@
     },
     "rsdkv4": {
       "port_dir": "buildtools/ports/sonic/rsdkv4/rsdkv4",
-      "target_dirs": [
-        "ports/released/sonic-collection/sonic.1/sonic.1",
-        "ports/released/sonic-collection/sonic.2/sonic.2"
-      ],
-      "upstream_repo": "RSDKModding/RSDKv4-Decompilation",
+      "target_dirs": ["ports/released/sonic-collection/sonic.1/sonic.1", "ports/released/sonic-collection/sonic.2/sonic.2"],
       "track": "release",
       "commit_prefix": "RSDKV4",
       "artifacts": ["RSDKv4", "libs"]
@@ -22,7 +18,6 @@
     "rsdkv5": {
       "port_dir": "buildtools/ports/sonic/rsdkv5/rsdkv5",
       "target_dirs": ["ports/released/sonic-collection/sonic.mania/sonic.mania"],
-      "upstream_repo": "RSDKModding/Sonic-Mania-Decompilation",
       "upstream_branch": "master",
       "commit_prefix": "RSDKV5",
       "artifacts": ["sonicmania", "Game.so", "libs"]
@@ -30,7 +25,6 @@
     "sonic3air": {
       "port_dir": "buildtools/ports/sonic/sonic3air/sonic3air",
       "target_dirs": ["ports/released/sonic-collection/sonic3air/sonic3air"],
-      "upstream_repo": "Eukaryot/sonic3air",
       "track": "release",
       "commit_prefix": "SONIC3AIR",
       "artifacts": ["sonic3air_linux", "config.json", "doc/license.txt", "doc/license-thirdparty", "data", "audioremaster.7z.*"]
@@ -38,7 +32,6 @@
     "dusklight": {
       "port_dir": "buildtools/ports/dusklight",
       "target_dirs": ["ports/released/zelda-dusklight/zelda-dusklight"],
-      "upstream_repo": "TwilitRealm/dusklight",
       "track": "release",
       "commit_prefix": "DUSKLIGHT",
       "artifacts": ["dusklight", "libs", "res"],
@@ -47,7 +40,6 @@
     "soh": {
       "port_dir": "buildtools/ports/harbourmasters/soh/soh",
       "target_dirs": ["ports/released/harbourmasters/soh/soh"],
-      "upstream_repo": "HarbourMasters/Shipwright",
       "track": "release",
       "commit_prefix": "SOH",
       "artifacts": ["soh.elf", "soh.o2r", "gamecontrollerdb.txt", "libs", "assets.zip"]
@@ -55,7 +47,6 @@
     "soh2": {
       "port_dir": "buildtools/ports/harbourmasters/soh2/soh2",
       "target_dirs": ["ports/released/harbourmasters/soh2/soh2"],
-      "upstream_repo": "HarbourMasters/2ship2harkinian",
       "track": "release",
       "commit_prefix": "SOH2",
       "artifacts": ["*.elf", "2ship.o2r", "libs", "assets/extractor.zip"]
@@ -63,7 +54,6 @@
     "starship": {
       "port_dir": "buildtools/ports/harbourmasters/starship/starship",
       "target_dirs": ["ports/released/harbourmasters/starship/starship"],
-      "upstream_repo": "HarbourMasters/Starship",
       "track": "release",
       "commit_prefix": "STARSHIP",
       "artifacts": ["Starship", "starship.o2r", "gamecontrollerdb.txt", "libs", "tools/torch", "tools/assets.zip", "tools/config.yml"]
@@ -71,15 +61,13 @@
     "spaghettikart": {
       "port_dir": "buildtools/ports/harbourmasters/spaghettikart/spaghettikart",
       "target_dirs": ["ports/released/harbourmasters/spaghettikart/spaghettikart"],
-      "upstream_repo": "HarbourMasters/SpaghettiKart",
       "track": "release",
       "commit_prefix": "SPAGHETTIKART",
-      "artifacts": ["Spaghettify", "spaghetti.o2r", "gamecontrollerdb.txt", "libs", "tools/torch", "tools/assets.zip", "tools/config.yml"]
+      "artifacts": ["Spaghettify", "spaghetti.o2r", "gamecontrollerdb.txt", "config.yml", "libs", "tools/torch", "tools/assets.zip", "tools/config.yml"]
     },
     "lighthouse": {
       "port_dir": "buildtools/ports/harbourmasters/lighthouse/lighthouse",
       "target_dirs": ["ports/released/harbourmasters/lighthouse/lighthouse"],
-      "upstream_repo": "HarbourMasters/Lighthouse",
       "track": "release",
       "commit_prefix": "LIGHTHOUSE",
       "artifacts": ["Lighthouse", "lighthouse.o2r", "gamecontrollerdb.txt", "config.yml", "assets.zip", "libs"]
@@ -87,7 +75,6 @@
     "sm64-ghostship": {
       "port_dir": "buildtools/ports/harbourmasters/sm64-ghostship/sm64-ghostship",
       "target_dirs": ["ports/released/harbourmasters/sm64-ghostship/sm64-ghostship"],
-      "upstream_repo": "HarbourMasters/Ghostship",
       "track": "release",
       "commit_prefix": "GHOSTSHIP",
       "artifacts": ["Ghostship", "ghostship.o2r", "gamecontrollerdb.txt", "config.yml", "assets.zip", "libs"]
@@ -95,36 +82,22 @@
     "paperboat": {
       "port_dir": "buildtools/ports/harbourmasters/paperboat/paperboat",
       "target_dirs": ["ports/released/harbourmasters/paperboat/paperboat"],
-      "upstream_repo": "HarbourMasters/paperboat",
       "track": "release",
       "commit_prefix": "PAPERBOAT",
       "artifacts": ["Paperboat", "paperboat.o2r", "gamecontrollerdb.txt", "config.yml", "assets.zip", "libs"]
+    },
+    "z3r": {
+      "port_dir": "buildtools/ports/z3r/z3r",
+      "target_dirs": ["ports/released/z3r/z3r"],
+      "upstream_repo": "xander-haj/Z3R",
+      "track": "release",
+      "commit_prefix": "Z3R",
+      "artifacts": ["zelda3", "zelda3.ini"]
     }
   },
   "runtimes": {
-    "box": {
-      "build_dir": "buildtools/runtimes/box",
-      "target_dir": "runtimes",
-      "upstream_repo": "ptitSeb/box64",
-      "track": "release",
-      "commit_prefix": "BOX",
-      "artifact": "box.squashfs"
-    },
-    "gmloadernext": {
-      "build_dir": "buildtools/runtimes/gmloadernext",
-      "target_dir": "runtimes",
-      "upstream_repo": "JeodC/gmloader-next",
-      "upstream_branch": "master",
-      "commit_prefix": "GMLOADER",
-      "artifact": "gmloadernext.squashfs"
-    },
-    "rlvm": {
-      "build_dir": "buildtools/runtimes/rlvm",
-      "target_dir": "runtimes",
-      "upstream_repo": "JeodC/SuperEngine",
-      "upstream_branch": "feat/sdl2",
-      "commit_prefix": "RLVM",
-      "artifact": "rlvm-sdl2.squashfs"
-    }
+    "box": {"build_dir": "buildtools/runtimes/box", "target_dir": "runtimes", "upstream_repo": "ptitSeb/box64", "track": "release", "commit_prefix": "BOX", "artifact": "box.squashfs"},
+    "gmloadernext": {"build_dir": "buildtools/runtimes/gmloadernext", "target_dir": "runtimes", "upstream_repo": "JeodC/gmloader-next", "upstream_branch": "master", "commit_prefix": "GMLOADER", "artifact": "gmloadernext.squashfs"},
+    "rlvm": {"build_dir": "buildtools/runtimes/rlvm", "target_dir": "runtimes", "upstream_repo": "JeodC/SuperEngine", "upstream_branch": "feat/sdl2", "commit_prefix": "RLVM", "artifact": "rlvm-sdl2.squashfs"}
   }
 }
