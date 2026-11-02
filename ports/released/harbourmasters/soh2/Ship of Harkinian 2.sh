@@ -84,7 +84,11 @@ fi
 $GPTOKEYB "2s2h.elf" -c "soh2.gptk" & 
 pm_platform_helper "2s2h.elf" >/dev/null
 ./2s2h.elf
+rc=$?
 
 # Cleanup
+if [ $rc -eq 137 ] && [ ! -f "$GAMEDIR/mm.o2r" ]; then
+    pm_message "Ran out of memory generating mm.o2r. Generate it on a PC and copy it to ports/soh2."
+fi
 rm -rf "$GAMEDIR/logs"
 pm_finish

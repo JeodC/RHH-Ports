@@ -53,9 +53,14 @@ process_rom() {
 
     # Run the extraction
     echo "Extracting data from $input_file..."
-    if ./torch o2r "../baseroms/$input_file" >/dev/null 2>&1; then
+    ./torch o2r "../baseroms/$input_file" >/dev/null 2>&1
+    local rc=$?
+    if [ $rc -eq 0 ]; then
         echo "[OTRGEN] Extraction complete. O2R generated."
         mv sf64.o2r ../sf64.o2r
+    elif [ $rc -eq 137 ]; then
+        emit_fail_msg "[OTRGEN] Torch ran out of memory. Generate sf64.o2r on a PC and copy it to ports/starship."
+        exit 1
     else
         emit_fail_msg "[OTRGEN] Error: Extraction failed for $input_file."
         exit 1

@@ -118,8 +118,12 @@ fi
 $GPTOKEYB "Lighthouse" -c "lighthouse.gptk" &
 pm_platform_helper "$GAMEDIR/Lighthouse" > /dev/null
 ./Lighthouse
+rc=$?
 
 # Cleanup
 unstage_baseroms
+if [ $rc -eq 137 ] && [ ! -f "$GAMEDIR/bk.o2r" ]; then
+    pm_message "Ran out of memory generating bk.o2r. Generate it on a PC and copy it to ports/lighthouse."
+fi
 rm -rf "$GAMEDIR/logs/"
 pm_finish

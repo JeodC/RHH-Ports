@@ -100,8 +100,12 @@ fi
 $GPTOKEYB "Paperboat" -c "paperboat.gptk" &
 pm_platform_helper "$GAMEDIR/Paperboat" > /dev/null
 ./Paperboat
+rc=$?
 
 # Cleanup
 unstage_baseroms
+if [ $rc -eq 137 ] && [ ! -f "$GAMEDIR/pm64.o2r" ]; then
+    pm_message "Ran out of memory generating pm64.o2r. Generate it on a PC and copy it to ports/paperboat."
+fi
 rm -rf "$GAMEDIR/logs/"
 pm_finish

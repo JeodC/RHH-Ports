@@ -54,17 +54,18 @@ process_rom() {
 
     # Run the extraction
     echo "Extracting data from $GAMEDIR/baseroms/$input_file..."
-    if ./torch header -o "$GAMEDIR/baseroms/$input_file" > /dev/null; then
-        if ./torch o2r "$GAMEDIR/baseroms/$input_file" --additional-files meta/mods.toml >> "$LOGFILE"; then
-            echo "[OTRGEN] Extraction complete. O2R generated."
-            rm -rf "$GAMEDIR/mk64.o2r"
-            mv mk64.o2r "$GAMEDIR/mk64.o2r"
-        else
-            emit_fail_msg "[OTRGEN] Error: O2R generation failed for $GAMEDIR/baseroms/$input_file."
-            return 1
-        fi
+    ./torch o2r "$GAMEDIR/baseroms/$input_file" --additional-files meta/mods.toml >> "$LOGFILE"
+    local rc=$?
+    if [ $rc -eq 0 ]; then
+        echo "[OTRGEN] Extraction complete. O2R generated."
+        rm -rf "$GAMEDIR/mk64.o2r"
+        mv mk64.o2r "$GAMEDIR/mk64.o2r"
+    elif [ $rc -eq 137 ]; then
+        emit_fail_msg "[OTRGEN] Torch ran out of memory. Generate mk64.o2r on a PC and copy it to ports/spaghettikart."
+        return 1
     else
-        echo "[OTRGEN] Error: Header extraction failed for $GAMEDIR/baseroms/$input_file."
+        emit_fail_msg "[OTRGEN] Error: O2R generation failed for $GAMEDIR/baseroms/$input_file."
+        return 1
     fi
     cd "$GAMEDIR"
 }

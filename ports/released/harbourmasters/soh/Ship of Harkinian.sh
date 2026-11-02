@@ -113,8 +113,12 @@ edit_json
 $GPTOKEYB "soh.elf" -c "soh.gptk" & 
 pm_platform_helper "soh.elf" >/dev/null
 ./soh.elf
+rc=$?
 
 # Cleanup
 unstage_baseroms
+if [ $rc -eq 137 ] && [ ! -f "$GAMEDIR/oot.o2r" ] && [ ! -f "$GAMEDIR/oot-mq.o2r" ]; then
+    pm_message "Ran out of memory generating oot.o2r. Generate it on a PC and copy it to ports/soh."
+fi
 rm -rf "$GAMEDIR/logs/"
 pm_finish

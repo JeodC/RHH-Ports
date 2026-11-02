@@ -101,8 +101,12 @@ fi
 $GPTOKEYB "Ghostship" -c "ghostship.gptk" &
 pm_platform_helper "$GAMEDIR/Ghostship" > /dev/null
 ./Ghostship
+rc=$?
 
 # Cleanup
 unstage_baseroms
+if [ $rc -eq 137 ] && [ ! -f "$GAMEDIR/sm64.o2r" ]; then
+    pm_message "Ran out of memory generating sm64.o2r. Generate it on a PC and copy it to ports/sm64-ghostship."
+fi
 rm -rf "$GAMEDIR/logs/"
 pm_finish
