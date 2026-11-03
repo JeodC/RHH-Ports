@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+SRCDIR=$1
+DESTDIR=$2
+
+cd "$DESTDIR" || { echo "DESTDIR not found: $DESTDIR"; exit 1; }
+
+# Wipe and replace so modules dropped or renamed upstream don't linger.
+rm -rf ./game ./gamedata ./libs
+cp -r "$SRCDIR/stage/." .
+chmod +x ./game
+
+echo "Packaging complete."

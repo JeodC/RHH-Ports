@@ -1,0 +1,73 @@
+set -e
+
+# Retry git clone on transient HTTP 500s.
+git_clone_retry() {
+    local url target attempt
+    for arg in "$@"; do
+        case "$arg" in
+            http*|git@*|ssh://*|git://*) url="$arg" ;;
+            -*) ;;
+            *) [[ -n "$url" ]] && target="$arg" ;;
+        esac
+    done
+    if [[ -z "$target" && -n "$url" ]]; then
+        target="${url##*/}"
+        target="${target%.git}"
+    fi
+    for attempt in 1 2 3 4 5; do
+        if git clone "$@"; then
+            return 0
+        fi
+        [[ -n "$target" && -d "$target" ]] && rm -rf "$target"
+        local delay=$((attempt * 5))
+        echo "git clone failed (attempt $attempt); retrying in ${delay}s..." >&2
+        sleep "$delay"
+    done
+    echo "git clone failed after 5 attempts" >&2
+    return 1
+}
+
+#### Descent 3 (handheld fork: OpenGL ES 3.0, on an SDL3-to-SDL2 shim) ####
+
+git_clone_retry --branch PortHooks https://github.com/JeodC/Descent3.git
+cd Descent3
+
+cmake -B build -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DD3_GLES=ON
+
+# All targets: d3-linux.hog, online/ and netgames/ hold modules built against this binary.
+cmake --build build -j$(nproc)
+
+out=build/build
+bin=$out/Descent3
+for f in "$bin" "$out/d3-linux.hog"; do
+    [[ -f "$f" ]] || { echo "ERROR: $f not built"; exit 1; }
+done
+
+# Every NEEDED entry must be device-provided, except the SDL3 shim, which is staged.
+needed=$(readelf -d "$bin" | awk -F'[][]' '/NEEDED/ {print $2}')
+echo "Binary NEEDED:"; echo "$needed"
+
+system_libs="libSDL3.so.0 libGLESv2.so.2 libz.so.1 \
+             libc.so.6 libm.so.6 libpthread.so.0 libdl.so.2 \
+             libstdc++.so.6 libgcc_s.so.1 \
+             ld-linux-aarch64.so.1"
+
+while read -r lib; do
+    [[ -z "$lib" ]] && continue
+    if ! echo " $system_libs " | grep -q " $lib "; then
+        echo "ERROR: binary NEEDs $lib but it is not on the system allowlist"; exit 1
+    fi
+done <<< "$needed"
+
+# Stage as a sibling of the checkout so retrieve-products.txt has stable paths.
+rm -rf ../stage
+mkdir -p ../stage/gamedata ../stage/libs
+cp "$bin" ../stage/game
+cp "$out/d3-linux.hog" ../stage/gamedata/
+cp -r "$out/online" "$out/netgames" ../stage/gamedata/
+# SDL3's API over the device's SDL2, built by the Dockerfile
+cp -L /opt/sdl3-shim/libSDL3.so.0 ../stage/libs/
+
+cd ..

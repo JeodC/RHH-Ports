@@ -44,6 +44,14 @@
       "artifacts": ["dusklight", "libs", "res"],
       "base": "self"
     },
+    "descent3": {
+      "port_dir": "buildtools/ports/descent3",
+      "target_dirs": ["ports/released/descent3/descent3"],
+      "upstream_repo": "JeodC/Descent3",
+      "upstream_branch": "PortHooks",
+      "commit_prefix": "DESCENT3",
+      "artifacts": ["game", "libs", "gamedata/d3-linux.hog", "gamedata/online", "gamedata/netgames"]
+    },
     "soh": {
       "port_dir": "buildtools/ports/harbourmasters/soh/soh",
       "target_dirs": ["ports/released/harbourmasters/soh/soh"],
