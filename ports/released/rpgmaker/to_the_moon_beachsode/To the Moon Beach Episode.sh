@@ -75,11 +75,11 @@ fi
 # Gptk — launched with stock LD path so its hotkey/kill logic isn't
 # broken by our runtime libs
 $GPTOKEYB "mkxp-z.aarch64" -c "$GAMEDIR/to_the_moon_beachsode.gptk" &
+pm_platform_helper "$MKXPZ/mkxp-z.aarch64" >/dev/null
 
 # Now wire the runtime libs in for mkxp-z and run it.
 export LD_LIBRARY_PATH="$MKXPZ/libs:$LD_LIBRARY_PATH"
 export SRCDIR="$GAMEDIR"
-pm_platform_helper "$MKXPZ/mkxp-z.aarch64" >/dev/null
 "$MKXPZ/mkxp-z.aarch64"
 
 # Cleanup
