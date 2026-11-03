@@ -99,6 +99,9 @@ $ESUDO mount "$controlfolder/libs/${weston_runtime}.squashfs" "$weston_dir"
 
 # Library search path
 game_libs="$BOX/box64-i386-linux-gnu:$BOX/box64-x86_64-linux-gnu:$weston_dir/lib_aarch64:$GAMEDIR/data"
+if [ "$CFW_NAME" = "ROCKNIX" ] && [ "$NO_PANFROST_BYPASS" != "1" ] && glxinfo 2>/dev/null | grep -q "OpenGL version string"; then
+    game_libs="$BOX/box64-i386-linux-gnu:$BOX/box64-x86_64-linux-gnu:$GAMEDIR/data"
+fi
 
 # Run it
 cd "$GAMEDIR/data"
