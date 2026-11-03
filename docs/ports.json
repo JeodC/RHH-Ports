@@ -833,12 +833,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/descent3/descent3/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/descent3/descent3/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/descent3.zip",
-      "date_updated": "2026-05-14T16:48",
+      "date_updated": "2026-11-03T00:33",
       "first_seen": "2025-05-17",
-      "md5": "1b9fc5e33ad27e29efaa2b0f141abf76",
-      "size": 7398930,
-      "lifetime_downloads": 11,
-      "last_commit": "Remove old ports and fix all storefronts in port.json files"
+      "md5": "99f4863f0cc8040029d5fa7460c16a01",
+      "size": 11327003,
+      "lifetime_downloads": 58,
+      "last_commit": "[DESCENT3] Add imgui menu with settings and bug fixes"
     }
   },
   {
