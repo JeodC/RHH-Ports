@@ -1844,12 +1844,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rpgmaker/impostorfactory/impostorfactory/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rpgmaker/impostorfactory/impostorfactory/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/impostorfactory.zip",
-      "date_updated": "2026-05-14T18:18",
+      "date_updated": "2026-11-03T12:36",
       "first_seen": "2026-05-13",
-      "md5": "666e9e276c91f1a46b6695ea46809872",
-      "size": 393398,
-      "lifetime_downloads": 2,
-      "last_commit": "Add discounts and more stores"
+      "md5": "6cd752c5807fef11485daf7d1d1c87ad",
+      "size": 393399,
+      "lifetime_downloads": 67,
+      "last_commit": "[ROGMAKER] Swap pm_platform_helper location in script to prevent library conflict"
     }
   },
   {
@@ -1960,12 +1960,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rpgmaker/to_the_moon_beachsode/to_the_moon_beachsode/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rpgmaker/to_the_moon_beachsode/to_the_moon_beachsode/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/to_the_moon_beachsode.zip",
-      "date_updated": "2026-05-14T18:18",
+      "date_updated": "2026-11-03T12:36",
       "first_seen": "2026-05-13",
-      "md5": "f05333e9ec4fd868ca8ef983d9a1557e",
+      "md5": "e40812924663da601c2be650e34711d1",
       "size": 217688,
-      "lifetime_downloads": 3,
-      "last_commit": "Add discounts and more stores"
+      "lifetime_downloads": 35,
+      "last_commit": "[ROGMAKER] Swap pm_platform_helper location in script to prevent library conflict"
     }
   },
   {
@@ -3138,12 +3138,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rpgmaker/pkmn_fireash/pkmn_fireash/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rpgmaker/pkmn_fireash/pkmn_fireash/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pkmn_fireash.zip",
-      "date_updated": "2026-05-14T13:39",
+      "date_updated": "2026-11-03T12:36",
       "first_seen": "2026-02-07",
-      "md5": "b00ba51e3fdfadb8ffb9d5acf196076e",
+      "md5": "f55b831ebdd9616dc2d638cedd6d70c6",
       "size": 171020,
-      "lifetime_downloads": 45,
-      "last_commit": "Update readmes to add runtime requirements"
+      "lifetime_downloads": 220,
+      "last_commit": "[ROGMAKER] Swap pm_platform_helper location in script to prevent library conflict"
     }
   },
   {
@@ -3188,12 +3188,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rpgmaker/pkmn_reborn/pkmn_reborn/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rpgmaker/pkmn_reborn/pkmn_reborn/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pkmn_reborn.zip",
-      "date_updated": "2026-05-14T13:39",
+      "date_updated": "2026-11-03T12:36",
       "first_seen": "2026-05-13",
-      "md5": "4a36f1e6b6b805b5bd47ecb9490272b2",
-      "size": 90456,
-      "lifetime_downloads": 1,
-      "last_commit": "Update readmes to add runtime requirements"
+      "md5": "ec982d07ef0223f214fe2ffe97619b29",
+      "size": 90455,
+      "lifetime_downloads": 93,
+      "last_commit": "[ROGMAKER] Swap pm_platform_helper location in script to prevent library conflict"
     }
   },
   {
@@ -3238,12 +3238,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rpgmaker/pkmn_rejuvenation/pkmn_rejuvenation/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rpgmaker/pkmn_rejuvenation/pkmn_rejuvenation/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pkmn_rejuvenation.zip",
-      "date_updated": "2026-07-09T19:09",
+      "date_updated": "2026-11-03T12:36",
       "first_seen": "2026-05-13",
-      "md5": "e9ab00fee6885d16913cffd5d4b5ed85",
+      "md5": "1bee107ed3982c6bf5f9edf1596c1490",
       "size": 7434456,
-      "lifetime_downloads": 17,
-      "last_commit": "Add missing chmod +x to 44 ports"
+      "lifetime_downloads": 70,
+      "last_commit": "[ROGMAKER] Swap pm_platform_helper location in script to prevent library conflict"
     }
   },
   {
@@ -3285,12 +3285,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rpgmaker/pkmn_tectonic/pkmn_tectonic/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rpgmaker/pkmn_tectonic/pkmn_tectonic/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pkmn_tectonic.zip",
-      "date_updated": "2026-08-31T11:04",
+      "date_updated": "2026-11-03T12:36",
       "first_seen": "2026-02-07",
-      "md5": "48a09e6bec3c4d8087755bac6d780446",
+      "md5": "b74594855c3563be2dce3238326e4e47",
       "size": 321293,
-      "lifetime_downloads": 115,
-      "last_commit": "[TECTONIC] Adjust for arkos"
+      "lifetime_downloads": 182,
+      "last_commit": "[ROGMAKER] Swap pm_platform_helper location in script to prevent library conflict"
     }
   },
   {
