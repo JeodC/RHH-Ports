@@ -1160,12 +1160,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/elementallis/elementallis/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/elementallis/elementallis/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/elementallis.zip",
-      "date_updated": "2026-11-04T00:47",
+      "date_updated": "2026-11-04T00:53",
       "first_seen": "2026-04-28",
-      "md5": "c47d1a9869932442e2c8b3f3b626ba9b",
-      "size": 1288852,
+      "md5": "3c8cc919955743a17eb68f227e5ab51f",
+      "size": 1288845,
       "lifetime_downloads": 68,
-      "last_commit": "[BOX] Remove dead exports"
+      "last_commit": "Purge unreleased ports"
     }
   },
   {
@@ -1319,12 +1319,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/fieldsofmistria/fieldsofmistria/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/fieldsofmistria/fieldsofmistria/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/fieldsofmistria.zip",
-      "date_updated": "2026-07-19T18:49",
+      "date_updated": "2026-11-04T00:53",
       "first_seen": "2026-07-19",
-      "md5": "770e0afbfaf343d55a2efb74e059ed84",
-      "size": 691548,
-      "lifetime_downloads": 0,
-      "last_commit": "[MISTRIA] Release port"
+      "md5": "96246d4d2593b5fd28fa6f37f0459c13",
+      "size": 691540,
+      "lifetime_downloads": 125,
+      "last_commit": "Purge unreleased ports"
     }
   },
   {
@@ -1708,12 +1708,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/hollow_knight/hollow_knight/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/hollow_knight/hollow_knight/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/hollow_knight.zip",
-      "date_updated": "2026-11-04T00:47",
+      "date_updated": "2026-11-04T00:53",
       "first_seen": "2026-01-17",
-      "md5": "01323ba516b9eb1be51b069298f95c93",
-      "size": 430746,
+      "md5": "0370bfd1a67014e94972c662044fb6a5",
+      "size": 430743,
       "lifetime_downloads": 998,
-      "last_commit": "[BOX] Remove dead exports"
+      "last_commit": "Purge unreleased ports"
     }
   },
   {
@@ -1777,12 +1777,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/hollow_knight_silksong/hollow_knight_silksong/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/hollow_knight_silksong/hollow_knight_silksong/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/hollow_knight_silksong.zip",
-      "date_updated": "2026-11-04T00:47",
+      "date_updated": "2026-11-04T00:53",
       "first_seen": "2026-01-17",
-      "md5": "f25216bdf17ffba79ffbb6ac655f3c14",
-      "size": 508856,
+      "md5": "a2055c5b4f85baa571a3cc98f63e202e",
+      "size": 508854,
       "lifetime_downloads": 604,
-      "last_commit": "[BOX] Remove dead exports"
+      "last_commit": "Purge unreleased ports"
     }
   },
   {
@@ -4512,12 +4512,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/thegirlfromarkanya/thegirlfromarkanya/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/thegirlfromarkanya/thegirlfromarkanya/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/thegirlfromarkanya.zip",
-      "date_updated": "2026-07-19T18:29",
+      "date_updated": "2026-11-04T00:53",
       "first_seen": "2026-01-17",
-      "md5": "21061f1d51dbd93ed5d600a94704e6b1",
-      "size": 697192,
-      "lifetime_downloads": 0,
-      "last_commit": "[BOXPORTS] Update boxports with autobuilds and new runtime/template"
+      "md5": "e89229664843e3153ef5c76fbfbf0f6a",
+      "size": 697199,
+      "lifetime_downloads": 24,
+      "last_commit": "Purge unreleased ports"
     }
   },
   {
