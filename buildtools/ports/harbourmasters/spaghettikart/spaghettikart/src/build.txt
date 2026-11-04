@@ -2,6 +2,7 @@ set -euo pipefail
 source /root/buildtools/ports/harbourmasters/lib_build.sh
 
 project_clone https://github.com/HarbourMasters/SpaghettiKart.git --recursive
+pin_submodule torch main
 
 # SpaghettiKart needs SDL2 built with GLES-only video drivers.
 build_sdl2 \

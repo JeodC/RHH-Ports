@@ -6,6 +6,7 @@
 # Provides:
 #   project_clone               — clone the port repo, optionally with submodules,
 #                                 honoring REPO_URL/REF/FORCE_HEAD
+#   pin_submodule               — move a submodule off upstream's recorded commit
 #   strip_upstream_cpu_option   — drop upstream's set(CPU_OPTION ...) so -DCPU_OPTION wins
 #   project_configure_and_build — cmake configure + asset-generation target + main build
 #   build_<dep>                 — clone, configure, build, and install a common dep into /usr/local
@@ -158,6 +159,38 @@ project_clone() {
     fi
 
     submodule_update_retry "${sm_flags[@]}"
+}
+
+# pin_submodule <path> <ref>
+#   Move a submodule off the commit upstream recorded, onto a branch, tag or full
+#   SHA. Call after project_clone.
+pin_submodule() {
+    local path=$1 ref=$2
+    local sm="$PROJECT_DIR/$path"
+    local attempt
+
+    if [[ "${RHH_LOCAL:-0}" == "1" ]]; then
+        echo ">>> pin_submodule: RHH_LOCAL=1, leaving $path as checked out"
+        return 0
+    fi
+
+    if [[ ! -e "$sm/.git" ]]; then
+        echo "pin_submodule: ERROR: $path is not a checked-out submodule" >&2
+        return 1
+    fi
+
+    for attempt in 1 2 3 4 5; do
+        if git -C "$sm" fetch origin "$ref"; then
+            git -C "$sm" checkout --detach FETCH_HEAD
+            echo ">>> pin_submodule: $path -> $ref ($(git -C "$sm" rev-parse --short HEAD))"
+            return 0
+        fi
+        local delay=$((attempt * 5))
+        echo "submodule fetch failed (attempt $attempt); retrying in ${delay}s..." >&2
+        sleep "$delay"
+    done
+    echo "submodule fetch failed after 5 attempts" >&2
+    return 1
 }
 
 strip_upstream_cpu_option() {

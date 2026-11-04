@@ -2,6 +2,7 @@ set -euo pipefail
 source /root/buildtools/ports/harbourmasters/lib_build.sh
 
 project_clone https://github.com/HarbourMasters/paperboat.git --recursive
+pin_submodule external/torch main
 strip_upstream_cpu_option
 
 build_sdl2

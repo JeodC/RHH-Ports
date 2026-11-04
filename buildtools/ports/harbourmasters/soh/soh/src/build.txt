@@ -3,6 +3,7 @@ source /root/buildtools/ports/harbourmasters/lib_build.sh
 
 # Project clone — fail fast on bad REPO_URL/REF.
 project_clone https://github.com/HarbourMasters/Shipwright.git
+pin_submodule torch main
 
 # SDL2 from source so libzip/tinyxml2/opus/etc link against modern SDL2 at
 # build time. We do NOT ship libSDL2-2.0.so.0 — every supported device

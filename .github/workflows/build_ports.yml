@@ -4,12 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       port:
-        description: "Which port to consider (all = every port in registry)"
+        description: "Which ports to consider, comma-separated (all = every port in registry)"
         type: string
         required: false
         default: "all"
       force-build:
         description: "Force build (bypass SHA check, upload artifact only, no commit)"
+        type: boolean
+        required: false
+        default: false
+      rebuild:
+        description: "Rebuild the current release (bypass SHA check, commit as normal)"
         type: boolean
         required: false
         default: false
@@ -49,16 +54,20 @@ jobs:
 
           SELECTED="${{ inputs.port }}"
           FORCE="${{ inputs.force-build }}"
+          REBUILD="${{ inputs.rebuild }}"
           : "${SELECTED:=all}"
           : "${FORCE:=false}"
+          : "${REBUILD:=false}"
 
           if [[ "$SELECTED" == "all" ]]; then
             ids=$(jq -r '.ports | keys[]' buildtools/registry.json)
           else
-            if ! jq -e --arg id "$SELECTED" '.ports[$id]' buildtools/registry.json > /dev/null; then
-              echo "Port '$SELECTED' not found in buildtools/registry.json"; exit 1
-            fi
-            ids="$SELECTED"
+            ids=$(tr ',' '\n' <<< "$SELECTED")
+            while read -r id; do
+              if ! jq -e --arg id "$id" '.ports[$id]' buildtools/registry.json > /dev/null; then
+                echo "Port '$id' not found in buildtools/registry.json"; exit 1
+              fi
+            done <<< "$ids"
           fi
 
           matrix_entries=()
@@ -80,12 +89,6 @@ jobs:
             # right trigger for those.
             if [[ "$GITHUB_EVENT_NAME" == "schedule" && "$track_mode" != "release" ]]; then
               echo "[$id] skipping in scheduled run (track=$track_mode; cron is release-only)"
-              continue
-            fi
-
-            # Skip sm64-ghostship on scheduled (cron) builds for now
-            if [[ "$GITHUB_EVENT_NAME" == "schedule" && "$id" == "sm64-ghostship" ]]; then
-              echo "[$id] TEMP skip in scheduled run (pinned to manual develop build; see workflow comment)"
               continue
             fi
 
@@ -140,7 +143,7 @@ jobs:
               origin_sha=""
             fi
 
-            if [[ "$FORCE" == "true" ]] || [[ "$upstream_sha" != "$origin_sha" ]]; then
+            if [[ "$FORCE" == "true" ]] || [[ "$REBUILD" == "true" ]] || [[ "$upstream_sha" != "$origin_sha" ]]; then
               echo "[$id] needs build (source=$source origin=${origin_sha:-none} upstream=$upstream_sha)"
               base=$(jq -r --arg id "$id" '.ports[$id].base // "rhh-base"' buildtools/registry.json)
               matrix_entries+=("$(jq -cn --arg id "$id" --arg sha "$upstream_sha" --arg label "$label" --arg base "$base" \

@@ -63,7 +63,7 @@
     "soh2": {
       "port_dir": "buildtools/ports/harbourmasters/soh2/soh2",
       "target_dirs": ["ports/released/harbourmasters/soh2/soh2"],
-      "upstream_repo": "HarbourMasters/2ship2harkinian",
+      "upstream_repo": "2ship2harkinian/2ship2harkinian",
       "track": "release",
       "commit_prefix": "SOH2",
       "artifacts": ["*.elf", "2ship.o2r", "libs", "assets/extractor.zip"]

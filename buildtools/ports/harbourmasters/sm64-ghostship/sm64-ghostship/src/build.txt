@@ -2,6 +2,7 @@ set -euo pipefail
 source /root/buildtools/ports/harbourmasters/lib_build.sh
 
 project_clone https://github.com/HarbourMasters/Ghostship.git
+pin_submodule Torch main
 strip_upstream_cpu_option
 disable_upstream_scripting
 fix_upstream_ucustom_precision
