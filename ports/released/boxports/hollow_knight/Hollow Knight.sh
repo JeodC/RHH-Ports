@@ -110,7 +110,6 @@ export BOX64_RDTSC_1GHZ=1              # Emulate RDTSC at 1 GHz for predictable 
 export BOX64_VSYNC=0                   # Allow Unity engine to control vsync
 
 # OpenGL/Mesa error suppression (minor perf gain)
-export LIBGL_NOERROR=1                 # Don’t check GL errors
 export MESA_NO_ERROR=1                 # Don’t check Mesa GL errors
 
 # Use custom gptokeyb to fix d-pad

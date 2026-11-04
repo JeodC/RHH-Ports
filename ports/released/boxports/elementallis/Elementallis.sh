@@ -85,9 +85,6 @@ export BOX64_PREFER_WRAPPED=1
 export BOX64_PREFER_EMULATED=0
 export BOX64_NOSIGSEGV=1
 
-export UNITY_DISABLE_PARTICLES=0
-export __GL_THREADED_OPTIMIZATIONS=1
-
 # Face-button layout — swap a/b and x/y when swapabxy.txt is present
 if [ -f "$GAMEDIR/swapabxy.txt" ]; then
     chmod +x "$GAMEDIR/tools/swapabxy.py"
