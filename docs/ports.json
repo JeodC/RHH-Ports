@@ -1160,12 +1160,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/elementallis/elementallis/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/elementallis/elementallis/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/elementallis.zip",
-      "date_updated": "2026-07-19T18:29",
+      "date_updated": "2026-11-04T00:47",
       "first_seen": "2026-04-28",
-      "md5": "7dd9f738aa40c9d0f2f20540bdb6eae0",
-      "size": 1288898,
-      "lifetime_downloads": 0,
-      "last_commit": "[BOXPORTS] Update boxports with autobuilds and new runtime/template"
+      "md5": "c47d1a9869932442e2c8b3f3b626ba9b",
+      "size": 1288852,
+      "lifetime_downloads": 68,
+      "last_commit": "[BOX] Remove dead exports"
     }
   },
   {
@@ -1708,12 +1708,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/hollow_knight/hollow_knight/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/hollow_knight/hollow_knight/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/hollow_knight.zip",
-      "date_updated": "2026-07-19T18:29",
+      "date_updated": "2026-11-04T00:47",
       "first_seen": "2026-01-17",
-      "md5": "9242c3d26a05f849dcb3e671508fcccf",
-      "size": 430757,
-      "lifetime_downloads": 238,
-      "last_commit": "[BOXPORTS] Update boxports with autobuilds and new runtime/template"
+      "md5": "01323ba516b9eb1be51b069298f95c93",
+      "size": 430746,
+      "lifetime_downloads": 998,
+      "last_commit": "[BOX] Remove dead exports"
     }
   },
   {
@@ -1777,12 +1777,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/hollow_knight_silksong/hollow_knight_silksong/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/hollow_knight_silksong/hollow_knight_silksong/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/hollow_knight_silksong.zip",
-      "date_updated": "2026-07-19T18:29",
+      "date_updated": "2026-11-04T00:47",
       "first_seen": "2026-01-17",
-      "md5": "08de66df785ec438553a124a558c6a25",
-      "size": 508867,
-      "lifetime_downloads": 198,
-      "last_commit": "[BOXPORTS] Update boxports with autobuilds and new runtime/template"
+      "md5": "f25216bdf17ffba79ffbb6ac655f3c14",
+      "size": 508856,
+      "lifetime_downloads": 604,
+      "last_commit": "[BOX] Remove dead exports"
     }
   },
   {
