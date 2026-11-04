@@ -73,7 +73,7 @@ export BOX64_DYNAREC=1
 export BOX64_DYNAREC_SAFEFLAGS=0
 export BOX64_DYNAREC_FASTROUND=1
 export BOX64_DYNAREC_BIGBLOCK=1
-export BOX64_DYNAREC_CALLRET=2         # disable CALL/RET opt — a common Unity freeze cause
+export BOX64_DYNAREC_CALLRET=2         # optimize CALL/RET, handling returns to dirty blocks (default since v0.4.4)
 export BOX64_DYNAREC_DIRTY=1
 export BOX64_DYNAREC_FORWARD=128
 export BOX64_DYNAREC_STRONGMEM=1       # enforce memory ordering — the main freeze fix (raise to 2/3 if it still hangs)
@@ -81,7 +81,6 @@ export BOX64_DYNAREC_WAIT=1            # fully compile blocks before running
 export BOX64_DYNAREC_FASTNAN=1
 export BOX64_NOSIGSEGV=1               # handle recoverable segfaults instead of hanging
 export BOX64_RDTSC_1GHZ=1
-export BOX64_VSYNC=0
 
 # Face-button layout — swap a/b and x/y when swapabxy.txt is present
 if [ -f "$GAMEDIR/swapabxy.txt" ]; then

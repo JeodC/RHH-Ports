@@ -79,7 +79,6 @@ export BOX64_DYNAREC_WAIT=1
 export BOX64_DYNAREC_FASTNAN=1
 export BOX64_NOSIGSEGV=1
 export BOX64_RDTSC_1GHZ=1
-export BOX64_VSYNC=0
 
 # Face-button layout
 if [ -f "$GAMEDIR/swapabxy.txt" ]; then

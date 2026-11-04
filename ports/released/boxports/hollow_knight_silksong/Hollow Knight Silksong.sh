@@ -88,12 +88,11 @@ export BOX64_NOBANNER=1                # Hide Box64 startup banner (cleaner logs
 export BOX64_DYNAREC=1                 # Enable the JIT dynarec for x86_64 to ARM
 export BOX64_DYNAREC_SAFEFLAGS=0       # Skip extra flag-preservation checks for speed
 export BOX64_DYNAREC_FASTROUND=0       # Use precise IEEE rounding (safer than fast mode)
-export BOX64_DYNAREC_CALLRET=2         # Disable CALL/RET optimizations (more compatible)
+export BOX64_DYNAREC_CALLRET=2         # Optimize CALL/RET, handling returns to dirty blocks (default since v0.4.4)
 export BOX64_DYNAREC_DIRTY=1           # https://github.com/ptitSeb/box64/blob/main/docs/USAGE.md#box64_dynarec_dirty
 export BOX64_DYNAREC_BIGBLOCK=3        # Merge more instructions per block (moderate aggressiveness)
 export BOX64_DYNAREC_FORWARD=1024      # Scan up to X bytes ahead to extend blocks -- weaker CPUs may want this value lowered or disabled entirely
 export BOX64_RDTSC_1GHZ=1              # Emulate RDTSC at 1 GHz for predictable timing
-export BOX64_VSYNC=0                   # Allow Unity engine to control vsync
 
 # OpenGL/Mesa error suppression (minor perf gain)
 export MESA_NO_ERROR=1                 # Don’t check Mesa GL errors
