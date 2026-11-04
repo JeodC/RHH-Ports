@@ -2898,12 +2898,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/paperboat.zip",
-      "date_updated": "2026-11-02T12:58",
+      "date_updated": "2026-11-04T14:14",
       "first_seen": "2026-09-17",
-      "md5": "e2ac3cdda95f6e2d29fed8f70b642c71",
-      "size": 11851375,
-      "lifetime_downloads": 803,
-      "last_commit": "[HM] Add out of memory messages to ports"
+      "md5": "88a00f94eb9f84757f3d692ef2c324ac",
+      "size": 11864901,
+      "lifetime_downloads": 825,
+      "last_commit": "[PAPERBOAT] Update to 1.0.3"
     }
   },
   {
@@ -3378,12 +3378,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/sm64-ghostship/sm64-ghostship/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/sm64-ghostship/sm64-ghostship/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sm64-ghostship.zip",
-      "date_updated": "2026-11-02T12:58",
+      "date_updated": "2026-11-04T14:14",
       "first_seen": "2026-01-18",
-      "md5": "013eb9aa8a314ec5d4fef6ab05996799",
-      "size": 7130990,
-      "lifetime_downloads": 595,
-      "last_commit": "[HM] Add out of memory messages to ports"
+      "md5": "6bb7ce375a66be059d5eab1a6df0f7b7",
+      "size": 7336092,
+      "lifetime_downloads": 604,
+      "last_commit": "[GHOSTSHIP] Update to 3.0.0"
     }
   },
   {
@@ -3424,12 +3424,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/soh.zip",
-      "date_updated": "2026-11-02T12:58",
+      "date_updated": "2026-11-04T14:14",
       "first_seen": "2025-11-11",
-      "md5": "c3aa83ffd512fa8367ab7ef868d63098",
-      "size": 60631597,
-      "lifetime_downloads": 647,
-      "last_commit": "[HM] Add out of memory messages to ports"
+      "md5": "deebddc31296df4eedf6c4e85e533eca",
+      "size": 60641568,
+      "lifetime_downloads": 665,
+      "last_commit": "[SOH] Update to 9.3.1"
     }
   },
   {
