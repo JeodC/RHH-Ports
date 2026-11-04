@@ -4002,12 +4002,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/spaghettikart/spaghettikart/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/spaghettikart/spaghettikart/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/spaghettikart.zip",
-      "date_updated": "2026-11-02T12:58",
+      "date_updated": "2026-11-04T15:53",
       "first_seen": "2026-01-25",
-      "md5": "466af548d893fde5debf613422f872e5",
-      "size": 28989659,
-      "lifetime_downloads": 450,
-      "last_commit": "[HM] Add out of memory messages to ports"
+      "md5": "f504ee2ede511edbfa20bf781efa3887",
+      "size": 12875642,
+      "lifetime_downloads": 456,
+      "last_commit": "[SPAGHETTIKART] Update nightly build for Torch memory optimization"
     }
   },
   {
