@@ -1,7 +1,7 @@
 ## Information
-SpaghettiKart was built from GitHub Actions at the [HarbourMasters Autobuild Factory](https://github.com/JeodC/hm64-builder).
+SpaghettiKart was built from GitHub Actions at the [RHH-Ports Autobuilder](https://github.com/JeodC/RHH-Ports).
 
-*THIS IS CURRENTLY A NIGHTLY BUILD! Commit hash https://github.com/HarbourMasters/SpaghettiKart/commit/3aa2c9662aa811023ca6730e7f4815ae61886691 with pull requests https://github.com/HarbourMasters/SpaghettiKart/pull/650 and https://github.com/Kenix3/libultraship/pull/1004*
+*THIS IS CURRENTLY A NIGHTLY BUILD! Commit hash https://github.com/HarbourMasters/SpaghettiKart/commit/ce0f9358f0505bbdeb76b1aff7a25556cda3fdef*
 
 ## Installation
 The supported ROMs are:
