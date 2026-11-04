@@ -121,6 +121,15 @@ fi
 $ESUDO mount "$controlfolder/libs/${runtime}.squashfs" "${JAVA_HOME}"
 export PATH="$JAVA_HOME/bin:$PATH"
 
+# Zink is buggy, use freedreno
+if [ "$MESA_LOADER_DRIVER_OVERRIDE" = "zink" ] && [ -f /usr/lib/dri/msm_dri.so ]; then
+  export MESA_LOADER_DRIVER_OVERRIDE=msm
+fi
+
+if [ "$CFW_NAME" = "ROCKNIX" ]; then
+  ( for i in $(seq 60); do sleep 1; swaymsg -q '[class="PokeWilds"] fullscreen enable' 2>/dev/null && break; done ) &
+fi
+
 # Run the game
 $GPTOKEYB "$BINARY" -c "$GAMEDIR/pokewilds.gptk" &
 pm_platform_helper "$JAVA_HOME/bin/java" >/dev/null
@@ -130,7 +139,7 @@ if [ "$westonpack" -eq 1 ]; then
     PATH="$PATH" JAVA_HOME="$JAVA_HOME" XDG_DATA_HOME="$GAMEDIR/bin" java -Xmx612M -jar "${JAR_PACKAGE}"
 	$ESUDO "$weston_dir"/westonwrap.sh cleanup
 else
-	PATH="$PATH" JAVA_HOME="$JAVA_HOME" XDG_DATA_HOME="$GAMEDIR/bin" java -Xmx612M -Djava.awt.Window.fullscreen=true -jar "${JAR_PACKAGE}"
+	PATH="$PATH" JAVA_HOME="$JAVA_HOME" XDG_DATA_HOME="$GAMEDIR/bin" java -Xmx612M -jar "${JAR_PACKAGE}"
 fi
 
 # Cleanup
