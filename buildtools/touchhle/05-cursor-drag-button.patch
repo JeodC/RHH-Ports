@@ -1,0 +1,242 @@
+Add --cursor-drag-button for drag-select
+
+---
+ OPTIONS_HELP.txt |  16 +++++++
+ src/options.rs   |  20 ++++++++
+ src/window.rs    | 117 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 153 insertions(+)
+
+diff --git a/OPTIONS_HELP.txt b/OPTIONS_HELP.txt
+index c1b6866..cd8fae7 100644
+--- a/OPTIONS_HELP.txt
++++ b/OPTIONS_HELP.txt
+@@ -227,6 +227,22 @@ Game controller options:
+ 
+         The value is a color as six hexadecimal digits, for example e0201c.
+ 
++    --cursor-drag-button=...
++        With --virtual-cursor-relative=, a second button that drags with the
++        cursor: hold it and move the cursor to drag from where it was pressed,
++        for example to draw a selection box. If --cursor-drag-tap= is given,
++        that point is tapped first. Released without moving, the button does
++        its --button-to-touch= tap instead, if it has one.
++
++        This takes the same button names as --button-to-touch=.
++
++    --cursor-drag-tap=...
++        A point that --cursor-drag-button= taps before each drag, for apps
++        where a drag only selects things after a button is tapped.
++
++        This is two parts separated by a comma: the X and Y coordinates, as for
++        --button-to-touch=.
++
+ Graphics driver options:
+     --gles1=...
+         Force touchHLE to use a particular OpenGL ES 1.1 implementation.
+diff --git a/src/options.rs b/src/options.rs
+index e775bcb..28b2105 100644
+--- a/src/options.rs
++++ b/src/options.rs
+@@ -74,6 +74,8 @@ pub struct Options {
+     pub virtual_cursor_button: Option<Button>,
+     pub virtual_cursor_dpad: bool,
+     pub virtual_cursor_arrow: Option<[f32; 3]>,
++    pub cursor_drag_button: Option<Button>,
++    pub cursor_drag_tap: Option<(f32, f32)>,
+     pub gles1_implementation: Option<GLESImplementation>,
+     pub direct_memory_access: bool,
+     pub gdb_listen_addrs: Option<Vec<SocketAddr>>,
+@@ -114,6 +116,8 @@ impl Default for Options {
+             virtual_cursor_button: None,
+             virtual_cursor_dpad: false,
+             virtual_cursor_arrow: None,
++            cursor_drag_button: None,
++            cursor_drag_tap: None,
+             gles1_implementation: None,
+             direct_memory_access: true,
+             gdb_listen_addrs: None,
+@@ -262,6 +266,22 @@ impl Options {
+                 .ok_or_else(|| "--virtual-cursor-arrow= requires a color like e0201c".to_string())?;
+             let channel = |shift: u32| ((rgb >> shift) & 0xff) as f32 / 255.0;
+             self.virtual_cursor_arrow = Some([channel(16), channel(8), channel(0)]);
++        } else if let Some(value) = arg.strip_prefix("--cursor-drag-button=") {
++            self.cursor_drag_button = Some(
++                Button::from_name(value)
++                    .ok_or_else(|| "Invalid button for --cursor-drag-button=".to_string())?,
++            );
++        } else if let Some(value) = arg.strip_prefix("--cursor-drag-tap=") {
++            let (x, y) = value
++                .split_once(',')
++                .ok_or_else(|| "--cursor-drag-tap= requires two values".to_string())?;
++            let x: f32 = x
++                .parse()
++                .map_err(|_| "Invalid X coordinate for --cursor-drag-tap=".to_string())?;
++            let y: f32 = y
++                .parse()
++                .map_err(|_| "Invalid Y coordinate for --cursor-drag-tap=".to_string())?;
++            self.cursor_drag_tap = Some((x, y));
+         } else if let Some(value) = arg.strip_prefix("--gles1=") {
+             self.gles1_implementation = Some(
+                 GLESImplementation::from_short_name(value)
+diff --git a/src/window.rs b/src/window.rs
+index 08fefd8..d138325 100644
+--- a/src/window.rs
++++ b/src/window.rs
+@@ -129,9 +129,27 @@ pub enum FingerId {
+     ButtonToTouch(crate::options::Button),
+     StickToTouch,
+     DpadToTouch,
++    CursorDragTap,
++    CursorDrag,
+ }
+ pub type Coords = (f32, f32);
+ 
++/// The `--cursor-drag-button=` finger, where a press waits to see whether it
++/// is a tap or a drag. Positions are on-screen.
++#[derive(Clone, Copy)]
++enum CursorDrag {
++    Up,
++    /// Pressed here, not sent yet.
++    Pending(Coords),
++    /// Tapping the drag-tap point before dragging from here. The bool is
++    /// whether the tap has lifted.
++    DragTap(Coords, Instant, bool),
++    Down,
++    /// Sent and released at once; lifted on a later poll so the app sees both.
++    /// The bool is whether the position ignores the viewport.
++    Lifting(FingerId, Coords, bool, Instant),
++}
++
+ struct DpadState {
+     left: bool,
+     right: bool,
+@@ -264,6 +282,7 @@ pub struct Window {
+     virtual_cursor_last_time: Option<Instant>,
+     /// Copy of `virtual_cursor_arrow` on [Options].
+     virtual_cursor_arrow: Option<[f32; 3]>,
++    cursor_drag: CursorDrag,
+     virtual_accelerometer_last: Option<(f32, f32, bool)>,
+     /// Whether or not we are on the "main" environment stack (rather than
+     /// a coroutine stack). Checked in various functions to make sure that
+@@ -430,6 +449,7 @@ impl Window {
+             virtual_cursor_last_unsticky: None,
+             virtual_cursor_last_time: None,
+             virtual_cursor_arrow: options.virtual_cursor_arrow,
++            cursor_drag: CursorDrag::Up,
+             virtual_accelerometer_last: None,
+             on_main_stack: true,
+         };
+@@ -623,6 +643,10 @@ impl Window {
+                     let Some(button) = translate_button(button) else {
+                         continue;
+                     };
++                    // update_cursor_drag sends its --button-to-touch= tap.
++                    if options.cursor_drag_button == Some(button) {
++                        continue;
++                    }
+                     // Called whenever a DPad direction is pressed or released
+                     if (button == crate::options::Button::DPadLeft
+                         || button == crate::options::Button::DPadUp
+@@ -898,9 +922,102 @@ impl Window {
+                 (true, _, true) => self.event_queue.push_back(Event::TouchesMove(fingers)),
+                 _ => (),
+             }
++            if relative_cursor {
++                self.update_cursor_drag(options, (new_x, new_y), moved, transform_input_coords);
++            }
+         }
+     }
+ 
++    /// Drive the `--cursor-drag-button=` finger. A press is held back until
++    /// the cursor moves, which taps the `--cursor-drag-tap=` point (e.g. a
++    /// drag-select button) and then drags from where the press began.
++    /// Released without moving, it does the button's `--button-to-touch=` tap.
++    fn update_cursor_drag(
++        &mut self,
++        options: &Options,
++        at: Coords,
++        moved: bool,
++        transform: fn(&Window, Coords, bool) -> Coords,
++    ) {
++        // Gap between touch events the app must see separately.
++        const STEP: Duration = Duration::from_millis(50);
++        // In app pixels.
++        const DRAG_DISTANCE: f32 = 8.0;
++
++        let Some(button) = options.cursor_drag_button else {
++            return;
++        };
++        let pressed = {
++            let button = sdl_button(button);
++            self.controllers.iter().any(|c| c.button(button))
++        };
++        let send = |window: &mut Window,
++                    kind: fn(HashMap<FingerId, Coords>) -> Event,
++                    finger: FingerId,
++                    coords: Coords,
++                    independent_of_viewport: bool| {
++            let coords = transform(&*window, coords, independent_of_viewport);
++            window.event_queue.push_back(kind(HashMap::from([(finger, coords)])));
++        };
++        let now = Instant::now();
++        let drag = FingerId::CursorDrag;
++        let tap = FingerId::CursorDragTap;
++
++        self.cursor_drag = match self.cursor_drag {
++            CursorDrag::Up if pressed => CursorDrag::Pending(at),
++            CursorDrag::Pending(_) if !pressed => {
++                match options.button_to_touch.get(&button) {
++                    Some(&point) => {
++                        let finger = FingerId::ButtonToTouch(button);
++                        send(self, Event::TouchesDown, finger, point, true);
++                        CursorDrag::Lifting(finger, point, true, now)
++                    }
++                    None => CursorDrag::Up,
++                }
++            }
++            CursorDrag::Pending(start) => {
++                let (sx, sy) = transform(self, start, false);
++                let (x, y) = transform(self, at, false);
++                if (x - sx).hypot(y - sy) <= DRAG_DISTANCE {
++                    CursorDrag::Pending(start)
++                } else if let Some(point) = options.cursor_drag_tap {
++                    send(self, Event::TouchesDown, tap, point, true);
++                    CursorDrag::DragTap(start, now, false)
++                } else {
++                    send(self, Event::TouchesDown, drag, start, false);
++                    send(self, Event::TouchesMove, drag, at, false);
++                    CursorDrag::Down
++                }
++            }
++            CursorDrag::DragTap(start, since, false) if now - since >= STEP => {
++                send(self, Event::TouchesUp, tap, options.cursor_drag_tap.unwrap(), true);
++                CursorDrag::DragTap(start, now, true)
++            }
++            CursorDrag::DragTap(start, since, true) if now - since >= STEP => {
++                send(self, Event::TouchesDown, drag, start, false);
++                send(self, Event::TouchesMove, drag, at, false);
++                if pressed {
++                    CursorDrag::Down
++                } else {
++                    CursorDrag::Lifting(drag, at, false, now)
++                }
++            }
++            CursorDrag::Down if !pressed => {
++                send(self, Event::TouchesUp, drag, at, false);
++                CursorDrag::Up
++            }
++            CursorDrag::Down if moved => {
++                send(self, Event::TouchesMove, drag, at, false);
++                CursorDrag::Down
++            }
++            CursorDrag::Lifting(finger, point, independent, since) if now - since >= STEP => {
++                send(self, Event::TouchesUp, finger, point, independent);
++                CursorDrag::Up
++            }
++            state => state,
++        };
++    }
++
+     /// Pop an event from the queue (in FIFO order, except for high priority
+     /// events)
+     pub fn pop_event(&mut self) -> Option<Event> {

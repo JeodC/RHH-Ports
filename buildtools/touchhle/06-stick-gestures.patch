@@ -1,0 +1,283 @@
+Add stick panning, edge scrolling and trigger pinching
+
+---
+ OPTIONS_HELP.txt |  24 ++++++++
+ src/options.rs   |  12 ++++
+ src/window.rs    | 155 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 191 insertions(+)
+
+diff --git a/OPTIONS_HELP.txt b/OPTIONS_HELP.txt
+index cd8fae7..dc166bc 100644
+--- a/OPTIONS_HELP.txt
++++ b/OPTIONS_HELP.txt
+@@ -243,6 +243,30 @@ Game controller options:
+         This is two parts separated by a comma: the X and Y coordinates, as for
+         --button-to-touch=.
+ 
++    --stick-to-pan=...
++        Use the analog stick that isn't controlling the virtual cursor to drag
++        a finger from the middle of the screen, for apps that scroll by
++        dragging. The finger moves against the stick, so pushing right drags
++        the content left and scrolls right. It is lifted and put back in the
++        middle when it nears the edge of the screen.
++
++        The value is a speed in screen widths per second. A negative value
++        reverses the direction.
++
++    --edge-scroll=...
++        With --virtual-cursor-relative=, pushing the cursor against the edge
++        of the screen drags the --stick-to-pan= finger, scrolling that way.
++
++        The value is a speed in screen widths per second. A negative value
++        reverses the direction.
++
++    --triggers-to-pinch=...
++        Use the analog triggers to pinch two fingers in the middle of the
++        screen: the right trigger spreads them apart (usually zooming in) and
++        the left trigger brings them together.
++
++        The value is a speed in screen widths per second.
++
+ Graphics driver options:
+     --gles1=...
+         Force touchHLE to use a particular OpenGL ES 1.1 implementation.
+diff --git a/src/options.rs b/src/options.rs
+index 28b2105..2caf63c 100644
+--- a/src/options.rs
++++ b/src/options.rs
+@@ -76,6 +76,9 @@ pub struct Options {
+     pub virtual_cursor_arrow: Option<[f32; 3]>,
+     pub cursor_drag_button: Option<Button>,
+     pub cursor_drag_tap: Option<(f32, f32)>,
++    pub stick_to_pan: Option<f32>,
++    pub edge_scroll: Option<f32>,
++    pub triggers_to_pinch: Option<f32>,
+     pub gles1_implementation: Option<GLESImplementation>,
+     pub direct_memory_access: bool,
+     pub gdb_listen_addrs: Option<Vec<SocketAddr>>,
+@@ -118,6 +121,9 @@ impl Default for Options {
+             virtual_cursor_arrow: None,
+             cursor_drag_button: None,
+             cursor_drag_tap: None,
++            stick_to_pan: None,
++            edge_scroll: None,
++            triggers_to_pinch: None,
+             gles1_implementation: None,
+             direct_memory_access: true,
+             gdb_listen_addrs: None,
+@@ -282,6 +288,12 @@ impl Options {
+                 .parse()
+                 .map_err(|_| "Invalid Y coordinate for --cursor-drag-tap=".to_string())?;
+             self.cursor_drag_tap = Some((x, y));
++        } else if let Some(value) = arg.strip_prefix("--stick-to-pan=") {
++            self.stick_to_pan = Some(parse_speed(value, "--stick-to-pan=")?);
++        } else if let Some(value) = arg.strip_prefix("--edge-scroll=") {
++            self.edge_scroll = Some(parse_speed(value, "--edge-scroll=")?);
++        } else if let Some(value) = arg.strip_prefix("--triggers-to-pinch=") {
++            self.triggers_to_pinch = Some(parse_speed(value, "--triggers-to-pinch=")?);
+         } else if let Some(value) = arg.strip_prefix("--gles1=") {
+             self.gles1_implementation = Some(
+                 GLESImplementation::from_short_name(value)
+diff --git a/src/window.rs b/src/window.rs
+index d138325..c05e5ff 100644
+--- a/src/window.rs
++++ b/src/window.rs
+@@ -129,6 +129,8 @@ pub enum FingerId {
+     ButtonToTouch(crate::options::Button),
+     StickToTouch,
+     DpadToTouch,
++    StickToPan,
++    TriggerPinch(u8),
+     CursorDragTap,
+     CursorDrag,
+ }
+@@ -282,7 +284,16 @@ pub struct Window {
+     virtual_cursor_last_time: Option<Instant>,
+     /// Copy of `virtual_cursor_arrow` on [Options].
+     virtual_cursor_arrow: Option<[f32; 3]>,
++    /// How far the relative cursor was pushed past the edge of the screen on
++    /// its last update, for `--edge-scroll=`.
++    edge_push: (f32, f32),
+     cursor_drag: CursorDrag,
++    /// On-screen position of the `--stick-to-pan=` finger, if it is down.
++    pan_touch: Option<Coords>,
++    /// Half the distance between the `--triggers-to-pinch=` fingers, if they
++    /// are down.
++    pinch_half_width: Option<f32>,
++    gesture_last_time: Option<Instant>,
+     virtual_accelerometer_last: Option<(f32, f32, bool)>,
+     /// Whether or not we are on the "main" environment stack (rather than
+     /// a coroutine stack). Checked in various functions to make sure that
+@@ -449,7 +460,11 @@ impl Window {
+             virtual_cursor_last_unsticky: None,
+             virtual_cursor_last_time: None,
+             virtual_cursor_arrow: options.virtual_cursor_arrow,
++            edge_push: (0.0, 0.0),
+             cursor_drag: CursorDrag::Up,
++            pan_touch: None,
++            pinch_half_width: None,
++            gesture_last_time: None,
+             virtual_accelerometer_last: None,
+             on_main_stack: true,
+         };
+@@ -926,6 +941,10 @@ impl Window {
+                 self.update_cursor_drag(options, (new_x, new_y), moved, transform_input_coords);
+             }
+         }
++
++        if !self.controllers.is_empty() {
++            self.update_stick_gestures(options, transform_input_coords);
++        }
+     }
+ 
+     /// Drive the `--cursor-drag-button=` finger. A press is held back until
+@@ -1018,6 +1037,133 @@ impl Window {
+         };
+     }
+ 
++    /// Drive the `--stick-to-pan=` drag and the `--triggers-to-pinch=` pinch.
++    /// Only one runs at a time, and neither starts while the virtual cursor is
++    /// held, since the app would take the extra fingers as a gesture.
++    fn update_stick_gestures(
++        &mut self,
++        options: &Options,
++        transform: fn(&Window, Coords, bool) -> Coords,
++    ) {
++        if options.stick_to_pan.is_none()
++            && options.edge_scroll.is_none()
++            && options.triggers_to_pinch.is_none()
++        {
++            return;
++        }
++
++        let now = Instant::now();
++        let dt = self.gesture_last_time.map_or(0.0, |last| {
++            now.saturating_duration_since(last).as_secs_f32().min(0.05)
++        });
++        self.gesture_last_time = Some(now);
++
++        let (vx, vy, vw, vh) = self.viewport();
++        let (vx, vy, vw, vh) = (vx as f32, vy as f32, vw as f32, vh as f32);
++        let (cx, cy) = (vx + vw / 2.0, vy + vh / 2.0);
++        let cursor_held = matches!(self.virtual_cursor_last, Some((_, _, true, _)))
++            || !matches!(self.cursor_drag, CursorDrag::Up);
++
++        let push = |window: &mut Window,
++                    kind: fn(HashMap<FingerId, Coords>) -> Event,
++                    fingers: &[(FingerId, Coords)]| {
++            let map = fingers
++                .iter()
++                .map(|&(finger, coords)| (finger, transform(&*window, coords, false)))
++                .collect();
++            window.event_queue.push_back(kind(map));
++        };
++
++        if options.stick_to_pan.is_some() || options.edge_scroll.is_some() {
++            // Screen widths per second, from the stick and the edge push.
++            let (mut sx, mut sy) = (0.0, 0.0);
++            if let Some(speed) = options.stick_to_pan {
++                let (x, y, _) =
++                    self.get_controller_stick(options, !options.virtual_cursor_left_stick);
++                (sx, sy) = (x * x.abs() * speed, y * y.abs() * speed);
++            }
++            if let Some(speed) = options.edge_scroll {
++                let (x, y) = self.edge_push;
++                (sx, sy) = (sx + x * x.abs() * speed, sy + y * y.abs() * speed);
++            }
++            let active =
++                (sx != 0.0 || sy != 0.0) && !cursor_held && self.pinch_half_width.is_none();
++            // The finger moves against the scroll: dragging the world left
++            // moves the view right.
++            match (self.pan_touch, active) {
++                (None, true) => {
++                    // Nudge straight away so the app sees a drag, not a tap.
++                    let kick = 0.04 * vw / sx.hypot(sy);
++                    let to = (cx - sx * kick, cy - sy * kick);
++                    push(self, Event::TouchesDown, &[(FingerId::StickToPan, (cx, cy))]);
++                    push(self, Event::TouchesMove, &[(FingerId::StickToPan, to)]);
++                    self.pan_touch = Some(to);
++                }
++                (Some((x, y)), true) => {
++                    let step = vw * dt;
++                    let to = (x - sx * step, y - sy * step);
++                    if (to.0 - cx).abs() > 0.4 * vw || (to.1 - cy).abs() > 0.4 * vh {
++                        // Out of room: lift and start again from the center.
++                        push(self, Event::TouchesUp, &[(FingerId::StickToPan, (x, y))]);
++                        self.pan_touch = None;
++                    } else {
++                        push(self, Event::TouchesMove, &[(FingerId::StickToPan, to)]);
++                        self.pan_touch = Some(to);
++                    }
++                }
++                (Some(at), false) => {
++                    push(self, Event::TouchesUp, &[(FingerId::StickToPan, at)]);
++                    self.pan_touch = None;
++                }
++                (None, false) => (),
++            }
++        }
++
++        if let Some(speed) = options.triggers_to_pinch {
++            use sdl2::controller::Axis;
++            let trigger = |axis: Axis| {
++                self.controllers
++                    .iter()
++                    .map(|c| (c.axis(axis) as f32 / i16::MAX as f32).clamp(0.0, 1.0))
++                    .fold(0.0, f32::max)
++            };
++            let mut spread = trigger(Axis::TriggerRight) - trigger(Axis::TriggerLeft);
++            if spread.abs() < options.deadzone {
++                spread = 0.0;
++            }
++            let active = spread != 0.0 && !cursor_held && self.pan_touch.is_none();
++            let fingers = |half: f32| {
++                [
++                    (FingerId::TriggerPinch(0), (cx - half, cy)),
++                    (FingerId::TriggerPinch(1), (cx + half, cy)),
++                ]
++            };
++            match (self.pinch_half_width, active) {
++                (None, true) => {
++                    // Open from close together, close from far apart.
++                    let half = vw * if spread > 0.0 { 0.08 } else { 0.35 };
++                    push(self, Event::TouchesDown, &fingers(half));
++                    self.pinch_half_width = Some(half);
++                }
++                (Some(half), true) => {
++                    let to = half + spread * speed * vw * dt;
++                    if !(0.04 * vw..=0.45 * vw).contains(&to) {
++                        push(self, Event::TouchesUp, &fingers(half));
++                        self.pinch_half_width = None;
++                    } else {
++                        push(self, Event::TouchesMove, &fingers(to));
++                        self.pinch_half_width = Some(to);
++                    }
++                }
++                (Some(half), false) => {
++                    push(self, Event::TouchesUp, &fingers(half));
++                    self.pinch_half_width = None;
++                }
++                (None, false) => (),
++            }
++        }
++    }
++
+     /// Pop an event from the queue (in FIFO order, except for high priority
+     /// events)
+     pub fn pop_event(&mut self) -> Option<Event> {
+@@ -1218,6 +1364,15 @@ impl Window {
+             let (max_x, max_y) = (vx + vw - 1.0, vy + vh - 1.0);
+             let new_x = (old_x + x * x.abs() * step).clamp(vx, max_x);
+             let new_y = (old_y + y * y.abs() * step).clamp(vy, max_y);
++            // Keep pushing at an edge to scroll that way (--edge-scroll=).
++            let push = |pos: f32, min: f32, max: f32, input: f32| {
++                if (pos <= min && input < 0.0) || (pos >= max && input > 0.0) {
++                    input
++                } else {
++                    0.0
++                }
++            };
++            self.edge_push = (push(new_x, vx, max_x, x), push(new_y, vy, max_y, y));
+             (new_x, new_y)
+         } else {
+             // Use Pythagoras's theorem to find the largest size the rectangle

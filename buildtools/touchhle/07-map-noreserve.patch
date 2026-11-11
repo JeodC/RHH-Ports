@@ -1,0 +1,31 @@
+Map guest memory with MAP_NORESERVE on Linux
+
+---
+ src/mem/host.rs | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/src/mem/host.rs b/src/mem/host.rs
+index 5402b6e..b475e1a 100644
+--- a/src/mem/host.rs
++++ b/src/mem/host.rs
+@@ -45,12 +45,19 @@ pub(super) unsafe fn allocate_memory(size: usize) -> std::io::Result<*mut core::
+         "Hosts with smaller than 4KiB pages are not supported."
+     );
+ 
++    // Without MAP_NORESERVE, Linux's default overcommit check refuses a mapping
++    // bigger than RAM plus swap, and the guest's 4GiB is on small devices.
++    #[cfg(any(target_os = "linux", target_os = "android"))]
++    let flags = MAP_PRIVATE | MAP_ANONYMOUS | libc::MAP_NORESERVE;
++    #[cfg(not(any(target_os = "linux", target_os = "android")))]
++    let flags = MAP_PRIVATE | MAP_ANONYMOUS;
++
+     let ptr = unsafe {
+         mmap(
+             std::ptr::null_mut(),
+             size,
+             PROT_READ | PROT_WRITE,
+-            MAP_PRIVATE | MAP_ANONYMOUS,
++            flags,
+             -1,
+             0,
+         )

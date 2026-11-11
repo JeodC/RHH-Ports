@@ -1,0 +1,7 @@
+{
+  "cursor_speed": 0.8,
+  "scroll_speed": 1.2,
+  "edge_scroll_speed": 1.0,
+  "zoom_speed": 0.6,
+  "deadzone": 0.1
+}

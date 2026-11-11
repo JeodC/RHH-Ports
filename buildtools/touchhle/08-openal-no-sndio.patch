@@ -1,0 +1,31 @@
+Leave out openal-soft's SndIO backend
+
+---
+ src/audio/openal_soft_wrapper/build.rs | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/src/audio/openal_soft_wrapper/build.rs b/src/audio/openal_soft_wrapper/build.rs
+index d0a2e50..0f5908b 100644
+--- a/src/audio/openal_soft_wrapper/build.rs
++++ b/src/audio/openal_soft_wrapper/build.rs
+@@ -47,6 +47,9 @@ fn main() {
+         build.define("ALSOFT_UTILS", "OFF");
+         build.define("ALSOFT_NO_CONFIG_UTIL", "ON");
+         build.define("ALSOFT_EXAMPLES", "OFF");
++        // SndIO is the one backend linked instead of loaded at runtime, and
++        // handheld Linux distros don't ship libsndio.
++        build.define("ALSOFT_BACKEND_SNDIO", "OFF");
+ 
+         let openal_soft_out = build.build();
+ 
+@@ -55,10 +58,6 @@ fn main() {
+         link_search(&openal_soft_out.join("lib64"));
+ 
+         // Some dependencies of OpenAL Soft.
+-        if os.eq_ignore_ascii_case("linux") {
+-            // OpenAL on Linux depends on sndio, needs to be dynamically linked
+-            println!("cargo:rustc-link-lib=dylib=sndio");
+-        }
+         if os.eq_ignore_ascii_case("android") {
+             println!("cargo:rustc-link-lib=dylib=OpenSLES");
+         }

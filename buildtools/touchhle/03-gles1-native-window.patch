@@ -1,0 +1,58 @@
+Ask for a GLES window when --gles1=gles1_native is set
+
+---
+ OPTIONS_HELP.txt |  3 ++-
+ src/window.rs    | 14 +++++++++++---
+ 2 files changed, 13 insertions(+), 4 deletions(-)
+
+diff --git a/OPTIONS_HELP.txt b/OPTIONS_HELP.txt
+index 129abc6..1651ec4 100644
+--- a/OPTIONS_HELP.txt
++++ b/OPTIONS_HELP.txt
+@@ -203,7 +203,8 @@ Graphics driver options:
+         This may be useful for troubleshooting graphics driver issues.
+ 
+         --gles1=gles1_on_gl2 will use touchHLE's GLES1-on-GL2 layer.
+-        --gles1=gles1_native will use native OpenGL ES 1.1.
++        --gles1=gles1_native will use native OpenGL ES 1.1, and asks for an
++        OpenGL ES window, which devices without desktop OpenGL may need.
+ 
+         When this option isn't in use, touchHLE will try each in order and use
+         the first one that works.
+diff --git a/src/window.rs b/src/window.rs
+index 13a321a..1a72154 100644
+--- a/src/window.rs
++++ b/src/window.rs
+@@ -13,7 +13,7 @@
+ //! will be needed for the runtime of the app.
+ 
+ use crate::gles::present::present_frame;
+-use crate::gles::{create_gles1_ctx_no_parent_stack, GLESContext, GLES};
++use crate::gles::{create_gles1_ctx_no_parent_stack, GLESContext, GLESImplementation, GLES};
+ use crate::image::Image;
+ use crate::matrix::Matrix;
+ use crate::options::Options;
+@@ -274,13 +274,21 @@ impl Window {
+         // remove this (https://github.com/touchHLE/touchHLE/issues/85).
+         sdl2::hint::set("SDL_JOYSTICK_HIDAPI", "0");
+ 
+-        if env::consts::OS == "android" {
++        // EGL picks the window's config from these, so a GLES context can't be
++        // created later on a window made for desktop GL.
++        if env::consts::OS == "android"
++            || matches!(
++                options.gles1_implementation,
++                Some(GLESImplementation::GLES1Native)
++            )
++        {
+             // It's important to set context version BEFORE window creation
+             // ref. https://wiki.libsdl.org/SDL2/SDL_GLattr
+             let attr = video_ctx.gl_attr();
+             attr.set_context_version(1, 1);
+             attr.set_context_profile(sdl2::video::GLProfile::GLES);
+-
++        }
++        if env::consts::OS == "android" {
+             // Disable blocking of event loop when app is paused.
+             sdl2::hint::set("SDL_ANDROID_BLOCK_ON_PAUSE", "0");
+         }

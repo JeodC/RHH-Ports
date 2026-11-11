@@ -1,0 +1,18 @@
+# touchHLE options for this port. Each line is an app's bundle ID, a colon,
+# then its options. touchHLE --help lists them all. Touch coordinates are on
+# the iPad's 1024x768 landscape screen.
+#
+# Red Alert for iPad:
+#   Left stick, D-pad   move the cursor
+#   A                   touch: tap, hold, or hold and move to drag
+#   X                   tap for Select-All; hold and move for a selection box
+#   Right stick         scroll the map (so does pushing the cursor at an edge)
+#   R2 / L2             zoom in / out
+#   Y                   Add to squad
+#   L1 / R1 / B         squad 1 / 2 / 3, twice to center on it
+#   Start               in-game menu
+# Cursor, scroll and zoom speeds and the deadzone are easier to change in
+# controls.json, which overrides them here.
+# --cursor-drag-tap= is the Drag-Select icon, which X taps before a box.
+# Remove --stretch to keep the iPad's 4:3 picture.
+com.ea.candcra.ipad.inc: --autorotation-callbacks --stretch --disable-analog-stick-tilt-controls --virtual-cursor-relative=0.8 --virtual-cursor-stick=left --virtual-cursor-button=A --virtual-cursor-dpad --virtual-cursor-arrow=e0201c --stick-to-pan=1.2 --edge-scroll=1.0 --triggers-to-pinch=0.6 --cursor-drag-button=X --cursor-drag-tap=469,718 --button-to-touch=X,555,718 --button-to-touch=Y,385,718 --button-to-touch=LeftShoulder,57,480 --button-to-touch=RightShoulder,57,588 --button-to-touch=B,57,697 --button-to-touch=Start,48,46

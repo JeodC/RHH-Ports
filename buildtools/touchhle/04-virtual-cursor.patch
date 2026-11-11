@@ -1,0 +1,442 @@
+Add a relative virtual cursor with D-pad and arrow options
+
+---
+ OPTIONS_HELP.txt    |  34 ++++++++++++-
+ src/gles/present.rs |  38 +++++++++++++-
+ src/options.rs      |  72 +++++++++++++++++++++-----
+ src/window.rs       | 121 +++++++++++++++++++++++++++++++-------------
+ 4 files changed, 214 insertions(+), 51 deletions(-)
+
+diff --git a/OPTIONS_HELP.txt b/OPTIONS_HELP.txt
+index 1651ec4..c1b6866 100644
+--- a/OPTIONS_HELP.txt
++++ b/OPTIONS_HELP.txt
+@@ -122,8 +122,8 @@ Game controller options:
+         part of the screen.
+ 
+         This is three parts separated by commas: the name of a button (DPadLeft,
+-        DPadUp, DPadRight, DPadDown, Start, LeftShoulder or Xbox-like
+-        A, B, X or Y), the X co-ordinate and the Y co-ordinate.
++        DPadUp, DPadRight, DPadDown, Start, LeftShoulder, RightShoulder or
++        Xbox-like A, B, X or Y), the X co-ordinate and the Y co-ordinate.
+         The co-ordinates are floating-point (decimal) numbers. 0,0 is the
+         top-left corner. The bottom-right corner is 320,480 if the app is in
+         portrait, and 480,320 if the app is in landscape.
+@@ -197,6 +197,36 @@ Game controller options:
+         such that sharp movements take about half a second to complete, while
+         movements within a 10px radius will be completely ignored.
+ 
++    --virtual-cursor-relative=...
++        Make the analog stick move the virtual cursor like a mouse, instead of
++        pointing it at a spot on the screen. The cursor stays where you leave it
++        and is always shown.
++
++        The value is how many screen widths the cursor travels per second with
++        the stick pushed all the way.
++
++    --virtual-cursor-stick=...
++        Which analog stick controls the virtual cursor: "left" or "right". The
++        default is right. Pressing that stick or the shoulder button on the
++        same side taps, unless --virtual-cursor-button= is given.
++
++    --virtual-cursor-button=...
++        A button that taps with the virtual cursor, for example A, instead of
++        the stick and shoulder button, which are then free for
++        --button-to-touch=. This takes the same button names as
++        --button-to-touch=.
++
++    --virtual-cursor-dpad
++        With --virtual-cursor-relative=, the D-pad also moves the cursor, at a
++        steady speed a little below the stick's.
++
++    --virtual-cursor-arrow=...
++        Draw the virtual cursor as an arrow pointer in this color, with its tip
++        on the point it touches, instead of a small square. It is lighter while
++        pressed.
++
++        The value is a color as six hexadecimal digits, for example e0201c.
++
+ Graphics driver options:
+     --gles1=...
+         Force touchHLE to use a particular OpenGL ES 1.1 implementation.
+diff --git a/src/gles/present.rs b/src/gles/present.rs
+index 2a140b6..32d7559 100644
+--- a/src/gles/present.rs
++++ b/src/gles/present.rs
+@@ -48,7 +48,7 @@ pub unsafe fn present_frame(
+     gles: &mut dyn GLES,
+     viewport: (u32, u32, u32, u32),
+     rotation_matrix: Matrix<2>,
+-    virtual_cursor_visible_at: Option<(f32, f32, bool)>,
++    virtual_cursor_visible_at: Option<(f32, f32, bool, Option<[f32; 3]>)>,
+ ) {
+     // While this is a generic utility, it is closely tied to
+     // crate::frameworks::opengles::eagl::present_renderbuffer, which handles
+@@ -84,7 +84,7 @@ pub unsafe fn present_frame(
+     gles.LoadIdentity();
+ 
+     // Display virtual cursor
+-    if let Some((x, y, pressed)) = virtual_cursor_visible_at {
++    if let Some((x, y, pressed, arrow)) = virtual_cursor_visible_at {
+         let (vx, vy, vw, vh) = viewport;
+         let x = x - vx as f32;
+         let y = y - vy as f32;
+@@ -94,6 +94,40 @@ pub unsafe fn present_frame(
+ 
+         gles.Enable(gles11::BLEND);
+         gles.BlendFunc(gles11::ONE, gles11::ONE_MINUS_SRC_ALPHA);
++
++        if let Some([r, g, b]) = arrow {
++            // A pointer with its tip on the cursor, as triangles, one unit tall.
++            const ARROW: [(f32, f32); 15] = [
++                (0.0, 0.0), (0.0, 0.8), (0.22, 0.62),
++                (0.0, 0.0), (0.22, 0.62), (0.34, 0.58),
++                (0.0, 0.0), (0.34, 0.58), (0.6, 0.58),
++                (0.22, 0.62), (0.36, 0.95), (0.48, 0.9),
++                (0.22, 0.62), (0.48, 0.9), (0.34, 0.58),
++            ];
++            let size = (vh as f32 / 40.0).max(14.0);
++            let outline = (size / 14.0).max(1.0);
++            let mut draw = |(dx, dy): (f32, f32), [r, g, b]: [f32; 3]| {
++                let mut vertices = [0.0f32; ARROW.len() * 2];
++                for (i, &(px, py)) in ARROW.iter().enumerate() {
++                    vertices[i * 2] = (x + dx + px * size) / (vw as f32 / 2.0) - 1.0;
++                    vertices[i * 2 + 1] = 1.0 - (y + dy + py * size) / (vh as f32 / 2.0);
++                }
++                gles.Color4f(r, g, b, 1.0);
++                gles.VertexPointer(2, gles11::FLOAT, 0, vertices.as_ptr() as *const GLvoid);
++                gles.DrawArrays(gles11::TRIANGLES, 0, ARROW.len() as _);
++            };
++            // The outline is the shape drawn dark, nudged every way around.
++            for dx in [-outline, 0.0, outline] {
++                for dy in [-outline, 0.0, outline] {
++                    draw((dx, dy), [0.0, 0.0, 0.0]);
++                }
++            }
++            // Lighter while pressed.
++            let lift = |c: f32| if pressed { c + (1.0 - c) * 0.35 } else { c };
++            draw((0.0, 0.0), [lift(r), lift(g), lift(b)]);
++            return;
++        }
++
+         gles.Color4f(0.0, 0.0, 0.0, if pressed { 2.0 / 3.0 } else { 1.0 / 3.0 });
+ 
+         let radius = 10.0;
+diff --git a/src/options.rs b/src/options.rs
+index 3ddf0ae..e775bcb 100644
+--- a/src/options.rs
++++ b/src/options.rs
+@@ -29,6 +29,25 @@ pub enum Button {
+     X,
+     Y,
+     LeftShoulder,
++    RightShoulder,
++}
++impl Button {
++    fn from_name(name: &str) -> Option<Self> {
++        match name {
++            "DPadLeft" => Some(Button::DPadLeft),
++            "DPadUp" => Some(Button::DPadUp),
++            "DPadRight" => Some(Button::DPadRight),
++            "DPadDown" => Some(Button::DPadDown),
++            "Start" => Some(Button::Start),
++            "A" => Some(Button::A),
++            "B" => Some(Button::B),
++            "X" => Some(Button::X),
++            "Y" => Some(Button::Y),
++            "LeftShoulder" => Some(Button::LeftShoulder),
++            "RightShoulder" => Some(Button::RightShoulder),
++            _ => None,
++        }
++    }
+ }
+ 
+ /// Struct containing all user-configurable options.
+@@ -50,6 +69,11 @@ pub struct Options {
+     pub dpad_to_touch: Option<(f32, f32, f32, f32)>,
+     pub stick_to_touch: Option<(f32, f32, f32, f32)>,
+     pub stabilize_virtual_cursor: Option<(f32, f32)>,
++    pub virtual_cursor_relative: Option<f32>,
++    pub virtual_cursor_left_stick: bool,
++    pub virtual_cursor_button: Option<Button>,
++    pub virtual_cursor_dpad: bool,
++    pub virtual_cursor_arrow: Option<[f32; 3]>,
+     pub gles1_implementation: Option<GLESImplementation>,
+     pub direct_memory_access: bool,
+     pub gdb_listen_addrs: Option<Vec<SocketAddr>>,
+@@ -85,6 +109,11 @@ impl Default for Options {
+             dpad_to_touch: None,
+             stick_to_touch: None,
+             stabilize_virtual_cursor: None,
++            virtual_cursor_relative: None,
++            virtual_cursor_left_stick: false,
++            virtual_cursor_button: None,
++            virtual_cursor_dpad: false,
++            virtual_cursor_arrow: None,
+             gles1_implementation: None,
+             direct_memory_access: true,
+             gdb_listen_addrs: None,
+@@ -117,6 +146,12 @@ impl Options {
+             }
+             Ok(arg)
+         }
++        fn parse_speed(arg: &str, name: &str) -> Result<f32, String> {
++            arg.parse()
++                .ok()
++                .filter(|s: &f32| s.is_finite() && *s != 0.0)
++                .ok_or_else(|| format!("Invalid speed for {name}"))
++        }
+ 
+         if arg == "--fullscreen" {
+             self.fullscreen = true;
+@@ -157,19 +192,8 @@ impl Options {
+             let (x, y) = coords
+                 .split_once(',')
+                 .ok_or_else(|| "--button-to-touch= requires three values".to_string())?;
+-            let button = match button {
+-                "DPadLeft" => Ok(Button::DPadLeft),
+-                "DPadUp" => Ok(Button::DPadUp),
+-                "DPadRight" => Ok(Button::DPadRight),
+-                "DPadDown" => Ok(Button::DPadDown),
+-                "Start" => Ok(Button::Start),
+-                "A" => Ok(Button::A),
+-                "B" => Ok(Button::B),
+-                "X" => Ok(Button::X),
+-                "Y" => Ok(Button::Y),
+-                "LeftShoulder" => Ok(Button::LeftShoulder),
+-                _ => Err("Invalid button for --button-to-touch=".to_string()),
+-            }?;
++            let button = Button::from_name(button)
++                .ok_or_else(|| "Invalid button for --button-to-touch=".to_string())?;
+             let x: f32 = x
+                 .parse()
+                 .map_err(|_| "Invalid X co-ordinate for --button-to-touch=".to_string())?;
+@@ -216,6 +240,28 @@ impl Options {
+                     "Invalid sticky radius for --stabilize-virtual-cursor=".to_string()
+                 })?;
+             self.stabilize_virtual_cursor = Some((smoothing_strength, sticky_radius));
++        } else if let Some(value) = arg.strip_prefix("--virtual-cursor-relative=") {
++            self.virtual_cursor_relative = Some(parse_speed(value, "--virtual-cursor-relative=")?);
++        } else if let Some(value) = arg.strip_prefix("--virtual-cursor-stick=") {
++            self.virtual_cursor_left_stick = match value {
++                "left" => true,
++                "right" => false,
++                _ => return Err("Invalid stick for --virtual-cursor-stick=".to_string()),
++            };
++        } else if let Some(value) = arg.strip_prefix("--virtual-cursor-button=") {
++            self.virtual_cursor_button = Some(
++                Button::from_name(value)
++                    .ok_or_else(|| "Invalid button for --virtual-cursor-button=".to_string())?,
++            );
++        } else if arg == "--virtual-cursor-dpad" {
++            self.virtual_cursor_dpad = true;
++        } else if let Some(value) = arg.strip_prefix("--virtual-cursor-arrow=") {
++            let rgb = u32::from_str_radix(value, 16)
++                .ok()
++                .filter(|_| value.len() == 6)
++                .ok_or_else(|| "--virtual-cursor-arrow= requires a color like e0201c".to_string())?;
++            let channel = |shift: u32| ((rgb >> shift) & 0xff) as f32 / 255.0;
++            self.virtual_cursor_arrow = Some([channel(16), channel(8), channel(0)]);
+         } else if let Some(value) = arg.strip_prefix("--gles1=") {
+             self.gles1_implementation = Some(
+                 GLESImplementation::from_short_name(value)
+diff --git a/src/window.rs b/src/window.rs
+index 1a72154..08fefd8 100644
+--- a/src/window.rs
++++ b/src/window.rs
+@@ -210,6 +210,24 @@ fn surface_from_image(image: &Image) -> Surface<'_> {
+     surface
+ }
+ 
++fn sdl_button(button: crate::options::Button) -> sdl2::controller::Button {
++    use crate::options::Button as B;
++    use sdl2::controller::Button as S;
++    match button {
++        B::DPadLeft => S::DPadLeft,
++        B::DPadUp => S::DPadUp,
++        B::DPadRight => S::DPadRight,
++        B::DPadDown => S::DPadDown,
++        B::Start => S::Start,
++        B::A => S::A,
++        B::B => S::B,
++        B::X => S::X,
++        B::Y => S::Y,
++        B::LeftShoulder => S::LeftShoulder,
++        B::RightShoulder => S::RightShoulder,
++    }
++}
++
+ pub struct Window {
+     _sdl_ctx: sdl2::Sdl,
+     video_ctx: sdl2::VideoSubsystem,
+@@ -243,6 +261,9 @@ pub struct Window {
+     accelerometer: Option<sdl2::sensor::Sensor>,
+     virtual_cursor_last: Option<(f32, f32, bool, bool)>,
+     virtual_cursor_last_unsticky: Option<(f32, f32, Instant)>,
++    virtual_cursor_last_time: Option<Instant>,
++    /// Copy of `virtual_cursor_arrow` on [Options].
++    virtual_cursor_arrow: Option<[f32; 3]>,
+     virtual_accelerometer_last: Option<(f32, f32, bool)>,
+     /// Whether or not we are on the "main" environment stack (rather than
+     /// a coroutine stack). Checked in various functions to make sure that
+@@ -407,6 +428,8 @@ impl Window {
+             accelerometer,
+             virtual_cursor_last: None,
+             virtual_cursor_last_unsticky: None,
++            virtual_cursor_last_time: None,
++            virtual_cursor_arrow: options.virtual_cursor_arrow,
+             virtual_accelerometer_last: None,
+             on_main_stack: true,
+         };
+@@ -493,6 +516,9 @@ impl Window {
+                 sdl2::controller::Button::LeftShoulder => {
+                     Some(crate::options::Button::LeftShoulder)
+                 }
++                sdl2::controller::Button::RightShoulder => {
++                    Some(crate::options::Button::RightShoulder)
++                }
+                 _ => None,
+             }
+         }
+@@ -857,25 +883,21 @@ impl Window {
+             })
+         }
+ 
+-        if controller_updated {
++        // A relative cursor keeps moving while the stick is held still, which
++        // doesn't produce events.
++        let relative_cursor =
++            options.virtual_cursor_relative.is_some() && !self.controllers.is_empty();
++        if controller_updated || relative_cursor {
+             let (new_x, new_y, pressed, pressed_changed, moved) =
+                 self.update_virtual_cursor(options);
+-            self.event_queue
+-                .push_back(match (pressed, pressed_changed, moved) {
+-                    (true, true, _) => {
+-                        let coords = transform_input_coords(self, (new_x, new_y), false);
+-                        Event::TouchesDown(HashMap::from([(FingerId::VirtualCursor, coords)]))
+-                    }
+-                    (false, true, _) => {
+-                        let coords = transform_input_coords(self, (new_x, new_y), false);
+-                        Event::TouchesUp(HashMap::from([(FingerId::VirtualCursor, coords)]))
+-                    }
+-                    (true, _, true) => {
+-                        let coords = transform_input_coords(self, (new_x, new_y), false);
+-                        Event::TouchesMove(HashMap::from([(FingerId::VirtualCursor, coords)]))
+-                    }
+-                    _ => return,
+-                });
++            let coords = transform_input_coords(self, (new_x, new_y), false);
++            let fingers = HashMap::from([(FingerId::VirtualCursor, coords)]);
++            match (pressed, pressed_changed, moved) {
++                (true, true, _) => self.event_queue.push_back(Event::TouchesDown(fingers)),
++                (false, true, _) => self.event_queue.push_back(Event::TouchesUp(fingers)),
++                (true, _, true) => self.event_queue.push_back(Event::TouchesMove(fingers)),
++                _ => (),
++            }
+         }
+     }
+ 
+@@ -1011,17 +1033,18 @@ impl Window {
+ 
+     /// For use when redrawing the screen: Get the cached on-screen position and
+     /// press state of the analog stick-controlled virtual cursor, if it is
+-    /// visible.
+-    pub fn virtual_cursor_visible_at(&self) -> Option<(f32, f32, bool)> {
++    /// visible, and the `--virtual-cursor-arrow=` color to draw it in.
++    pub fn virtual_cursor_visible_at(&self) -> Option<(f32, f32, bool, Option<[f32; 3]>)> {
+         let (x, y, pressed, visible) = self.virtual_cursor_last?;
++        let arrow = self.virtual_cursor_arrow;
+         if visible {
+             // When stickyness is in use, the visual cursor movement appears
+             // uncomfortably choppy. Showing the un-sticky position is a bit
+             // misleading but it *feels* better, and it is documented.
+             if let Some((x_unsticky, y_unsticky, _time)) = self.virtual_cursor_last_unsticky {
+-                Some((x_unsticky, y_unsticky, pressed))
++                Some((x_unsticky, y_unsticky, pressed, arrow))
+             } else {
+-                Some((x, y, pressed))
++                Some((x, y, pressed, arrow))
+             }
+         } else {
+             None
+@@ -1032,12 +1055,29 @@ impl Window {
+     /// return the new position, pressed state, whether the press state changed
+     /// and whether the cursor moved.
+     fn update_virtual_cursor(&mut self, options: &Options) -> (f32, f32, bool, bool, bool) {
+-        // Get right analog stick input. The range is [-1, 1] on each axis.
+-        let (x, y, pressed) = self.get_controller_stick(options, false);
++        // Get analog stick input (the right one, unless --virtual-cursor-stick=
++        // says otherwise). The range is [-1, 1] on each axis.
++        let (mut x, mut y, mut pressed) =
++            self.get_controller_stick(options, options.virtual_cursor_left_stick);
++        if let Some(button) = options.virtual_cursor_button {
++            let button = sdl_button(button);
++            pressed = self.controllers.iter().any(|c| c.button(button));
++        }
++        if options.virtual_cursor_dpad {
++            use sdl2::controller::Button;
++            // A steady speed below the stick's full tilt, for fine aim.
++            const DPAD: f32 = 0.7;
++            let held = |button| self.controllers.iter().any(|c| c.button(button));
++            x += DPAD * (held(Button::DPadRight) as i32 - held(Button::DPadLeft) as i32) as f32;
++            y += DPAD * (held(Button::DPadDown) as i32 - held(Button::DPadUp) as i32) as f32;
++            (x, y) = (x.clamp(-1.0, 1.0), y.clamp(-1.0, 1.0));
++        }
+ 
+         // The cursor is intended to only show up once you move the analog stick
+-        // out of its deadzone, or while the button is held.
+-        let visible = pressed || x != 0.0 || y != 0.0;
++        // out of its deadzone, or while the button is held. A relative cursor
++        // stays where it was left, so it stays visible.
++        let visible =
++            options.virtual_cursor_relative.is_some() || pressed || x != 0.0 || y != 0.0;
+ 
+         // Though the analog stick output fits within a square, its actual range
+         // is usually a circle enclosed by the square. So we need to cut out the
+@@ -1045,7 +1085,24 @@ impl Window {
+         let (vx, vy, vw, vh) = self.viewport();
+         let (vx, vy, vw, vh) = (vx as f32, vy as f32, vw as f32, vh as f32);
+ 
+-        let (x, y) = {
++        let (old_x, old_y, old_pressed, _old_visible) = self
++            .virtual_cursor_last
++            .unwrap_or((vx + vw / 2.0, vy + vh / 2.0, false, false));
++
++        let (x, y) = if let Some(speed) = options.virtual_cursor_relative {
++            let now = Instant::now();
++            let dt = self.virtual_cursor_last_time.map_or(0.0, |last| {
++                now.saturating_duration_since(last).as_secs_f32().min(0.05)
++            });
++            self.virtual_cursor_last_time = Some(now);
++
++            // Squaring the deflection keeps small movements precise.
++            let step = speed * vw * dt;
++            let (max_x, max_y) = (vx + vw - 1.0, vy + vh - 1.0);
++            let new_x = (old_x + x * x.abs() * step).clamp(vx, max_x);
++            let new_y = (old_y + y * y.abs() * step).clamp(vy, max_y);
++            (new_x, new_y)
++        } else {
+             // Use Pythagoras's theorem to find the largest size the rectangle
+             // can have within the circle.
+             let ratio = vw / vh;
+@@ -1054,15 +1111,11 @@ impl Window {
+ 
+             let x_abs = x.abs().min(rect_width) / rect_width;
+             let y_abs = y.abs().min(rect_height) / rect_height;
+-            (x_abs.copysign(x), y_abs.copysign(y))
+-        };
+-
+-        // Convert to on-screen window co-ordinates
+-        let x = (x / 2.0 + 0.5) * vw + vx;
+-        let y = (y / 2.0 + 0.5) * vh + vy;
++            let (x, y) = (x_abs.copysign(x), y_abs.copysign(y));
+ 
+-        let (old_x, old_y, old_pressed, _old_visible) =
+-            self.virtual_cursor_last.unwrap_or_default();
++            // Convert to on-screen window co-ordinates
++            ((x / 2.0 + 0.5) * vw + vx, (y / 2.0 + 0.5) * vh + vy)
++        };
+ 
+         let (x, y) = if let Some((smoothing_strength, sticky_radius)) =
+             options.stabilize_virtual_cursor

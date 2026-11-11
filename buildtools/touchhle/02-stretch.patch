@@ -1,0 +1,83 @@
+Add --stretch to fill the screen in fullscreen
+
+---
+ OPTIONS_HELP.txt | 4 ++++
+ src/options.rs   | 4 ++++
+ src/window.rs    | 6 ++++++
+ 3 files changed, 14 insertions(+)
+
+diff --git a/OPTIONS_HELP.txt b/OPTIONS_HELP.txt
+index eb8248f..129abc6 100644
+--- a/OPTIONS_HELP.txt
++++ b/OPTIONS_HELP.txt
+@@ -8,6 +8,10 @@ View options:
+         in use, the result may be a bit blurry. An internal resolution larger
+         than your screen's is possible, in which case the output is downscaled.
+ 
++    --stretch
++        With --fullscreen, stretch the app's output to fill the whole screen
++        instead of keeping its aspect ratio. Touch input is stretched to match.
++
+     --autorotation-callbacks
+         When rotating an app to its launch orientation, also send its view
+         controller willRotateToInterfaceOrientation:duration: and
+diff --git a/src/options.rs b/src/options.rs
+index e9fa1d2..3ddf0ae 100644
+--- a/src/options.rs
++++ b/src/options.rs
+@@ -35,6 +35,7 @@ pub enum Button {
+ #[derive(Clone)]
+ pub struct Options {
+     pub fullscreen: bool,
++    pub stretch: bool,
+     pub autorotation_callbacks: bool,
+     pub device_family: Option<DeviceFamily>,
+     pub initial_orientation: DeviceOrientation,
+@@ -69,6 +70,7 @@ impl Default for Options {
+     fn default() -> Self {
+         Options {
+             fullscreen: false,
++            stretch: false,
+             autorotation_callbacks: false,
+             device_family: None,
+             initial_orientation: DeviceOrientation::Portrait,
+@@ -118,6 +120,8 @@ impl Options {
+ 
+         if arg == "--fullscreen" {
+             self.fullscreen = true;
++        } else if arg == "--stretch" {
++            self.stretch = true;
+         } else if arg == "--autorotation-callbacks" {
+             self.autorotation_callbacks = true;
+         } else if arg == "--upside-down" {
+diff --git a/src/window.rs b/src/window.rs
+index d4eae99..13a321a 100644
+--- a/src/window.rs
++++ b/src/window.rs
+@@ -228,6 +228,8 @@ pub struct Window {
+     /// Copy of `fullscreen` on [Options]. Note that this is meaningless when
+     /// [Self::rotatable_fullscreen] returns [true].
+     fullscreen: bool,
++    /// Copy of `stretch` on [Options].
++    stretch: bool,
+     scale_hack: NonZeroU32,
+     internal_gl_ins: Option<Box<dyn GLESContext>>,
+     splash_image: Option<Image>,
+@@ -377,6 +379,7 @@ impl Window {
+             #[cfg(target_os = "macos")]
+             viewport_y_offset: 0,
+             fullscreen,
++            stretch: options.stretch,
+             scale_hack,
+             internal_gl_ins: None,
+             splash_image: launch_image,
+@@ -1367,6 +1370,9 @@ impl Window {
+         }
+ 
+         let (screen_width, screen_height) = self.window.drawable_size();
++        if self.stretch {
++            return (0, 0, screen_width, screen_height);
++        }
+ 
+         let app_aspect = app_width as f32 / app_height as f32;
+         let screen_aspect = screen_width as f32 / screen_height as f32;

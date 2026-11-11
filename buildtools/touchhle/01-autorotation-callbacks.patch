@@ -1,0 +1,120 @@
+Send launch rotation callbacks to the root view controller
+
+---
+ OPTIONS_HELP.txt                           |  6 ++++++
+ src/frameworks/uikit/ui_view/ui_window.rs  | 13 ++++++++++++-
+ src/frameworks/uikit/ui_view_controller.rs |  7 ++++++-
+ src/options.rs                             |  4 ++++
+ 4 files changed, 28 insertions(+), 2 deletions(-)
+
+diff --git a/OPTIONS_HELP.txt b/OPTIONS_HELP.txt
+index 9297a5f..eb8248f 100644
+--- a/OPTIONS_HELP.txt
++++ b/OPTIONS_HELP.txt
+@@ -8,6 +8,12 @@ View options:
+         in use, the result may be a bit blurry. An internal resolution larger
+         than your screen's is possible, in which case the output is downscaled.
+ 
++    --autorotation-callbacks
++        When rotating an app to its launch orientation, also send its view
++        controller willRotateToInterfaceOrientation:duration: and
++        didRotateFromInterfaceOrientation:, as iOS does. Some apps only learn
++        their orientation from these, and clip or rotate wrongly without them.
++
+     --upside-down
+     --landscape-left
+     --landscape-right
+diff --git a/src/frameworks/uikit/ui_view/ui_window.rs b/src/frameworks/uikit/ui_view/ui_window.rs
+index 1998df4..95c0869 100644
+--- a/src/frameworks/uikit/ui_view/ui_window.rs
++++ b/src/frameworks/uikit/ui_view/ui_window.rs
+@@ -14,9 +14,10 @@ use crate::dyld::{ConstantExports, HostConstant};
+ use crate::frameworks::core_graphics::cg_affine_transform::CGAffineTransform;
+ use crate::frameworks::core_graphics::{CGPoint, CGRect};
+ use crate::frameworks::foundation::ns_string;
++use crate::frameworks::foundation::NSTimeInterval;
+ use crate::frameworks::uikit::ui_application::{
+     UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight,
+-    UIInterfaceOrientationPortraitUpsideDown,
++    UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown,
+ };
+ use crate::frameworks::uikit::ui_device::{
+     UIDeviceOrientationLandscapeLeft, UIDeviceOrientationLandscapeRight,
+@@ -194,6 +195,13 @@ pub const CLASSES: ClassExports = objc_classes! {
+         //  here we use whichever is clearer contextually.)
+         let should = msg![env; vc shouldAutorotateToInterfaceOrientation:orientation];
+         log_dbg!("[{:?} shouldAutorotateToInterfaceOrientation:{:?}] => {:?}", vc, orientation, should);
++        // iOS tells the view controller about the launch rotation, and some
++        // apps only learn their orientation from this.
++        let callbacks = should && env.options.autorotation_callbacks;
++        if callbacks {
++            let duration: NSTimeInterval = 0.0;
++            () = msg![env; vc willRotateToInterfaceOrientation:orientation duration:duration];
++        }
+         if should {
+             log_dbg!("App requested autorotation; applying orientation transform to view {:?}.", view);
+             let transform = match orientation {
+@@ -223,6 +231,9 @@ pub const CLASSES: ClassExports = objc_classes! {
+             let view_frame: CGRect = msg![env; view frame];
+             log_dbg!("New view frame after re-applying old view frame: {view_frame:?}");
+         }
++        if callbacks {
++            () = msg![env; vc didRotateFromInterfaceOrientation:UIInterfaceOrientationPortrait];
++        }
+     }
+ }
+ 
+diff --git a/src/frameworks/uikit/ui_view_controller.rs b/src/frameworks/uikit/ui_view_controller.rs
+index d0a73bc..8636e06 100644
+--- a/src/frameworks/uikit/ui_view_controller.rs
++++ b/src/frameworks/uikit/ui_view_controller.rs
+@@ -11,7 +11,7 @@
+ use crate::frameworks::core_graphics::CGRect;
+ use crate::frameworks::foundation::ns_objc_runtime::NSStringFromClass;
+ use crate::frameworks::foundation::ns_string::{from_rust_string, get_static_str, to_rust_string};
+-use crate::frameworks::foundation::NSInteger;
++use crate::frameworks::foundation::{NSInteger, NSTimeInterval};
+ use crate::frameworks::uikit::ui_application::{
+     UIInterfaceOrientation, UIInterfaceOrientationPortrait,
+ };
+@@ -201,6 +201,11 @@ pub const CLASSES: ClassExports = objc_classes! {
+ - (bool)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interface_orientation {
+     interface_orientation == UIInterfaceOrientationPortrait
+ }
++- (())willRotateToInterfaceOrientation:(UIInterfaceOrientation)_orientation
++                              duration:(NSTimeInterval)_duration {
++}
++- (())didRotateFromInterfaceOrientation:(UIInterfaceOrientation)_orientation {
++}
+ 
+ // UIResponder implementation
+ // From the Apple UIView docs regarding [UIResponder nextResponder]:
+diff --git a/src/options.rs b/src/options.rs
+index 7f13c7f..e9fa1d2 100644
+--- a/src/options.rs
++++ b/src/options.rs
+@@ -35,6 +35,7 @@ pub enum Button {
+ #[derive(Clone)]
+ pub struct Options {
+     pub fullscreen: bool,
++    pub autorotation_callbacks: bool,
+     pub device_family: Option<DeviceFamily>,
+     pub initial_orientation: DeviceOrientation,
+     pub scale_hack: NonZeroU32,
+@@ -68,6 +69,7 @@ impl Default for Options {
+     fn default() -> Self {
+         Options {
+             fullscreen: false,
++            autorotation_callbacks: false,
+             device_family: None,
+             initial_orientation: DeviceOrientation::Portrait,
+             scale_hack: NonZeroU32::new(1).unwrap(),
+@@ -116,6 +118,8 @@ impl Options {
+ 
+         if arg == "--fullscreen" {
+             self.fullscreen = true;
++        } else if arg == "--autorotation-callbacks" {
++            self.autorotation_callbacks = true;
+         } else if arg == "--upside-down" {
+             self.initial_orientation = DeviceOrientation::PortraitUpsideDown;
+         } else if arg == "--landscape-left" {

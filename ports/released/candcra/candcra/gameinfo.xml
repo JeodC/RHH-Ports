@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gamelist>
+	<game>
+		<path>./Command and Conquer - Red Alert (iPad).sh</path>
+		<name>Command &amp; Conquer: Red Alert (iPad)</name>
+		<desc>EA's 2010 iPad real-time strategy game, set in the Red Alert 3 universe. Command the Allies, the Soviets or the Empire of the Rising Sun across story campaigns and skirmishes. Runs the original iPad app through touchHLE, with gamepad controls added.</desc>
+		<image>./candcra/cover.png</image>
+		<releasedate>20100401T000000</releasedate>
+		<developer>EA Mobile</developer>
+		<publisher>Electronic Arts</publisher>
+		<genre>Strategy</genre>
+		<players>1</players>
+	</game>
+</gamelist>

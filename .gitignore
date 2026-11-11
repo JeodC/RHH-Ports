@@ -11,3 +11,6 @@ __pycache__/
 
 # FNA files
 /buildtools/fnapatches/MarvelCosmicInvasion/dev
+
+# touchHLE files
+/buildtools/touchhle/out/
