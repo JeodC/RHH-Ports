@@ -466,6 +466,52 @@
   },
   {
     "version": 4,
+    "name": "candcra.zip",
+    "items": [
+      "Command and Conquer - Red Alert (iPad).sh",
+      "candcra"
+    ],
+    "items_opt": [],
+    "attr": {
+      "title": "Command & Conquer: Red Alert (iPad)",
+      "porter": [
+        "Jeod"
+      ],
+      "desc": "EA's 2010 iPad real-time strategy game, set in the Red Alert 3 universe. Command the Allies, the Soviets or the Empire of the Rising Sun across story campaigns and skirmishes. Runs the original iPad app through touchHLE, with gamepad controls added.",
+      "desc_md": null,
+      "inst": "Copy your own decrypted .ipa of Red Alert for iPad into `candcra/gamedata`. See the readme.",
+      "inst_md": null,
+      "genres": [
+        "strategy"
+      ],
+      "image": null,
+      "rtr": false,
+      "exp": false,
+      "runtime": [],
+      "store": [],
+      "availability": "paid",
+      "reqs": [
+        "power"
+      ],
+      "arch": [
+        "aarch64"
+      ],
+      "min_glibc": null
+    },
+    "source": {
+      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/candcra/candcra/screenshot.png",
+      "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/candcra/candcra/README.md",
+      "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/candcra.zip",
+      "date_updated": "2026-11-11T22:06",
+      "first_seen": "2026-11-11",
+      "md5": "2ecef8365be7b3e171cefa536c15b4be",
+      "size": 15900079,
+      "lifetime_downloads": 0,
+      "last_commit": "[REDALERT] Add port"
+    }
+  },
+  {
+    "version": 4,
     "name": "darkdeity.zip",
     "items": [
       "Dark Deity.sh",
