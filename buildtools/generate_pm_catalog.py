@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build the PortMasterV3 ports.json + images.zip for the ports-latest release
-so stock PortMaster can browse this repo (via docs/030_rhh.source.json)."""
+so stock PortMaster can browse this repo (via docs/010_rhh.source.json)."""
 
 import argparse
 import hashlib

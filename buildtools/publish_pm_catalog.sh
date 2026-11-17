@@ -11,7 +11,7 @@ trap 'rm -rf "$OUT"' EXIT
 
 python3 "$ROOT/buildtools/generate_pm_catalog.py" --output "$OUT"
 
-SRC_JSON="$ROOT/docs/030_rhh.source.json"
+SRC_JSON="$ROOT/docs/010_rhh.source.json"
 
 # Skip images if they haven't changed
 if curl -sfL -o "$OUT/current_catalog.json" "$CATALOG_URL"; then
