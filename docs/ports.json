@@ -3470,12 +3470,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/soh.zip",
-      "date_updated": "2026-11-04T14:14",
+      "date_updated": "2026-11-18T14:30",
       "first_seen": "2025-11-11",
-      "md5": "deebddc31296df4eedf6c4e85e533eca",
-      "size": 60641568,
-      "lifetime_downloads": 665,
-      "last_commit": "[SOH] Update to 9.3.1"
+      "md5": "b9c0f01e6ab3ff906c1943d6fbd91668",
+      "size": 60641576,
+      "lifetime_downloads": 744,
+      "last_commit": "[SOH] Apply a shader adjustment to soh.o2r for TrimUI"
     }
   },
   {
