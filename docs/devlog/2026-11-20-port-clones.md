@@ -1,0 +1,13 @@
+I was made aware this week that a Portmaster engineer by the name of monkeyx-net is publishing HarbourMasters ports. I made a reddit post about it [here](https://www.reddit.com/r/SBCGaming/comments/1xz05wc/portmaster_and_rhhports/); essentially despite my concerns and warnings, this individual has continued undeterred to both take and modify my autobuild system and also somehow manage to cause all manner of problems.
+
+First, RHH-Ports is MIT. It does mean anyone can take and modify my work, but MIT requires attribution which can't be voided just because I don't have SPDX license headers on every file. Check the pull request [here](https://github.com/PortsMaster-MV/PortMaster-MV-New/pull/173/changes#diff-3ea2ae2024c79b125c496817acf4b7abfc5d09b31de2003ae7e9f23e5dfe65d7) and you'll see where my name was removed and also where this individual deceptively claims to have "taken over the ports" from me. That couldn't be further from the truth. I put in effort at HarbourMasters to test changes in ports on these handhelds to ensure the port path remains clear, and I build bridges and contribute. There is a reason these ports can be autobuild without much modification. Alas, Portmaster has a [reputation](https://github.com/PortsMaster/PortMaster-Wiki-New/commit/8a80a2c04873180a81e6bab7aa8dbbe3c0214d75) of neglecting attribution, though maybe neglecting is too lenient.
+
+Anyway, this monkeyx-net individual has their own autobuilding repository that seemingly contains RHH-Ports inspired code. Attribution would be nice, however:
+
+- Portmaster still has no way to auto-update a port, so maintenance once again falls to them for these ports (and they have a track record of falling behind and even [not caring](https://github.com/PortsMaster-MV/PortMaster-MV-New/pull/143#issuecomment-4891418320) in the first place)
+- The build system is entirely vibecoded, with unnecessary bloat such as a love2d launcher to replace the existing imgui for some reason
+- Instead of properly investigating memory optimization, they elected to rely on a horrible zram/swap workaround that burdens the end user's storage device
+
+As a developer I must advise against using these badly copied, poorly tested, and sluggishly maintained ports. Using [010_rrh.source.json](https://github.com/JeodC/RHH-Ports/blob/main/docs/index.html#L116) will override these ports in the Portmaster catalog for you, or you can also use [Pharos](https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pharos.zip) which will eventually gain more features to further consolidate duplicate files and give you more space on your storage device.
+
+As always, thank you for your support and if you run into problems, please post a GitHub issue or shoot me an email.

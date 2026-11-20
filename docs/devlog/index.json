@@ -1,6 +1,12 @@
 {
   "posts": [
     {
+      "slug": "2026-11-20-port-clones",
+      "title": "HarbourMasters port clones",
+      "date": "2026-11-20",
+      "excerpt": "Despite my concerns and warnings, this individual has continued undeterred to both take and modify my autobuild system and also somehow manage to cause all manner of problems"
+    },
+    {
       "slug": "2026-07-09-ports-takedown",
       "title": "On removing my old ports from PortMaster",
       "date": "2026-07-09",
