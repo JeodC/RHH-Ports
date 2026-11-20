@@ -122,24 +122,28 @@ pm_platform_helper "$GAME" >/dev/null
 
 # OpenAL workaround: bundled libopenal.so requires GLIBC_2.34.
 if [ -n "$CFW_GLIBC" ] && [ "$CFW_GLIBC" -lt 234 ] 2>/dev/null; then
-    for p in /usr/lib/aarch64-linux-gnu/libopenal.so.1 /usr/lib/libopenal.so.1; do
-        [ -f "$p" ] && SYSTEM_OPENAL="$p" && break
-    done
+    echo "[OpenAL] Checking system library..."
+
+    SYSTEM_OPENAL=$(find /usr/lib /lib -name 'libopenal.so.1' -print -quit 2>/dev/null)
 
     if [ -n "$SYSTEM_OPENAL" ]; then
-        DOTNET_CACHE_BASE="$HOME/.net/LADXHD"
-        mkdir -p "$DOTNET_CACHE_BASE"
-
-        # Trigger .NET single-file extraction; 10s is generous for slow SD cards.
+        echo "[OpenAL] Using $SYSTEM_OPENAL"
+        DOTNET_CACHE="$HOME/.net/LADXHD"
         timeout 10 "$GAME" >/dev/null 2>&1
-
-        # Best-effort cache swap so subsequent runs don't need LD_PRELOAD.
-        CACHE_DIR=$(find "$DOTNET_CACHE_BASE" -mindepth 1 -maxdepth 1 -type d | head -n 1)
-        if [ -n "$CACHE_DIR" ] && [ -f "$CACHE_DIR/libopenal.so" ]; then
-            ln -sf "$SYSTEM_OPENAL" "$CACHE_DIR/libopenal.so"
-        fi
-
-        export LD_PRELOAD="$SYSTEM_OPENAL"
+        find "$DOTNET_CACHE" -name 'libopenal.so' -exec sh -c '
+            SYSTEM_OPENAL=$1
+            shift
+            for lib do
+                rm -f "$lib"
+                if ln -s "$SYSTEM_OPENAL" "$lib"; then
+                    echo "[OpenAL] Replaced: $lib"
+                else
+                    echo "[OpenAL] ERROR: Failed: $lib"
+                fi
+            done
+        ' sh "$SYSTEM_OPENAL" {} +
+    else
+        echo "[OpenAL] WARNING: No compatible libopenal.so.1 found."
     fi
 fi
 
