@@ -1,0 +1,49 @@
+name: Pharos Issue
+description: Report a problem with the Pharos app.
+labels: 
+  - pharos issue
+title: '[Pharos Issue]: '
+
+body: 
+  - type: markdown
+    attributes:
+      value: "## Remember to upload your Pharos log file (in pharos/logs/)!"
+
+  - type: input
+    id: device_type
+    attributes:
+      label: "Device Type"
+      description: "Please specify the type of device you're using (e.g. RG35XXSP)."
+
+  - type: dropdown
+    id: firmware
+    attributes:
+      label: "Firmware"
+      description: "Select the firmware you were using when you encountered the problem. If you tried multiple, select all that apply."
+      options:
+        - "ArkOS"
+        - "ArkOS Wummle"
+        - "ArkOS AeolusUX"
+        - "dArkOS"
+        - "AmberELEC"
+        - "JelOS"
+        - "Rocknix"
+        - "uOS"
+        - "RetroOZ"
+        - "TheRA"
+        - "muOS"
+        - "Knulli"
+        - "Crossmix"
+        - "Batocera"
+        - "Unlisted"
+      multiple: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description"
+      description: "Describe the problem you encountered."
+      
+  - type: markdown
+    attributes:
+      value: "### ⚠️ Before submitting this issue, please read your log files and port instructions thoroughly to determine if the issue is user-error."
