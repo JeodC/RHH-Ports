@@ -3470,12 +3470,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/soh.zip",
-      "date_updated": "2026-11-21T13:05",
+      "date_updated": "2026-11-21T23:03",
       "first_seen": "2025-11-11",
-      "md5": "2901a865c82f0e10a5c8822d37310285",
-      "size": 60641599,
-      "lifetime_downloads": 771,
-      "last_commit": "[HM] Log port origin for smoother troubleshooting"
+      "md5": "9d90f6a9fc6fb2a13da31ea7a8b121ec",
+      "size": 60641493,
+      "lifetime_downloads": 780,
+      "last_commit": "[SOH] Fix base shipofharkinian.json"
     }
   },
   {
