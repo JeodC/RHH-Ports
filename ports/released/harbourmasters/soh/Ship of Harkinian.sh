@@ -100,6 +100,9 @@ edit_json() {
 
 # --------------------- END FUNCTIONS ---------------------
 
+# Log origin
+echo "[RHH-Ports]"
+
 # Perform functions
 unzip_assets || exit 1
 

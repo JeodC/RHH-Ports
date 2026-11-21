@@ -66,6 +66,9 @@ rom_check() {
 
 # --------------------- END FUNCTIONS ---------------------
 
+# Log origin
+echo "[RHH-Ports]"
+
 # Perform functions
 unzip_assets || exit 1
 rom_check || exit 1
