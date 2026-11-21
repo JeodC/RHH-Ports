@@ -139,6 +139,9 @@ clean_files() {
         rmdir "$DATADIR/am2r" 2>/dev/null || true
     fi
 
+    # Preserve splash.png
+    [ -f "$DATADIR/splash.png" ] && mv "$DATADIR/splash.png" "$TMPDIR/" 2>/dev/null
+
     # Clean all contents of assets directory (DATADIR)
     rm -rf "$DATADIR/"*
 
