@@ -2141,12 +2141,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/lighthouse/lighthouse/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/lighthouse/lighthouse/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/lighthouse.zip",
-      "date_updated": "2026-11-02T12:58",
+      "date_updated": "2026-11-21T13:05",
       "first_seen": "2026-07-31",
-      "md5": "0debd07b8c706c32221c482496a609b5",
-      "size": 8348485,
-      "lifetime_downloads": 717,
-      "last_commit": "[HM] Add out of memory messages to ports"
+      "md5": "eb22aa73839c9e11a7291c568d3cb67d",
+      "size": 8348507,
+      "lifetime_downloads": 827,
+      "last_commit": "[HM] Log port origin for smoother troubleshooting"
     }
   },
   {
@@ -2944,12 +2944,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/paperboat.zip",
-      "date_updated": "2026-11-04T14:14",
+      "date_updated": "2026-11-21T13:05",
       "first_seen": "2026-09-17",
-      "md5": "88a00f94eb9f84757f3d692ef2c324ac",
-      "size": 11864901,
-      "lifetime_downloads": 825,
-      "last_commit": "[PAPERBOAT] Update to 1.0.3"
+      "md5": "734eb45d31f1e09af6a4523cb280fa2e",
+      "size": 11864922,
+      "lifetime_downloads": 971,
+      "last_commit": "[HM] Log port origin for smoother troubleshooting"
     }
   },
   {
@@ -3424,12 +3424,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/sm64-ghostship/sm64-ghostship/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/sm64-ghostship/sm64-ghostship/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sm64-ghostship.zip",
-      "date_updated": "2026-11-04T14:14",
+      "date_updated": "2026-11-21T13:05",
       "first_seen": "2026-01-18",
-      "md5": "6bb7ce375a66be059d5eab1a6df0f7b7",
-      "size": 7336092,
-      "lifetime_downloads": 604,
-      "last_commit": "[GHOSTSHIP] Update to 3.0.0"
+      "md5": "3cbb1ef51b04907dba3e1cb717306b68",
+      "size": 7336116,
+      "lifetime_downloads": 682,
+      "last_commit": "[HM] Log port origin for smoother troubleshooting"
     }
   },
   {
@@ -3470,12 +3470,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/soh.zip",
-      "date_updated": "2026-11-18T14:30",
+      "date_updated": "2026-11-21T13:05",
       "first_seen": "2025-11-11",
-      "md5": "b9c0f01e6ab3ff906c1943d6fbd91668",
-      "size": 60641576,
-      "lifetime_downloads": 744,
-      "last_commit": "[SOH] Apply a shader adjustment to soh.o2r for TrimUI"
+      "md5": "2901a865c82f0e10a5c8822d37310285",
+      "size": 60641599,
+      "lifetime_downloads": 771,
+      "last_commit": "[HM] Log port origin for smoother troubleshooting"
     }
   },
   {
@@ -3516,12 +3516,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh2/soh2/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh2/soh2/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/soh2.zip",
-      "date_updated": "2026-11-02T12:58",
+      "date_updated": "2026-11-21T13:05",
       "first_seen": "2025-11-11",
-      "md5": "ded301d4b5f5a28cba4ae9333664fdcc",
-      "size": 15522982,
-      "lifetime_downloads": 502,
-      "last_commit": "[HM] Add out of memory messages to ports"
+      "md5": "48181d891c9cc928e948239ef345f9ba",
+      "size": 15523003,
+      "lifetime_downloads": 581,
+      "last_commit": "[HM] Log port origin for smoother troubleshooting"
     }
   },
   {
