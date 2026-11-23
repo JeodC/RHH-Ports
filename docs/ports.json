@@ -416,7 +416,7 @@
     "version": 4,
     "name": "tomoyo_after.zip",
     "items": [
-      "Clannad Tomoyo After.sh.sh",
+      "Clannad Tomoyo After.sh",
       "tomoyo_after/"
     ],
     "items_opt": [],
@@ -456,12 +456,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/tomoyo_after/tomoyo_after/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/tomoyo_after/tomoyo_after/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/tomoyo_after.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T13:04",
       "first_seen": "2025-05-17",
-      "md5": "07b8e23d1eaa86eec4cde5fddb31e45c",
-      "size": 578141,
+      "md5": "846642c12df9a9b72321328b6c0ae3d3",
+      "size": 578139,
       "lifetime_downloads": 31,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several typos in port.json files"
     }
   },
   {
@@ -713,7 +713,7 @@
     "version": 4,
     "name": "descent.zip",
     "items": [
-      "descent.sh",
+      "Descent.sh",
       "descent/"
     ],
     "items_opt": [],
@@ -761,19 +761,19 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/descent-1-2/descent/descent/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/descent-1-2/descent/descent/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/descent.zip",
-      "date_updated": "2026-05-14T16:48",
+      "date_updated": "2026-11-23T13:04",
       "first_seen": "2025-05-18",
-      "md5": "6cb595462ffb90bcb0d4fa7b5fc77a50",
-      "size": 14919836,
-      "lifetime_downloads": 15,
-      "last_commit": "Remove old ports and fix all storefronts in port.json files"
+      "md5": "bc6ba0075518a4d403b9c17122edbf87",
+      "size": 14919837,
+      "lifetime_downloads": 105,
+      "last_commit": "Fix several typos in port.json files"
     }
   },
   {
     "version": 4,
     "name": "descent2.zip",
     "items": [
-      "descent2.sh",
+      "Descent 2.sh",
       "descent2/"
     ],
     "items_opt": [],
@@ -821,12 +821,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/descent-1-2/descent2/descent2/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/descent-1-2/descent2/descent2/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/descent2.zip",
-      "date_updated": "2026-05-14T16:48",
+      "date_updated": "2026-11-23T13:04",
       "first_seen": "2025-05-18",
-      "md5": "26beede9798fc3c303f5e52883c7caf5",
-      "size": 14463519,
-      "lifetime_downloads": 12,
-      "last_commit": "Remove old ports and fix all storefronts in port.json files"
+      "md5": "dc7a1977796a1e3f37d402de22306269",
+      "size": 14463521,
+      "lifetime_downloads": 70,
+      "last_commit": "Fix several typos in port.json files"
     }
   },
   {
@@ -2397,12 +2397,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mimisdeliverydash/mimisdeliverydash/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mimisdeliverydash/mimisdeliverydash/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/mimisdeliverydash.zip",
-      "date_updated": "2026-11-23T12:16",
+      "date_updated": "2026-11-23T13:04",
       "first_seen": "2025-05-18",
-      "md5": "3c1bd9c124387d7020b06f1438bebd09",
-      "size": 17996771,
+      "md5": "025ffc338c37d97447b58efcd1da6144",
+      "size": 17997444,
       "lifetime_downloads": 56,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several typos in port.json files"
     }
   },
   {
@@ -2845,7 +2845,7 @@
     "name": "paperboat.zip",
     "items": [
       "Paperboat.sh",
-      "Paperboat"
+      "paperboat"
     ],
     "items_opt": [],
     "attr": {
@@ -2876,19 +2876,19 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/paperboat.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T13:04",
       "first_seen": "2026-09-17",
-      "md5": "b86986ed787d07bb279d921467ca7109",
-      "size": 11876818,
+      "md5": "4ef5555bc165e3a31db75f1f78be3f5e",
+      "size": 11876817,
       "lifetime_downloads": 1000,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several typos in port.json files"
     }
   },
   {
     "version": 4,
     "name": "pharos.zip",
     "items": [
-      "Pharos.sh",
+      "Pharos App.sh",
       "pharos"
     ],
     "items_opt": [],
@@ -2920,12 +2920,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/apps/pharos/pharos/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/apps/pharos/pharos/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pharos.zip",
-      "date_updated": "2026-11-22T00:19",
+      "date_updated": "2026-11-23T13:04",
       "first_seen": "2026-01-29",
-      "md5": "778227cafae6462cf9f9de2975e2df69",
-      "size": 21860024,
-      "lifetime_downloads": 5086,
-      "last_commit": "[PHAROS] Add NextOS to default sources file"
+      "md5": "dbfa193edb0011eeec5d0f6053dc212e",
+      "size": 21860027,
+      "lifetime_downloads": 5137,
+      "last_commit": "Fix several typos in port.json files"
     }
   },
   {
@@ -3899,7 +3899,7 @@
     "version": 4,
     "name": "unleashedrecomp.zip",
     "items": [
-      "Sonic Unleashed Recomp.sh",
+      "Sonic Unleashed Recompiled.sh",
       "unleashedrecomp"
     ],
     "items_opt": [],
@@ -3936,12 +3936,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/unleashedrecomp/unleashedrecomp/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/unleashedrecomp/unleashedrecomp/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/unleashedrecomp.zip",
-      "date_updated": "2026-05-11T10:49",
+      "date_updated": "2026-11-23T13:04",
       "first_seen": "2026-01-02",
-      "md5": "937ac5e8ae5cd0266a7a70e60dd1f217",
-      "size": 1167547,
-      "lifetime_downloads": 66,
-      "last_commit": "Add vulkan requirement to filter and tag ports that need it"
+      "md5": "6d4082efcc259ddac8174246ac20ba5e",
+      "size": 1167548,
+      "lifetime_downloads": 346,
+      "last_commit": "Fix several typos in port.json files"
     }
   },
   {
@@ -4598,7 +4598,7 @@
     "version": 4,
     "name": "zeldaxd-mercurischess.zip",
     "items": [
-      "The Legend of Zelda - Mercuris Chess.sh",
+      "The Legend of Zelda XD - Mercuris Chess.sh",
       "zeldaxd-mercurischess/"
     ],
     "items_opt": [],
@@ -4631,12 +4631,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zeldaxd-mercurischess/zeldaxd-mercurischess/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zeldaxd-mercurischess/zeldaxd-mercurischess/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zeldaxd-mercurischess.zip",
-      "date_updated": "2026-05-14T13:39",
+      "date_updated": "2026-11-23T13:04",
       "first_seen": "2025-05-18",
-      "md5": "a3e86fd467dc2ebc78c38c805853267e",
-      "size": 384410,
-      "lifetime_downloads": 9,
-      "last_commit": "Update readmes to add runtime requirements"
+      "md5": "f3fe64dc2251ae0a6f6bf970d99ad768",
+      "size": 384411,
+      "lifetime_downloads": 71,
+      "last_commit": "Fix several typos in port.json files"
     }
   },
   {
@@ -4644,7 +4644,7 @@
     "name": "zelda-mercurischest.zip",
     "items": [
       "The Legend of Zelda - Mercuris' Chest (DEMO).sh",
-      "zeldaxd-mercurischess/"
+      "zelda-mercurischest/"
     ],
     "items_opt": [],
     "attr": {
@@ -4676,12 +4676,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-mercurischest/zelda-mercurischest/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-mercurischest/zelda-mercurischest/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zelda-mercurischest.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T13:04",
       "first_seen": "2025-05-18",
-      "md5": "53427e3b7210e0c85e3e6d6698990247",
-      "size": 2775019,
+      "md5": "f964413ecbbdc0625566f4976eb06c94",
+      "size": 2775015,
       "lifetime_downloads": 41,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several typos in port.json files"
     }
   },
   {
@@ -4778,7 +4778,7 @@
     "version": 4,
     "name": "zelda-roth-se.zip",
     "items": [
-      "The Legend of Zelda - Return of the Hylain.sh",
+      "The Legend of Zelda - Return of the Hylian.sh",
       "zelda-roth-se/"
     ],
     "items_opt": [],
@@ -4811,12 +4811,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-roth-se/zelda-roth-se/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-roth-se/zelda-roth-se/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zelda-roth-se.zip",
-      "date_updated": "2026-05-14T13:39",
+      "date_updated": "2026-11-23T13:04",
       "first_seen": "2025-05-18",
-      "md5": "7af123af6778a71e106d0342635155a4",
+      "md5": "8b187e048298fd99b0662150c2bb0836",
       "size": 380976,
-      "lifetime_downloads": 10,
-      "last_commit": "Update readmes to add runtime requirements"
+      "lifetime_downloads": 69,
+      "last_commit": "Fix several typos in port.json files"
     }
   },
   {
@@ -4869,7 +4869,7 @@
     "name": "zeldo-labors.zip",
     "items": [
       "The Legend of Zelda - Labors of Zeldo.sh",
-      "zeldoschallenge/"
+      "zeldo-labors/"
     ],
     "items_opt": [],
     "attr": {
@@ -4901,12 +4901,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zeldo-labors/zeldo-labors/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zeldo-labors/zeldo-labors/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zeldo-labors.zip",
-      "date_updated": "2026-11-23T13:02",
+      "date_updated": "2026-11-23T13:04",
       "first_seen": "2026-01-01",
-      "md5": "50a8b5f00da2e68100da893b48d0b572",
-      "size": 666468,
+      "md5": "69298e40bb7e9b0c52876a1b99b48188",
+      "size": 666462,
       "lifetime_downloads": 44,
-      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
+      "last_commit": "Fix several typos in port.json files"
     }
   },
   {
@@ -5821,19 +5821,19 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/yarntown/yarntown/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/yarntown/yarntown/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/yarntown.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T13:04",
       "first_seen": "2025-05-18",
-      "md5": "d7cbf6634e09e74585cb2151d2545475",
-      "size": 584691,
+      "md5": "8d3ab7638c525281de0a992cc2ce0679",
+      "size": 584851,
       "lifetime_downloads": 73,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several typos in port.json files"
     }
   },
   {
     "version": 4,
     "name": "zelda2enhanced.zip",
     "items": [
-      "Zelda II: Enhanced.sh",
+      "Zelda II Enhanced.sh",
       "zelda2enhanced"
     ],
     "items_opt": [],
@@ -5869,12 +5869,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/zelda2enhanced/zelda2enhanced/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/zelda2enhanced/zelda2enhanced/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zelda2enhanced.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T13:04",
       "first_seen": "2026-05-14",
-      "md5": "733d6cfd1b36a9c3eb784bd130e6bdd0",
-      "size": 2913744,
+      "md5": "37cb462fda5ab7da187e7c759bdf2692",
+      "size": 2913745,
       "lifetime_downloads": 199,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several typos in port.json files"
     }
   }
 ]
