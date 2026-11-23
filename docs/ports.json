@@ -761,12 +761,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/descent-1-2/descent/descent/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/descent-1-2/descent/descent/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/descent.zip",
-      "date_updated": "2026-11-23T13:04",
+      "date_updated": "2026-11-23T20:09",
       "first_seen": "2025-05-18",
-      "md5": "bc6ba0075518a4d403b9c17122edbf87",
-      "size": 14919837,
-      "lifetime_downloads": 105,
-      "last_commit": "Fix several typos in port.json files"
+      "md5": "1b1d33d62f428efcc8db0ab9cf618aa1",
+      "size": 14919827,
+      "lifetime_downloads": 108,
+      "last_commit": "[DESCENT] Fix config dir in launchers"
     }
   },
   {
@@ -821,12 +821,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/descent-1-2/descent2/descent2/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/descent-1-2/descent2/descent2/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/descent2.zip",
-      "date_updated": "2026-11-23T13:04",
+      "date_updated": "2026-11-23T20:09",
       "first_seen": "2025-05-18",
-      "md5": "dc7a1977796a1e3f37d402de22306269",
-      "size": 14463521,
-      "lifetime_downloads": 70,
-      "last_commit": "Fix several typos in port.json files"
+      "md5": "0fe879612bdddc4fa9a52d01de9fe328",
+      "size": 14463511,
+      "lifetime_downloads": 73,
+      "last_commit": "[DESCENT] Fix config dir in launchers"
     }
   },
   {
