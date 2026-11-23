@@ -3,7 +3,7 @@
 </div>
 
 # Pharos
-Named after the Lighthouse of Alexandria, **Pharos** is a browser application designed to provide an alternative interface for installing ports and wine-arm64 wrappers. Pharos follows GitHub repository links listed in a configurable file `.sources` and presents eligible items hosted on those repositories.
+Named after the Lighthouse of Alexandria, **Pharos** is a browser application designed to provide an alternative interface for installing ports and wine-arm64 wrappers. Pharos follows GitHub and GitLab repositories listed in a configurable file `sources.json` and presents eligible items hosted on those repositories.
 
 <div align=center>
 <img width="400" height="300" alt="pharos2" src="https://raw.githubusercontent.com/JeodC/RHH-Ports/refs/heads/main/ports/released/apps/pharos/pharos/screenshot.png" />
@@ -11,7 +11,7 @@ Named after the Lighthouse of Alexandria, **Pharos** is a browser application de
 
 ## How It Works
 
-1. Pharos reads a list of repository URLs from plaintext file `.sources`.
+1. Pharos reads a list of repositories from `sources.json`. GitHub repositories can be `owner/name` or a URL. GitLab repositories need a URL. Set `enabled` to `false` to hide one.
 2. It parses each repository and displays eligible items in its GUI.
 4. Downloaded files are placed in `pharos/autoinstall`.
 5. Pharos installs the port or wine bottle to either `roms/ports` or `roms/windows` folders.

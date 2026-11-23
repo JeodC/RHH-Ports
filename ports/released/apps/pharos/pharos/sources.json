@@ -1,0 +1,7 @@
+[
+  {"repo": "JeodC/RHH-Ports", "enabled": true},
+  {"repo": "JeodC/RHH-Wine", "enabled": true},
+  {"repo": "NextOs-Ports/nextos-universal-ports", "enabled": true},
+  {"repo": "PortsMaster/PortMaster-New", "enabled": true},
+  {"repo": "PortsMaster-MV/PortMaster-MV-New", "enabled": true}
+]

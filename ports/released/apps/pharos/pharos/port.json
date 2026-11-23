@@ -11,9 +11,9 @@
     "porter": [
       "Jeod"
     ],
-    "desc": "Pharos is a tool for downloading ports and wine bottles hosted outside of PortMaster. Modify the included .sources file to point to GitHub repositories.\nAn optional background service can be installed to check for port updates and surface notifications via the EmulationStation or MuOS overlay.",
+    "desc": "Pharos is a tool for downloading ports and wine bottles hosted outside of PortMaster. Modify the included sources.json file to point to GitHub or GitLab repositories.\nAn optional background service can be installed to check for port updates and surface notifications via the EmulationStation or MuOS overlay.",
     "desc_md": null,
-    "inst": "Add repository URLs to the .sources file to have Pharos check them for ports.",
+    "inst": "Add repositories to the sources.json file to have Pharos check them for ports.",
     "inst_md": null,
     "genres": [
       "app"

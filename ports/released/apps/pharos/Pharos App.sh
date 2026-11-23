@@ -106,7 +106,7 @@ apply_pending_update() {
         return 1
     fi
     # Keep the user's sources
-    [ -f "${GAMEDIR}/.sources" ] && rm -f "${tmpdir}/pharos/.sources"
+    [ -f "${GAMEDIR}/sources.json" ] && rm -f "${tmpdir}/pharos/sources.json"
     if ! cp -rf "${tmpdir}/pharos/." "${GAMEDIR}/" >>"${RUN_LOG}" 2>&1; then
         notify "Update apply: data copy failed; see ${RUN_LOG}."
         rm -rf "${tmpdir}"
@@ -161,7 +161,7 @@ chmod +x "${GAMEDIR}/Pharos"
 
 # Run
 pm_platform_helper "${GAMEDIR}/Pharos" > /dev/null
-"${GAMEDIR}/Pharos" "${GAMEDIR}/.sources" >>"${RUN_LOG}" 2>&1
+"${GAMEDIR}/Pharos" >>"${RUN_LOG}" 2>&1
 
 # Post-exit apply
 if [ -f "${PENDING_ZIP}" ]; then
