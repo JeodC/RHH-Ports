@@ -43,7 +43,7 @@ fi
 # Check for roms
 if [ ! -f "$GAMEDIR/randomizer/seasons.gbc" ] || [ ! -f "$GAMEDIR/randomizer/ages.gbc" ]; then
     export directory ESUDO
-    source search
+    source ./search
 fi
 
 # Run launcher

@@ -38,6 +38,16 @@ export XDG_DATA_HOME="${GAMEDIR}"
 export LOG_FILE="${RUN_LOG}"
 export SDL_GAMECONTROLLERCONFIG="${sdl_controllerconfig}"
 export PYSDL2_DLL_PATH="/usr/lib"
+
+if [ -f /mnt/SDCARD/spruce/portmaster/portmaster.txt ]; then
+    # spruce picks the SDL2 for each device
+    PYSDL2_DLL_PATH="$(. /mnt/SDCARD/spruce/portmaster/portmaster.txt >/dev/null 2>&1; echo "${PYSDL2_DLL_PATH}")"
+elif [ -d /mnt/sdcard/MIYOO_EX/lib ]; then
+    PYSDL2_DLL_PATH="/mnt/sdcard/MIYOO_EX/lib"
+elif [ -d /usr/trimui/lib ]; then
+    PYSDL2_DLL_PATH="/usr/trimui/lib"
+fi
+
 export LD_LIBRARY_PATH="${GAMEDIR}/libs:${LD_LIBRARY_PATH}"
 export controlfolder
 export DEVICE_ARCH
@@ -95,6 +105,8 @@ apply_pending_update() {
         rm -f "${PENDING_ZIP}"
         return 1
     fi
+    # Keep the user's sources
+    [ -f "${GAMEDIR}/.sources" ] && rm -f "${tmpdir}/pharos/.sources"
     if ! cp -rf "${tmpdir}/pharos/." "${GAMEDIR}/" >>"${RUN_LOG}" 2>&1; then
         notify "Update apply: data copy failed; see ${RUN_LOG}."
         rm -rf "${tmpdir}"

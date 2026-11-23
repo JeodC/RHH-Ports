@@ -24,7 +24,7 @@ cd $GAMEDIR
 > "$GAMEDIR/log.txt" && exec > >(tee "$GAMEDIR/log.txt") 2>&1
 
 # Exports
-export LD_LIBRARY_PATH="/usr/lib:$GAMEDIR/libs"
+export LD_LIBRARY_PATH="/usr/lib:$GAMEDIR/libs:$LD_LIBRARY_PATH"
 
 # Run the game
 $GPTOKEYB "solarus-run" -c "tunics.gptk" & 

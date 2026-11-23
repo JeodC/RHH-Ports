@@ -49,9 +49,10 @@ else
     source "${controlfolder}/libgl_default.txt"
 fi
 
-# Create config dir
-rm -rf "$HOME/.rlvm/KEY_CLANNAD_ENHD"
-ln -s "$GAMEDIR/saves" "$HOME/.rlvm/KEY_CLANNAD_ENHD"
+# Create config dir, keeping a real one (it has saves)
+mkdir -p "$HOME/.rlvm"
+[ -L "$HOME/.rlvm/KEY_HIKARI_SAKA_STEAM_EN" ] && rm -f "$HOME/.rlvm/KEY_HIKARI_SAKA_STEAM_EN"
+[ -d "$HOME/.rlvm/KEY_HIKARI_SAKA_STEAM_EN" ] || ln -s "$GAMEDIR/saves" "$HOME/.rlvm/KEY_HIKARI_SAKA_STEAM_EN"
 
 # Setup controls
 $GPTOKEYB "$RLVM/rlvm" -c "rlvm.gptk" & 

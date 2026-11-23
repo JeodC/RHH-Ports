@@ -32,7 +32,7 @@ setup_display() {
         echo "$SECONDARY_OUTPUTS" > /tmp/steamlink_disabled_outputs
         while read -r out; do
             xrandr --output "$out" --off
-        done <<< "$SECONDARY_OUTPUTS"
+        done < /tmp/steamlink_disabled_outputs
     fi
 
     # Set Resolution

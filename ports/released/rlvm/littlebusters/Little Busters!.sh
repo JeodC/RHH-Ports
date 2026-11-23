@@ -49,9 +49,10 @@ else
     source "${controlfolder}/libgl_default.txt"
 fi
 
-# Create config dir
-rm -rf "$HOME/.rlvm/KEY_リトルバスターズ！"
-ln -s "$GAMEDIR/saves" "$HOME/.rlvm/KEY_リトルバスターズ！"
+# Create config dir, keeping a real one (it has saves)
+mkdir -p "$HOME/.rlvm"
+[ -L "$HOME/.rlvm/KEY_リトルバスターズ！" ] && rm -f "$HOME/.rlvm/KEY_リトルバスターズ！"
+[ -d "$HOME/.rlvm/KEY_リトルバスターズ！" ] || ln -s "$GAMEDIR/saves" "$HOME/.rlvm/KEY_リトルバスターズ！"
 
 # Setup controls
 $GPTOKEYB "$RLVM/rlvm" -c "rlvm.gptk" &

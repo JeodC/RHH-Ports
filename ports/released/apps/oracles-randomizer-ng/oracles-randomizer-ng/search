@@ -9,10 +9,18 @@ to_lower() {
     echo "$1" | tr '[:upper:]' '[:lower:]'
 }
 
-candidate_keywords=("zelda" "loz")
+# Whether a lowercase name has a candidate keyword and all the others
+name_matches() {
+    local name="$1"
+    shift
+    [[ "$name" == *zelda* || "$name" == *loz* ]] || return 1
+    for kw in "$@"; do
+        [[ "$name" == *"$kw"* ]] || return 1
+    done
+}
 
 search_gbc_files() {
-    local rom_keywords=("${@:2}")  # e.g., "oracle" "seasons"
+    shift  # leaves the keywords, e.g., "oracle" "seasons"
     local rom_file=""
 
     for dir in $SEARCHDIRS; do
@@ -20,19 +28,7 @@ search_gbc_files() {
             [[ -f "$f" ]] || continue
             local fname=$(to_lower "$(basename "$f")")
 
-            # Candidate keyword check
-            local match_candidate=0
-            for kw in "${candidate_keywords[@]}"; do
-                [[ "$fname" == *"$kw"* ]] && match_candidate=1
-            done
-            [[ $match_candidate -eq 1 ]] || continue
-
-            # Must match all rom_keywords
-            local match_all=1
-            for kw in "${rom_keywords[@]}"; do
-                [[ "$fname" == *"$kw"* ]] || match_all=0
-            done
-            if [[ $match_all -eq 1 ]]; then
+            if name_matches "$fname" "$@"; then
                 rom_file="$f"
                 break 2
             fi
@@ -43,7 +39,7 @@ search_gbc_files() {
 }
 
 search_zip_files() {
-    local rom_keywords=("${@:2}")
+    shift
     local rom_file=""
     local zip_file=""
 
@@ -53,24 +49,12 @@ search_zip_files() {
             local entry_lc=$(to_lower "$entry")
             [[ "$entry_lc" == *.gbc ]] || continue
 
-            # Candidate keyword check
-            local match_candidate=0
-            for kw in "${candidate_keywords[@]}"; do
-                [[ "$entry_lc" == *"$kw"* ]] && match_candidate=1
-            done
-            [[ $match_candidate -eq 1 ]] || continue
-
-            # Must match all rom_keywords
-            local match_all=1
-            for kw in "${rom_keywords[@]}"; do
-                [[ "$entry_lc" == *"$kw"* ]] || match_all=0
-            done
-            if [[ $match_all -eq 1 ]]; then
+            if name_matches "$entry_lc" "$@"; then
                 rom_file="$entry"
                 zip_file="$z"
                 break 2
             fi
-        done < <(unzip -Z1 "$z")
+        done < <(unzip -l "$z" | sed -nE 's/^ *[0-9]+ +[0-9-]+ +[0-9:]+ +//p')
     done < <(find $SEARCHDIRS -type f \( -iname "*.zip" \) -print0)
 
     echo "$zip_file::$rom_file"
@@ -94,12 +78,11 @@ untrim_rom() {
 find_and_copy_rom() {
     local game_name="$1"
     shift
-    local rom_keywords=("$@")
     mkdir -p "$SRCDIR"
 
     # First search for plain .gbc files
     local rom_file
-    rom_file=$(search_gbc_files "$game_name" "${rom_keywords[@]}")
+    rom_file=$(search_gbc_files "$game_name" "$@")
 
     if [[ -n "$rom_file" ]]; then
         local dest_file="$SRCDIR/${game_name}.gbc"
@@ -112,7 +95,7 @@ find_and_copy_rom() {
 
     # Then search zip files
     local zip_entry
-    zip_entry=$(search_zip_files "$game_name" "${rom_keywords[@]}")
+    zip_entry=$(search_zip_files "$game_name" "$@")
     local zip_file="${zip_entry%%::*}"
     local rom_file="${zip_entry##*::}"
 
@@ -125,7 +108,7 @@ find_and_copy_rom() {
         return 0
     fi
 
-    echo "[ERROR]: ROM for $game_name not found in $SEARCHDIRS (keywords: ${rom_keywords[*]})" >&2
+    echo "[ERROR]: ROM for $game_name not found in $SEARCHDIRS (keywords: $*)" >&2
     return 1
 }
 

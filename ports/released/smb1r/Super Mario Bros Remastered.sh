@@ -60,14 +60,14 @@ gl_test() {
 
 # --- ROM detection & validation (CRC32) ---
 find_and_copy_rom() {
-	VALID_CRC32S=("3337EC46" "393A432F")
+	VALID_CRC32S="3337EC46 393A432F"
 	NES_DIR="/$directory/nes"
 
 	check_crc() {
 		local rom_path="$1"
 		local crc
 		crc=$($GAMEDIR/tools/crc32.py "$rom_path" | awk '{print $1}')
-		printf '%s\n' "${VALID_CRC32S[@]}" | grep -q -i "$crc"
+		echo "$VALID_CRC32S" | grep -q -i "$crc"
 	}
 
 	# 1. Check if a valid ROM already exists in $GAMEDIR

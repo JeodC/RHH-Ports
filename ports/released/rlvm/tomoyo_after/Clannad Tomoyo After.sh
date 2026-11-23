@@ -49,11 +49,12 @@ else
     source "${controlfolder}/libgl_default.txt"
 fi
 
-# Create config dirs
+# Create config dirs, keeping a real one (it has saves)
+mkdir -p "$HOME/.rlvm"
 SAVEDIRS="KEY\智代アフター KEY_智代アフター_EN_ALL"
 for DIR in $SAVEDIRS; do
-    rm -rf "$HOME/.rlvm/$DIR"
-    ln -s "$GAMEDIR/saves" "$HOME/.rlvm/$DIR"
+    [ -L "$HOME/.rlvm/$DIR" ] && rm -f "$HOME/.rlvm/$DIR"
+    [ -d "$HOME/.rlvm/$DIR" ] || ln -s "$GAMEDIR/saves" "$HOME/.rlvm/$DIR"
 done
 
 # Check and modify Gameexe.ini

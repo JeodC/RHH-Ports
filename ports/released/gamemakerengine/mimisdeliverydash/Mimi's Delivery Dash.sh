@@ -1,74 +1,68 @@
 #!/bin/bash
-# PORTMASTER: mimisdeliverydash.zip, Mimis_Delivery_Dash.sh
 
-# Source PortMaster tools
+XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+
 if [ -d "/opt/system/Tools/PortMaster/" ]; then
   controlfolder="/opt/system/Tools/PortMaster"
 elif [ -d "/opt/tools/PortMaster/" ]; then
   controlfolder="/opt/tools/PortMaster"
+elif [ -d "$XDG_DATA_HOME/PortMaster/" ]; then
+  controlfolder="$XDG_DATA_HOME/PortMaster"
 else
   controlfolder="/roms/ports/PortMaster"
 fi
 
-if [ -f "/etc/os-release" ]; then
-  source "/etc/os-release"
-fi 
-
 source $controlfolder/control.txt
-source $controlfolder/device_info.txt
+[ -f "${controlfolder}/mod_${CFW_NAME}.txt" ] && source "${controlfolder}/mod_${CFW_NAME}.txt"
 get_controls
 
-# Declare variables
+# Variables
 GAMEDIR="/$directory/ports/mimisdeliverydash"
 
-# Exports
-if [ "$OS_NAME" == "JELOS" ]; then
-export SPA_PLUGIN_DIR="/usr/lib32/spa-0.2"
-export PIPEWIRE_MODULE_DIR="/usr/lib32/pipewire-0.3/"
-fi
-
-export LD_LIBRARY_PATH="/usr/lib:/usr/lib32:/$GAMEDIR/libs:$LD_LIBRARY_PATH"
-export GMLOADER_DEPTH_DISABLE=1
-export GMLOADER_SAVEDIR="$GAMEDIR/gamedata/"
-
-# Change dir & add config
+# CD and set logging
 cd $GAMEDIR
+> "$GAMEDIR/log.txt" && exec > >(tee "$GAMEDIR/log.txt") 2>&1
 
-# Run the installer file if it hasn't been run yet
-set -e  # Exit on error
-set -x  # Enable debugging
-if [ ! -f "$GAMEDIR/installed" ]; then
-	ASSETS="assets"
-	
-	# Redirect output to install.log only for the commands within the if condition
-	(
-		exec > >(tee -a "$GAMEDIR/install.log") 2>&1
-
-		# Move all .ogg files from ./gamedata to ./assets
-		mkdir assets & mv ./gamedata/*.ogg ./assets/
-
-		# Rename data.win
-		mv "gamedata/data.win" "gamedata/game.droid"
-
-		# Add assets to MDD.apk
-		echo "Zipping $ASSETS into apk..." > /dev/tty0
-		./libs/7za a -r "./MDD.apk" "./$ASSETS"
-	
-		# Create 'installed' file to indicate successful installation
-		touch "$GAMEDIR/installed"
-	)
+# Mount gmloadernext runtime
+GMLOADER="$HOME/gmloadernext"
+GMLOADER_RUNTIME="$controlfolder/libs/gmloadernext.squashfs"
+if [ -f "$GMLOADER_RUNTIME" ]; then
+    $ESUDO mkdir -p "$GMLOADER"
+    $ESUDO umount "$GMLOADER" 2>/dev/null || true
+    $ESUDO mount "$GMLOADER_RUNTIME" "$GMLOADER"
+else
+    pm_message "This port requires the gmloadernext runtime. Please download it."
+    pm_finish
+    exit 1
 fi
 
-# Setup controls
-$ESUDO chmod 666 /dev/uinput
-$GPTOKEYB "gmloader" -c "controls.gptk" &
-echo "Loading, please wait... " > /dev/tty0
+# Exports
+export LD_LIBRARY_PATH="$GMLOADER/lib:$LD_LIBRARY_PATH"
+export SDL_GAMECONTROLLERCONFIG="$sdl_controllerconfig"
+export GMLOADER_LIB_PATH="$GMLOADER/lib"
 
-# Run the game
-./gmloader MDD.apk |& tee log.txt /dev/tty0
+# Check if we need to patch the game
+if [ ! -f patchlog.txt ] || [ -f "$GAMEDIR/assets/data.win" ]; then
+    if [ -f "$controlfolder/utils/patcher.txt" ]; then
+        export PATCHER_FILE="$GAMEDIR/tools/patchscript"
+        export PATCHER_GAME="$(basename "${0%.*}")"
+        export PATCHER_TIME="less than a minute"
+        export controlfolder
+        export ESUDO
+        export DEVICE_ARCH
+        chmod +x "$PATCHER_FILE"
+        source "$controlfolder/utils/patcher.txt"
+        $ESUDO kill -9 $(pidof gptokeyb)
+    else
+        echo "This port requires the latest version of PortMaster."
+    fi
+fi
 
-# Kill proccesses & restart services
-$ESUDO kill -9 "$(pidof gptokeyb)"
-$ESUDO systemctl restart oga_events &
-printf "\033c" >> /dev/tty1
-printf "\033c" > /dev/tty0
+# Assign gptokeyb and load the game
+$GPTOKEYB "gmloadernext.aarch64" -c "mimisdeliverydash.gptk" &
+pm_platform_helper "$GMLOADER/gmloadernext.aarch64" >/dev/null
+"$GMLOADER/gmloadernext.aarch64" -c gmloader.json
+
+# Cleanup
+$ESUDO umount "$GMLOADER" 2>/dev/null || true
+pm_finish

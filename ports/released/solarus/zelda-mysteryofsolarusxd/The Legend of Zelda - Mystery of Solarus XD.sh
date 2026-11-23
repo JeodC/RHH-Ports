@@ -23,7 +23,7 @@ solarus_dir="$HOME/portmaster-solarus"
 solarus_file="$controlfolder/libs/${runtime}.squashfs"
 
 # Exports
-export LD_LIBRARY_PATH="/usr/lib:$GAMEDIR/libs:$solarus_dir"
+export LD_LIBRARY_PATH="/usr/lib:$GAMEDIR/libs:$solarus_dir:$LD_LIBRARY_PATH"
 
 cd $GAMEDIR
 > "$GAMEDIR/log.txt" && exec > >(tee "$GAMEDIR/log.txt") 2>&1

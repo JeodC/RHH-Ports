@@ -42,19 +42,16 @@ imgui_reset() {
     local temp_file="imgui_temp.ini"
     local skip_section=0
     while IFS= read -r line; do
-        if [[ "$line" =~ ^\[Window\]\[Main\ Game\] || "$line" =~ ^\[Window\]\[Main\ -\ Deck\] ]]; then
-            skip_section=1
-        elif [[ "$line" =~ ^\[Window\] ]]; then
-            skip_section=0
-        fi
+        case "$line" in
+            "[Window][Main Game]"*|"[Window][Main - Deck]"*) skip_section=1 ;;
+            "[Window]"*) skip_section=0 ;;
+        esac
         if [[ $skip_section -eq 0 ]]; then
-            if [[ "$line" =~ ^Pos=.* ]]; then
-                echo "Pos=30,30" >> "$temp_file"
-            elif [[ "$line" =~ ^Size=.* ]]; then
-                echo "Size=400,300" >> "$temp_file"
-            else
-                echo "$line" >> "$temp_file"
-            fi
+            case "$line" in
+                Pos=*) echo "Pos=30,30" >> "$temp_file" ;;
+                Size=*) echo "Size=400,300" >> "$temp_file" ;;
+                *) echo "$line" >> "$temp_file" ;;
+            esac
         else
             echo "$line" >> "$temp_file"
         fi

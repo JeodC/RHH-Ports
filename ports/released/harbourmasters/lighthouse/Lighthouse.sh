@@ -56,7 +56,7 @@ unzip_assets() {
 }
 
 # Bridge baseroms/ into the game directory.
-STAGED_ROMS=()
+STAGED_ROMS=""
 
 stage_baseroms() {
     for rom in "$GAMEDIR/baseroms/"*.z64; do
@@ -65,13 +65,14 @@ stage_baseroms() {
         # Never clobber a rom the user already put in the game directory.
         [ -e "$GAMEDIR/$name" ] && continue
         if mv "$rom" "$GAMEDIR/$name"; then
-            STAGED_ROMS+=("$name")
+            STAGED_ROMS="$STAGED_ROMS$name
+"
         fi
     done
 }
 
 unstage_baseroms() {
-    for name in "${STAGED_ROMS[@]}"; do
+    printf "%s" "$STAGED_ROMS" | while IFS= read -r name; do
         [ -f "$GAMEDIR/$name" ] && mv "$GAMEDIR/$name" "$GAMEDIR/baseroms/$name"
     done
 }

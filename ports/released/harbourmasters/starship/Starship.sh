@@ -38,21 +38,22 @@ skip_section=0
 # Loop through each line in the input file
 while IFS= read -r line; do
     # Check if the line is a window header
-    if [[ "$line" =~ ^\[Window\]\[Main\ Game\] || "$line" =~ ^\[Window\]\[Main\ -\ Deck\] ]]; then
-        skip_section=1  # Set the flag to skip modifications for this section
-    elif [[ "$line" =~ ^\[Window\] ]]; then
-        skip_section=0  # Reset the flag for other windows
-    fi
+    case "$line" in
+        "[Window][Main Game]"*|"[Window][Main - Deck]"*)
+            skip_section=1  # Set the flag to skip modifications for this section
+            ;;
+        "[Window]"*)
+            skip_section=0  # Reset the flag for other windows
+            ;;
+    esac
 
     # Modify Pos and Size only if the current section is not skipped
     if [[ $skip_section -eq 0 ]]; then
-        if [[ "$line" =~ ^Pos=.* ]]; then
-            echo "Pos=30,30" >> "$temp_file"
-        elif [[ "$line" =~ ^Size=.* ]]; then
-            echo "Size=400,300" >> "$temp_file"
-        else
-            echo "$line" >> "$temp_file"
-        fi
+        case "$line" in
+            Pos=*) echo "Pos=30,30" >> "$temp_file" ;;
+            Size=*) echo "Size=400,300" >> "$temp_file" ;;
+            *) echo "$line" >> "$temp_file" ;;
+        esac
     else
         # If skipping, write the line unchanged
         echo "$line" >> "$temp_file"

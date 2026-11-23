@@ -13,7 +13,7 @@ setup_display() {
     SECONDARY_OUTPUTS=$(swaymsg -t get_outputs -r 2>/dev/null | jq -r '.[] | select(.active == true) | select(.name != "'"$PRIMARY_OUTPUT"'") | .name')
     if [ -n "$SECONDARY_OUTPUTS" ]; then
         printf '%s\n' $SECONDARY_OUTPUTS > /tmp/steamlink_disabled_outputs
-        while read -r out; do swaymsg output "$out" disable >/dev/null; done <<< "$SECONDARY_OUTPUTS"
+        while read -r out; do swaymsg output "$out" disable >/dev/null; done < /tmp/steamlink_disabled_outputs
     fi
 
     # Set Resolution

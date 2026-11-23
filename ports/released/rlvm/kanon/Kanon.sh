@@ -50,11 +50,12 @@ else
     source "${controlfolder}/libgl_default.txt"
 fi
 
-# Create config dirs
+# Create config dirs, keeping a real one (it has saves)
+mkdir -p "$HOME/.rlvm"
 SAVEDIRS="KEY_KANON_SE KEY_KANON_ME_ALL"
 for DIR in $SAVEDIRS; do
-    rm -rf "$HOME/.rlvm/$DIR"
-    ln -s "$GAMEDIR/saves" "$HOME/.rlvm/$DIR"
+    [ -L "$HOME/.rlvm/$DIR" ] && rm -f "$HOME/.rlvm/$DIR"
+    [ -d "$HOME/.rlvm/$DIR" ] || ln -s "$GAMEDIR/saves" "$HOME/.rlvm/$DIR"
 done
 
 # Setup controls
