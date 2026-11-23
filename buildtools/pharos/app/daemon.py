@@ -4,8 +4,8 @@ pharos-daemon - background update-checker for Pharos.
 
 Event-driven: initial check on startup, then sleeps until SIGHUP (fired by
 the ES game-end script). On wake, re-checks Pharos's manifest against each
-repo's docs/ports.json and fires one ES notification for outdated ports.
-Dedup state is process-local, so a restart re-shows the toast.
+repo's catalog and fires one ES notification for outdated ports.
+Dedup state is in /tmp, so a reboot re-shows the toast.
 
 Supported daemon hosts: the 'systemd' bucket (LibreELEC family - ROCKNIX,
 AmberELEC, JELOS, EmuELEC, UnofficialOS) and 'userland' bucket (Batocera
@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import argparse
 import ctypes
-import functools
 import gc
 import hashlib
 import json
@@ -34,11 +33,13 @@ import socket
 import sys
 import time
 import urllib.request
+from http.client import HTTPException
 from pathlib import Path
 from typing import Iterable
 from urllib.error import HTTPError, URLError
 
-from sources import read_sources
+from cfw import detect_cfw
+from sources import catalog_entries, catalog_urls, is_portmaster, read_sources
 
 # Minimal CFWs (Knulli) lack CA certs in OpenSSL's default path, so HTTPS
 # fails with CERTIFICATE_VERIFY_FAILED. Point ssl at our bundled certifi store.
@@ -54,7 +55,7 @@ signal.signal(signal.SIGHUP, signal.SIG_IGN)
 # Paths
 # ----------------------------------------------------------------------
 INSTALL_DIR = Path(os.path.dirname(os.path.abspath(sys.argv[0])))
-SOURCES_PATH = INSTALL_DIR / ".sources"
+SOURCES_PATH = INSTALL_DIR / "sources.json"
 MANIFEST_PATH = INSTALL_DIR / "resources" / "manifest.json"
 
 PID_FILE = INSTALL_DIR / "resources" / "daemon.pid"
@@ -107,83 +108,13 @@ def log(level: str, msg: str) -> None:
     if _verbose or level in ("ERROR", "WARN"):
         sys.stderr.write(line)
 
+
+def _log_info(msg: str) -> None:
+    log("INFO", msg)
+
 # ----------------------------------------------------------------------
-# CFW detection + notification backends
+# Notification backends
 # ----------------------------------------------------------------------
-# CFW_NAME values PortMaster's device_info.txt may export. Mirrors the family
-# grouping in service.py.
-_LIBREELEC_FAMILY = ("rocknix", "amberelec", "jelos", "emuelec", "unofficialos")
-_BATOCERA_FAMILY = ("batocera", "knulli", "reglinux")
-_KNOWN_UNSUPPORTED = (
-    "muos", "arkos", "retrodeck", "trimui", "miyoo", "thera", "retrooz",
-)
-
-
-def _verify_systemd_capable() -> bool:
-    """The 'systemd' bucket's notify prereqs. Mirrors service.py."""
-    return (
-        shutil.which("systemctl") is not None
-        and Path("/storage/.config/system.d").exists()
-        and Path("/storage/.config/emulationstation/scripts").exists()
-    )
-
-
-def _verify_userland_capable() -> bool:
-    """The 'userland' bucket's notify prereqs."""
-    return (
-        shutil.which("batocera-settings-set") is not None
-        and Path("/userdata/system/services").exists()
-        and Path("/userdata/system/configs/emulationstation/scripts").exists()
-    )
-
-
-@functools.lru_cache(maxsize=1)
-def detect_cfw() -> str:
-    """Returns 'systemd' / 'userland' / 'muos' / 'unknown' (or a known-but-
-    unsupported name like 'arkos'). Duplicated from service.py because the
-    daemon ships as its own PyInstaller binary.
-
-    Buckets name the notify mechanism: 'systemd' = LibreELEC family,
-    'userland' = Batocera family. The env branch is dead on the init-launched
-    path (no $CFW_NAME) but kept symmetric with service.py for `--once` runs
-    inside PortMaster's env. Capability checks downgrade a misidentified host
-    to 'unknown' rather than failing later on the notify backend."""
-    env_name = (os.environ.get("CFW_NAME") or "").lower()
-    bucket: str | None = None
-
-    if env_name in _LIBREELEC_FAMILY:
-        bucket = "systemd"
-    elif env_name in _BATOCERA_FAMILY:
-        bucket = "userland"
-    elif env_name in _KNOWN_UNSUPPORTED:
-        log("INFO", f"CFW detect: env={env_name!r} (known unsupported)")
-        return env_name
-
-    if bucket is None:
-        if Path("/run/muos").exists() or Path("/opt/muos").exists():
-            log("INFO", f"CFW detect: env={env_name!r} fs=muos")
-            return "muos"
-        if Path("/userdata/system").exists():
-            bucket = "userland"
-        elif Path("/storage/.config/emulationstation").exists():
-            bucket = "systemd"
-
-    if bucket is None:
-        log("WARN", f"CFW detect: env={env_name!r} fs=<no markers> -> unknown")
-        return "unknown"
-
-    verifier = _verify_systemd_capable if bucket == "systemd" else _verify_userland_capable
-    if not verifier():
-        log(
-            "WARN",
-            f"CFW detect: env={env_name!r} bucket={bucket!r} but capability "
-            "check failed; downgrading to 'unknown'",
-        )
-        return "unknown"
-
-    log("INFO", f"CFW detect: env={env_name!r} bucket={bucket!r} verified")
-    return bucket
-
 def notify_es_http(message: str) -> bool:
     """Both supported buckets share the batocera-ES HTTP /notify endpoint."""
     try:
@@ -299,7 +230,7 @@ def _http_get(url: str, timeout: int = GITHUB_HTTP_TIMEOUT) -> bytes | None:
         if e.code != 404:
             log("WARN", f"http GET {url} -> HTTP {e.code}")
         return None
-    except (URLError, socket.timeout, OSError) as e:
+    except (OSError, HTTPException) as e:
         _network_errors_this_pass += 1
         log("WARN", f"http GET {url} failed: {e}")
         return None
@@ -319,10 +250,10 @@ def load_local_manifest() -> tuple[
         titles: dict[str, str] = {}
         repos: dict[str, str] = {}
         muted: set[str] = set()
-        for entry in data.get("ports", []) + data.get("bottles", []):
-            name = entry.get("name")
-            md5 = entry.get("md5")
-            if not (name and md5):
+        # Bottles have no ports.json to check against
+        for entry in data.get("ports") or []:
+            name, md5 = (entry.get("name"), entry.get("md5")) if isinstance(entry, dict) else (None, None)
+            if not (name and md5 and isinstance(name, str) and isinstance(md5, str)):
                 log("INFO", f"manifest entry skipped (missing name/md5): {entry!r}")
                 continue
             md5s[name] = md5
@@ -340,44 +271,42 @@ def load_local_manifest() -> tuple[
             f"manifest summary: {len(md5s)} tracked, {len(muted)} muted -> {sorted(muted)}",
         )
         return md5s, titles, repos, muted
-    except (OSError, json.JSONDecodeError) as e:
+    except (OSError, ValueError, AttributeError, TypeError) as e:
         log("WARN", f"manifest parse failed: {e}")
         return {}, {}, {}, set()
 
-def parse_sources() -> list[tuple[str, str]]:
-    """Returns [(owner, repo)] from .sources (one URL per line)."""
-    if not SOURCES_PATH.exists():
-        log("WARN", f".sources not found at {SOURCES_PATH}")
+def parse_sources() -> list[str]:
+    """Returns the repo slugs in sources.json."""
+    try:
+        return read_sources(SOURCES_PATH, warn=lambda msg: log("WARN", msg))
+    except (OSError, ValueError) as e:
+        log("WARN", f"Can't read sources.json: {e}")
         return []
-    return read_sources(SOURCES_PATH, warn=lambda msg: log("WARN", msg))
 
-def fetch_remote_md5s(owner: str, repo: str) -> tuple[dict[str, str], dict[str, str]]:
-    """Returns ({name: md5}, {name: title}) from a repo's docs/ports.json.
+def fetch_remote_md5s(slug: str) -> tuple[dict[str, str], dict[str, str]]:
+    """Returns ({name: md5}, {name: title}) from a repo's catalog.
     Names stripped of .zip to match the local manifest. Wine bottle repos
     (winecask.json) are out of scope - Pharos handles those itself."""
-    for branch in ("main", "master"):
-        for path in ("docs/ports.json", "ports.json"):
-            url = f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}"
-            raw = _http_get(url)
-            if raw is None:
+    for url in catalog_urls(slug):
+        raw = _http_get(url)
+        if raw is None:
+            continue
+        try:
+            entries = catalog_entries(raw)
+        except ValueError as e:
+            log("WARN", f"{url}: {e}")
+            continue
+        md5s: dict[str, str] = {}
+        titles: dict[str, str] = {}
+        for p in entries:
+            md5 = p["source"].get("md5")
+            if not (md5 and isinstance(md5, str)):
                 continue
-            try:
-                data = json.loads(raw)
-                ports = data.get("ports", data) if isinstance(data, dict) else data
-                md5s: dict[str, str] = {}
-                titles: dict[str, str] = {}
-                for p in ports:
-                    raw_name = p.get("name") or ""
-                    md5 = (p.get("source", {}) or {}).get("md5")
-                    if not (raw_name and md5):
-                        continue
-                    name = os.path.splitext(raw_name)[0]
-                    md5s[name] = md5
-                    titles[name] = (p.get("attr", {}) or {}).get("title") or name
-                return md5s, titles
-            except json.JSONDecodeError:
-                continue
-    log("INFO", f"no ports.json on {owner}/{repo}; skipping")
+            name = os.path.splitext(p["name"])[0]
+            md5s[name] = md5
+            titles[name] = p["attr"].get("title") or name
+        return md5s, titles
+    log("INFO", f"no ports.json on {slug}; skipping")
     return {}, {}
 
 def find_outdated(
@@ -386,18 +315,19 @@ def find_outdated(
     """Returns (sorted outdated names, remote-title fallback dict).
 
     Per-port:
-      - local_repos[name] set ("owner/name"): authoritative, only that repo's
+      - local_repos[name] set (a slug): authoritative, only that repo's
         ports.json can mark it outdated.
-      - empty (legacy entry): match-any across every .sources repo; outdated
-        only when no repo publishes the local md5.
+      - empty (legacy entry): match-any across every sources.json repo but
+        PortMaster's, which are newer than those entries; outdated only when no
+        repo publishes the local md5.
     """
     repos_in_sources = parse_sources()
-    fetched: dict[tuple[str, str], tuple[dict[str, str], dict[str, str]]] = {}
+    fetched: dict[str, tuple[dict[str, str], dict[str, str]]] = {}
 
-    def remote_for(or_: tuple[str, str]) -> tuple[dict[str, str], dict[str, str]]:
-        if or_ not in fetched:
-            fetched[or_] = fetch_remote_md5s(*or_)
-        return fetched[or_]
+    def remote_for(slug: str) -> tuple[dict[str, str], dict[str, str]]:
+        if slug not in fetched:
+            fetched[slug] = fetch_remote_md5s(slug)
+        return fetched[slug]
 
     outdated: list[str] = []
     remote_titles: dict[str, str] = {}
@@ -405,8 +335,7 @@ def find_outdated(
     for name, local_md5 in local.items():
         recorded = local_repos.get(name) or ""
         if recorded and "/" in recorded:
-            owner, repo = recorded.split("/", 1)
-            md5s, titles = remote_for((owner, repo))
+            md5s, titles = remote_for(recorded)
             remote_md5 = md5s.get(name)
             if remote_md5 and remote_md5 != local_md5:
                 outdated.append(name)
@@ -414,8 +343,10 @@ def find_outdated(
                 remote_titles.setdefault(name, titles[name])
         else:
             seen: set[str] = set()
-            for or_ in repos_in_sources:
-                md5s, titles = remote_for(or_)
+            for slug in repos_in_sources:
+                if is_portmaster(slug):
+                    continue
+                md5s, titles = remote_for(slug)
                 if name in md5s:
                     seen.add(md5s[name])
                     if titles.get(name):
@@ -521,7 +452,7 @@ def run_check() -> tuple[bool, bool]:
         return True, network_failed
 
     titles = {**remote_titles, **local_titles}
-    cfw = detect_cfw()
+    cfw = detect_cfw(_log_info)
     msg = format_message(outdated, titles)
     log("INFO", f"notifying ({cfw}): {msg}")
 
@@ -638,6 +569,15 @@ def remove_pidfile() -> None:
         pass
 
 
+def _check() -> bool:
+    """Returns network_failed"""
+    try:
+        return run_check()[1]
+    except Exception as e:
+        log("ERROR", f"check failed: {type(e).__name__}: {e}")
+        return False
+
+
 def daemon_loop() -> None:
     """Initial check on startup, then idle until a wake signal. Each wake
     re-runs the check, gated by MIN_FETCH_INTERVAL_S; _pending and _retrying
@@ -661,7 +601,7 @@ def daemon_loop() -> None:
         # 0.0 so the first post-boot SIGHUP isn't rate-limited against it - that
         # SIGHUP is the user's first retry if the boot check ran pre-network.
         last_fetch = 0.0
-        _, network_failed = run_check()
+        network_failed = _check()
         _trim_memory()
         if network_failed:
             log("INFO", f"boot check hit network errors; scheduling retry in {NETWORK_RETRY_S}s")
@@ -694,7 +634,7 @@ def daemon_loop() -> None:
             _retrying = False
             signal.alarm(0)
 
-            _, network_failed = run_check()
+            network_failed = _check()
             _trim_memory()
             if network_failed:
                 log("INFO", f"network failure during check; scheduling retry in {NETWORK_RETRY_S}s")

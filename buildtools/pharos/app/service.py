@@ -21,9 +21,7 @@ follows Pharos updates automatically.
 """
 from __future__ import annotations
 
-import functools
 import hashlib
-import json
 import os
 import shutil
 import signal
@@ -31,6 +29,7 @@ import subprocess
 import time
 from pathlib import Path
 
+from cfw import detect_cfw
 from config import BASE_PATH, INSTALL_DIR
 
 DAEMON_NAME = "pharos-daemon"
@@ -42,40 +41,6 @@ UNSUPPORTED_MSG = "CFW '{cfw}' not supported"
 DAEMON_BUNDLED_PATH = Path(BASE_PATH) / DAEMON_NAME
 DAEMON_EXTRACTED_PATH = Path(INSTALL_DIR) / DAEMON_NAME
 
-# Per-port mute is a "muted" boolean on each manifest entry; the daemon reads
-# the same manifest the Pharos UI mutates here.
-MANIFEST_PATH = Path(INSTALL_DIR) / "resources" / "manifest.json"
-
-
-def toggle_muted_port(name: str) -> bool | None:
-    """Flip the "muted" flag on the manifest entry matching `name`. Returns
-    the new state, or None if no matching entry exists. Atomic write via
-    tmp + rename so a partial save can't corrupt the manifest."""
-    if not MANIFEST_PATH.exists():
-        return None
-    try:
-        data = json.loads(MANIFEST_PATH.read_text("utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return None
-
-    new_state: bool | None = None
-    for key in ("ports", "bottles"):
-        for entry in data.get(key, []) or []:
-            if entry.get("name") == name:
-                new_state = not bool(entry.get("muted"))
-                entry["muted"] = new_state
-                break
-        if new_state is not None:
-            break
-
-    if new_state is None:
-        return None
-
-    tmp = MANIFEST_PATH.with_suffix(".tmp")
-    tmp.write_text(json.dumps(data, indent=2), encoding="utf-8")
-    os.replace(tmp, MANIFEST_PATH)
-    return new_state
-
 # Per-CFW autostart artifact paths.
 SYSTEMD_UNIT_PATH = Path("/storage/.config/system.d/pharos-daemon.service")
 SYSTEMD_MODULE_UNIT_PATH = Path("/storage/.config/system.d/pharos-module.service")
@@ -86,89 +51,6 @@ SYSTEMD_ES_SCRIPT = Path("/storage/.config/emulationstation/scripts/game-end/pha
 USERLAND_ES_SCRIPT = Path("/userdata/system/configs/emulationstation/scripts/game-end/pharos-check")
 
 DAEMON_PID_FILE = Path(INSTALL_DIR) / "resources" / "daemon.pid"
-
-
-# ----------------------------------------------------------------------
-# CFW detection
-# ----------------------------------------------------------------------
-# CFW_NAME values (case-insensitive) PortMaster's device_info.txt may export,
-# grouped by family: every member of a tuple shares one install code path.
-_LIBREELEC_FAMILY = ("rocknix", "amberelec", "jelos", "emuelec", "unofficialos")
-_BATOCERA_FAMILY = ("batocera", "knulli", "reglinux")
-_KNOWN_UNSUPPORTED = (
-    "muos", "arkos", "retrodeck", "trimui", "miyoo", "thera", "retrooz",
-)
-
-
-def _verify_systemd_capable() -> bool:
-    """Verify the 'systemd' bucket's prereqs on disk (systemctl, the
-    /storage user-systemd dir, the ES scripts dir) - env labels can be
-    wrong, so confirm capability before trusting them."""
-    return (
-        shutil.which("systemctl") is not None
-        and Path("/storage/.config/system.d").exists()
-        and Path("/storage/.config/emulationstation/scripts").exists()
-    )
-
-
-def _verify_userland_capable() -> bool:
-    """Verify the 'userland' bucket's prereqs: batocera-settings-set,
-    the /userdata services dir, and the ES scripts dir."""
-    return (
-        shutil.which("batocera-settings-set") is not None
-        and Path("/userdata/system/services").exists()
-        and Path("/userdata/system/configs/emulationstation/scripts").exists()
-    )
-
-
-@functools.lru_cache(maxsize=1)
-def detect_cfw() -> str:
-    """Returns 'systemd' / 'userland' / 'muos' / 'unknown' (or a
-    known-but-unsupported lowercase CFW name, so the 'not supported'
-    message names what we saw rather than just 'unknown').
-
-    Buckets name the install mechanism, not a CFW: 'systemd' = the
-    LibreELEC family (ROCKNIX, AmberELEC, JELOS, EmuELEC, UnofficialOS),
-    'userland' = the Batocera family (Knulli, Batocera, REGLinux).
-
-    $CFW_NAME first, then filesystem markers for the init-launched daemon
-    that inherits no env, then a capability check that downgrades a bucket
-    whose prereqs aren't on disk."""
-    env_name = (os.environ.get("CFW_NAME") or "").lower()
-    bucket: str | None = None
-
-    if env_name in _LIBREELEC_FAMILY:
-        bucket = "systemd"
-    elif env_name in _BATOCERA_FAMILY:
-        bucket = "userland"
-    elif env_name in _KNOWN_UNSUPPORTED:
-        print(f"[Service] CFW detect: env={env_name!r} (known unsupported)")
-        return env_name
-
-    if bucket is None:
-        if Path("/run/muos").exists() or Path("/opt/muos").exists():
-            print(f"[Service] CFW detect: env={env_name!r} fs=muos")
-            return "muos"
-        if Path("/userdata/system").exists():
-            bucket = "userland"
-        elif Path("/storage/.config/emulationstation").exists():
-            bucket = "systemd"
-
-    if bucket is None:
-        print(f"[Service] CFW detect: env={env_name!r} fs=<no markers> -> unknown")
-        return "unknown"
-
-    verifier = _verify_systemd_capable if bucket == "systemd" else _verify_userland_capable
-    if not verifier():
-        print(
-            f"[Service] CFW detect: env={env_name!r} bucket={bucket!r} "
-            "but capability check failed; downgrading to 'unknown'"
-        )
-        return "unknown"
-
-    print(f"[Service] CFW detect: env={env_name!r} bucket={bucket!r} verified")
-    return bucket
-
 
 # ----------------------------------------------------------------------
 # Templates
@@ -312,14 +194,11 @@ def _kill_pid_file(pid_file: Path) -> None:
 
 
 def _hash_file(path: Path) -> str:
-    h = hashlib.sha256()
     try:
         with open(path, "rb") as f:
-            for chunk in iter(lambda: f.read(64 * 1024), b""):
-                h.update(chunk)
+            return hashlib.file_digest(f, "sha256").hexdigest()
     except OSError:
         return ""
-    return h.hexdigest()
 
 
 def _daemon_alive(pid_file: Path, timeout: float = 5.0) -> bool:
@@ -357,9 +236,13 @@ def _cleanup_runtime_files() -> None:
 # ----------------------------------------------------------------------
 # Service class
 # ----------------------------------------------------------------------
+def _log(msg: str) -> None:
+    print(f"[Service] {msg}")
+
+
 class Service:
     def __init__(self) -> None:
-        self.cfw = detect_cfw()
+        self.cfw = detect_cfw(_log)
         # Persistent path - survives Pharos exit, _MEIPASS cleanup, and reboots.
         self.daemon_path = DAEMON_EXTRACTED_PATH
 
