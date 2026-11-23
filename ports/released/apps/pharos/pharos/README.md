@@ -19,6 +19,11 @@ Named after the Lighthouse of Alexandria, **Pharos** is a browser application de
 
 > **Important:** For Pharos to parse and display repositories correctly, participating repositories must follow a **compatible file structure** and have a valid `ports.json` or `winecask.json` file.
 
+## Settings
+- **Filter out ports that aren't compatible with this device**: Hides ports your device can't run. When it's off, Pharos asks before downloading one.
+- **Pharos Service**: Checks for port updates in the background.
+- **Device Info**: Shows your device's specs.
+
 ## Security
 Pharos does **not perform validation** on downloaded files. Users are responsible for ensuring that all sources are trusted and safe.
 

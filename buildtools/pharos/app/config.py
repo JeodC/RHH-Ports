@@ -178,6 +178,9 @@ class Port:
     last_commit: str = ""
     image_url: str = ""
     appid: str = ""  # Steam
+    arch: List[str] = field(default_factory=list)
+    reqs: List[str] = field(default_factory=list)
+    min_glibc: str = ""
     # Stores selling the underlying game (name/gameurl/developerurl from
     # port.json); display-only in the detail panel.
     store: List[dict] = field(default_factory=list)

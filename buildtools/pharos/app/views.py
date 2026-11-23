@@ -45,7 +45,7 @@ class View:
         return self.input.key(self.app.layout[button]["key"])
 
     def _draw_header(self, title: str) -> None:
-        self.ui.draw_header(title, self.app.device_info())
+        self.ui.draw_header(title, self.app.device.summary())
 
     def _draw_button_bar(self, buttons: List[tuple]) -> None:
         """buttons: (layout buttons separated by spaces, label) pairs"""
@@ -113,15 +113,22 @@ class RepoView(View):
             self._spin()
             self.ui.draw_log(text=f"{self.spinner_frame} Loading {loading} repo(s)...")
         else:
-            total_items = sum(len(r.items) for r in repos)
+            total_items = sum(len(self.app.visible(r)) for r in repos)
             self.ui.draw_log(text=self.app.sources_error or f"Loaded {total_items} items in {len(repos)} repositories")
 
-        rows = [f"{r.slug} ({len(r.items)} items)" if r.loaded else f"{r.slug} (loading...)" for r in repos]
+        rows = [self._row_text(r) for r in repos]
         self._draw_rows(rows, self.idx, REPO_ROWS)
         for i, label in enumerate(self.MENU):
             self._draw_row(label, 352 + i * 30, self.idx == len(rows) + i)
 
         self._draw_button_bar([("a", "Select"), ("b", "Exit"), ("l1 r1", "Pg Up/Dn")])
+
+    def _row_text(self, repo: Repository) -> str:
+        if not repo.loaded:
+            return f"{repo.slug} (loading...)"
+        shown = len(self.app.visible(repo))
+        hidden = len(repo.items) - shown
+        return f"{repo.slug} ({shown} items{f', {hidden} hidden' if hidden else ''})"
 
     def handle_input(self) -> None:
         repos = self._repos()
@@ -190,12 +197,13 @@ class PortsView(View):
     def items(self) -> List[Port]:
         """Apply the active view_mode's filter+sort to the repo's items."""
         mode = self.app.view_mode
-        key = (mode, manifest.installed, self.app.discounts_by_appid)
+        visible = self.app.visible(self.repo)
+        key = (mode, visible, manifest.installed, self.app.discounts_by_appid)
         if self._items_cache[0] == key:
             return self._items_cache[1]
         old = self._items_cache[1][self.idx:self.idx + 1] if self.idx else []
 
-        items = list(self.repo.items)
+        items = list(visible)
         if mode == "installed":
             items = [i for i in items if manifest.entry_for(i)]
         elif mode == "updated":
@@ -295,12 +303,14 @@ class PortsView(View):
             bottom_log = f"ERROR: {WINDOWS_DIR} not found!"
         elif selected_item and manifest.update_available(selected_item):
             bottom_log = f"{selected_item.title} - Update available!"
+        elif selected_item and (unmet := self.app.device.unmet(selected_item)):
+            bottom_log = f"Not compatible. Needs {', '.join(unmet)}"
         elif selected_item:
             bottom_log = selected_item.last_commit
         elif mode == "installed":
             bottom_log = "No installed ports in this repository."
         else:
-            bottom_log = ""
+            bottom_log = "Nothing here is compatible with this device."
 
         self.ui.draw_log(text=bottom_log)
 
@@ -366,7 +376,7 @@ class PortsView(View):
             return
 
         if self._pressed("a") and self._can_download():
-            self.app.downloader.enqueue(items[self.idx], "bottle" if self.repo.bottles else "port")
+            self._download(items[self.idx])
 
         elif self._pressed("x"):
             # Toggle mute; only acts on ports with a manifest entry.
@@ -376,35 +386,119 @@ class PortsView(View):
         else:
             self.idx = self.input.handle_navigation(self.idx, 10, len(items))
 
+    def _download(self, port: Port) -> None:
+        def enqueue() -> None:
+            self.app.downloader.enqueue(port, "bottle" if self.repo.bottles else "port")
+
+        unmet = self.app.device.unmet(port)
+        if unmet:
+            self.app.push(ConfirmView(
+                self.app, self, enqueue,
+                f"This port isn't compatible with this device. Needs {', '.join(unmet)}.",
+                "Download anyway?",
+            ))
+        else:
+            enqueue()
+
+
+# ----------------------------------------------------------------------
+# Confirmation popup
+# ----------------------------------------------------------------------
+class ConfirmView(View):
+    WIDTH = 440
+
+    def __init__(self, app, below: View, on_yes, *paragraphs: str) -> None:
+        super().__init__(app)
+        self.below = below
+        self.on_yes = on_yes
+        self.paragraphs = paragraphs
+
+    def draw(self) -> None:
+        self.below.draw()
+        ui = self.ui
+        lines = [line for p in self.paragraphs for line in (*ui.wrap_text(p, self.WIDTH - 40), "")][:-1]
+        line_h = ui.font_size + 6
+        h = line_h * len(lines) + 20
+        x, y = (ui.screen_width - self.WIDTH) // 2, (ui.screen_height - h) // 2 - 30
+        ui.draw_rectangle((x - 2, y - 2, self.WIDTH + 4, h + 4), fill=color_row_text)
+        ui.draw_rectangle((x, y, self.WIDTH, h), fill=color_menu_bg)
+        for i, line in enumerate(lines):
+            ui.draw_text((ui.screen_width // 2 - ui.get_text_width(line) // 2, y + 12 + i * line_h), line, color_text)
+        ui.draw_rectangle((0, ui.screen_height - 64, ui.screen_width, 64 - ui.footer_height), fill="#000000")
+        self._draw_button_bar([("a", "Yes"), ("b", "No")])
+
+    def handle_input(self) -> None:
+        if self._pressed("a"):
+            self.app.pop()
+            self.on_yes()
+        elif self._pressed("b"):
+            self.app.pop()
+
 
 # ----------------------------------------------------------------------
 # Settings
 # ----------------------------------------------------------------------
-class SettingsView(View):
+def _check(label: str, checked: bool) -> str:
+    return f"[{'x' if checked else ' '}] {label}"
+
+
+class MenuView(View):
+    TITLE = ""
+
     def __init__(self, app) -> None:
         super().__init__(app)
         self.idx = 0
 
     def _rows(self) -> List[tuple]:
-        """(label, view) pairs"""
-        return [
-            (f"Pharos Service: {self.app.service.status_text()}", ServiceView),
-        ]
+        """(label, action) pairs"""
+        raise NotImplementedError
 
     def draw(self) -> None:
-        self._draw_header("Settings")
+        self._draw_header(self.TITLE)
         self._draw_rows([label for label, _ in self._rows()], self.idx, MAX_ROWS)
         self.ui.draw_log(text=f"Pharos v{self.app.updater.current_version}")
-        self._draw_button_bar([("a", "Open"), ("b", "Back")])
+        self._draw_button_bar([("a", "Select"), ("b", "Back")])
 
     def handle_input(self) -> None:
         rows = self._rows()
         if self._pressed("a"):
-            self.app.push(rows[self.idx][1](self.app))
+            rows[self.idx][1]()
         elif self._pressed("b"):
             self.app.pop()
         else:
             self.idx = self.input.handle_navigation(self.idx, 10, len(rows))
+
+
+class SettingsView(MenuView):
+    TITLE = "Settings"
+
+    def _rows(self) -> List[tuple]:
+        app = self.app
+        return [
+            (_check("Filter out ports that aren't compatible with this device", app.hide_incompatible), app.toggle_hide_incompatible),
+            (f"Pharos Service: {app.service.status_text()}", lambda: app.push(ServiceView(app))),
+            ("Device Info", lambda: app.push(DeviceView(app))),
+        ]
+
+
+# ----------------------------------------------------------------------
+# Device info
+# ----------------------------------------------------------------------
+class DeviceView(View):
+    def draw(self) -> None:
+        self._draw_header("Device Info")
+        rows = self.app.device.rows()
+        value_x = 40 + max(self.ui.get_text_width(label) for label, _ in rows)
+        for i, (label, value) in enumerate(rows):
+            y = 36 + i * (self.ui.font_size + 10)
+            self.ui.draw_text((20, y), label, color_row_text)
+            self.ui.draw_text((value_x, y), value, color_text)
+        self.ui.draw_log(text=f"Pharos v{self.app.updater.current_version}")
+        self._draw_button_bar([("b", "Back")])
+
+    def handle_input(self) -> None:
+        if self._pressed("b"):
+            self.app.pop()
 
 
 # ----------------------------------------------------------------------

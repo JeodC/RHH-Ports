@@ -131,7 +131,7 @@ class UserInterface:
         self.renderer = self._create_renderer()
 
         # Small screens shrink the canvas
-        w, h = self._window_size()
+        w, h = self.window_size()
         scale = min(w / self.screen_width, h / self.screen_height, 1.0)
         self.font_size = min(round(FONT_SIZE / scale), MAX_FONT_SIZE)
         self.footer_height = FOOTER_HEIGHT + self.font_size - FONT_SIZE
@@ -196,11 +196,16 @@ class UserInterface:
             raise RuntimeError(f"SDL_CreateRenderer failed: {sdl2.SDL_GetError().decode()}")
         return renderer
 
-    def _window_size(self) -> Tuple[int, int]:
+    def window_size(self) -> Tuple[int, int]:
         w = ctypes.c_int()
         h = ctypes.c_int()
         sdl2.SDL_GetWindowSize(self.window, ctypes.byref(w), ctypes.byref(h))
         return w.value, h.value
+
+    def refresh_rate(self) -> int:
+        mode = sdl2.SDL_DisplayMode()
+        sdl2.SDL_GetCurrentDisplayMode(max(0, sdl2.SDL_GetWindowDisplayIndex(self.window)), ctypes.byref(mode))
+        return mode.refresh_rate
 
     # ------------------------------------------------------------------
     # Frame management
@@ -216,7 +221,7 @@ class UserInterface:
 
     def render_to_screen(self):
         sdl2.SDL_SetRenderTarget(self.renderer, None)
-        dst_rect = sdl2.SDL_Rect(0, 0, *self._window_size())
+        dst_rect = sdl2.SDL_Rect(0, 0, *self.window_size())
         sdl2.SDL_RenderCopy(self.renderer, self.screen_texture, None, dst_rect)
         sdl2.SDL_RenderPresent(self.renderer)
         sdl2.SDL_SetRenderTarget(self.renderer, self.screen_texture)

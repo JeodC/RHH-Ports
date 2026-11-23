@@ -6,7 +6,6 @@ import os
 import json
 import queue
 import re
-import shutil
 import threading
 import time
 from typing import List
@@ -19,11 +18,11 @@ import sdl2.ext
 # ----------------------------------------------------------------------
 import images
 import manifest
-from autoinstall import PORTS_DIR
-from config import DATA_DIR, get_controller_layout, Repository, Port
+from config import DATA_DIR, get_controller_layout, get_setting, put_setting, Repository, Port
+from device import Device
 from input import Input
 from ui import UserInterface
-from download import DEVICE_ARCH, Downloader, fetch
+from download import Downloader, fetch
 from update import PHAROS_PORT_NAME, PHAROS_REPO, Update
 from service import Service
 from sources import catalog_entries, catalog_urls, is_portmaster, read_sources, release_url
@@ -31,7 +30,6 @@ from views import RepoView, UpdateView, View
 
 STEAM_APPID = re.compile(r"store\.steampowered\.com/app/(\d+)")
 DISCOUNTS_PER_REQUEST = 100
-INFO_REFRESH = 5  # seconds
 
 # ----------------------------------------------------------------------
 # Background tasks
@@ -88,7 +86,10 @@ class Pharos:
         self._discount_appids: set[str] = set()
         self._discount_lock = threading.Lock()
 
-        self._device_info = ("", 0.0)  # text, time
+        self.device = Device()
+        self._window_size = (0, 0)
+        self.hide_incompatible = get_setting("hide_incompatible", False)
+        self._visible: dict = {}  # slug -> what it depends on, ports
         self._views: List[View] = [RepoView(self)]
 
         # Refresh + restart the service if the bundled daemon differs from the
@@ -101,21 +102,22 @@ class Pharos:
         _spawn("SelfUpdateCheck", self._check_self_update)
 
     # ------------------------------------------------------------------
-    # Device info
+    # Compatibility filter
     # ------------------------------------------------------------------
-    def device_info(self) -> str:
-        """The CFW and the space left for ports"""
-        text, checked = self._device_info
-        if time.time() - checked >= INFO_REFRESH:
-            parts = [os.environ.get("CFW_NAME", "")]
-            try:
-                free = shutil.disk_usage(PORTS_DIR).free / 1024 ** 2
-                parts.append(f"{free:.0f} MB free" if free < 1024 else f"{free / 1024:.1f} GB free")
-            except OSError:
-                pass
-            text = " | ".join(p for p in parts if p)
-            self._device_info = (text, time.time())
-        return text
+    def toggle_hide_incompatible(self) -> None:
+        self.hide_incompatible = not self.hide_incompatible
+        put_setting("hide_incompatible", self.hide_incompatible)
+
+    def visible(self, repo: Repository) -> List[Port]:
+        if not self.hide_incompatible:
+            return repo.items
+        depends = (repo.items, self.device.caps, manifest.installed)
+        cached = self._visible.get(repo.slug)
+        if not cached or any(a is not b for a, b in zip(cached[0], depends)):
+            # Installed ports stay, to update or mute them
+            items = [p for p in repo.items if not self.device.unmet(p) or manifest.entry_for(p)]
+            cached = self._visible[repo.slug] = (depends, items)
+        return cached[1]
 
     # ------------------------------------------------------------------
     # Views
@@ -162,20 +164,13 @@ class Pharos:
             except Exception as e:
                 print(f"[Sources] {url}: {e}")
                 continue
-            return [self._parse_port(repo, p) for p in entries if self._runs_here(p) and not self._is_pharos(repo, p)]
+            return [self._parse_port(repo, p) for p in entries if not self._is_pharos(repo, p)]
         return []
 
     @staticmethod
     def _is_pharos(repo: Repository, entry: dict) -> bool:
         # A running binary can't be overwritten; self-update covers it
         return repo.slug.lower() == PHAROS_REPO.lower() and entry["name"] == PHAROS_PORT_NAME
-
-    @staticmethod
-    def _runs_here(entry: dict) -> bool:
-        arch = entry["attr"].get("arch")
-        if not isinstance(arch, list) or not arch or not DEVICE_ARCH or DEVICE_ARCH in arch:
-            return True
-        return "armhf" in arch and os.environ.get("DEVICE_HAS_ARMHF") == "Y"
 
     @staticmethod
     def _parse_port(repo: Repository, entry: dict) -> Port:
@@ -209,6 +204,9 @@ class Pharos:
             last_commit=_text(src.get("last_commit")),
             image_url=quote(image_url, safe="%/:?=&"),
             appid=appid,
+            arch=[a for a in _list(attr.get("arch")) if isinstance(a, str)],
+            reqs=[r for r in _list(attr.get("reqs")) if isinstance(r, str)],
+            min_glibc=_text(attr.get("min_glibc")),
         )
 
     def _fetch_repo(self, repo: Repository) -> None:
@@ -271,6 +269,10 @@ class Pharos:
         if self.self_update_available:
             self.self_update_available = False
             self.push(UpdateView(self))
+        size = self.ui.window_size()
+        if size != self._window_size and all(size):
+            self._window_size = size
+            self.device.set_display(*size, self.ui.refresh_rate())
         view = self._views[-1]
         view.draw()
         view.handle_input()
