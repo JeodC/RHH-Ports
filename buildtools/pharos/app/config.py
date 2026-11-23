@@ -9,7 +9,7 @@ from typing import TypedDict
 # ----------------------------------------------------------------------
 # Runtime paths
 #   BASE_PATH    sys._MEIPASS - where bundled resources (fonts/) extract.
-#   DATA_DIR     XDG_DATA_HOME - writable state (manifest, logs, .sources,
+#   DATA_DIR     XDG_DATA_HOME - writable state (manifest, logs, sources.json,
 #                .pending_update.zip) beside the binary.
 #   INSTALL_DIR  where the binary lives; extract target for self-update.
 # ----------------------------------------------------------------------
@@ -67,18 +67,51 @@ BUTTON_CONFIGS: dict[str, ButtonConfig] = {
 # ----------------------------------------------------------------------
 # Public API
 # ----------------------------------------------------------------------
+_XBOX_360_GUID = "030000005e0400008e02000014010000"
+
+
+def _guid(mapping: str) -> str:
+    guid = mapping.partition(",")[0]
+    return guid[:4] + "0000" + guid[8:]  # SDL 2.26 puts a checksum of the name there
+
+
+def _button(mapping: str, name: str) -> str:
+    return next((p[2:] for p in mapping.split(",") if p.startswith(f"{name}:")), "")
+
+
+def _database_row(path: str, guid: str) -> str:
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            return next((line for line in f if "platform:Linux" in line and _guid(line) == guid), "")
+    except OSError:
+        return ""
+
+
 def _detect_layout_from_mapping(mapping: str) -> str:
-    """Pick layout from the opened controller's SDL mapping. The `a:bN`/`b:bN`
-    segments reveal which SDL button raw joystick button 0 is bound to."""
-    for part in mapping.split(","):
-        k, _, v = part.partition(":")
-        if v.strip() == "b0" and k.strip() in ("a", "b"):
-            return "nintendo" if k.strip() == "b" else "xbox"
-    return "nintendo"
+    """nintendo when A and B match their labels, xbox when they're swapped"""
+    # ROCKNIX names the layout it generated
+    for line in os.getenv("SDL_GAMECONTROLLERCONFIG", "").splitlines():
+        for layout in BUTTON_CONFIGS:
+            if line.startswith(f"# {layout} layout"):
+                return layout
+
+    # B is where an Xbox pad has A, unless the database is swapped (spruce's Nintendo mode)
+    if os.getenv("CFW_NAME", "").lower() in ("miyoo", "spruce", "trimui"):
+        pad = _database_row(os.getenv("SDL_GAMECONTROLLERCONFIG_FILE", ""), _XBOX_360_GUID)
+        return "nintendo" if _button(pad, "a") == "b1" else "xbox"
+
+    # Raw button numbers differ per pad, so compare with PortMaster's copy of the
+    # standard layout
+    database = os.path.join(os.getenv("controlfolder", ""), ".Backup", "donottouch.txt")
+    standard = _database_row(database, _guid(mapping))
+    swapped = _button(mapping, "a") and _button(mapping, "a") == _button(standard, "b")
+    return "xbox" if swapped else "nintendo"
 
 
-def get_controller_layout(mapping: str = "") -> ButtonConfig:
-    return BUTTON_CONFIGS[_detect_layout_from_mapping(mapping)]
+def get_controller_layout(mapping: str) -> ButtonConfig:
+    layout = _detect_layout_from_mapping(mapping)
+    print(f"Controller layout: {layout} for {mapping}")
+    return BUTTON_CONFIGS[layout]
 
 # ----------------------------------------------------------------------
 # Data containers
@@ -100,17 +133,24 @@ class Port:
     runtime: List[str] = field(default_factory=list)
     runtime_base_url: str = ""
     repo: str = ""
-    muted: bool = False
+    last_commit: str = ""
+    image_url: str = ""
+    appid: str = ""  # Steam
     # Stores selling the underlying game (name/gameurl/developerurl from
     # port.json); display-only in the detail panel.
     store: List[dict] = field(default_factory=list)
 
 @dataclass
 class Repository:
-    name: str
-    url: str
-    images_dir: Optional[str] = None
-    images_zip_url: Optional[str] = None
+    slug: str
     ports: List[Port] = field(default_factory=list)
     bottles: List[Port] = field(default_factory=list)
     loaded: bool = False
+
+    @property
+    def images_dir(self) -> str:
+        return os.path.join(DATA_DIR, "resources", f"{self.slug.replace('/', '-')}-images")
+
+    @property
+    def items(self) -> List[Port]:
+        return self.ports or self.bottles

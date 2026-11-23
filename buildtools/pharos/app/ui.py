@@ -3,15 +3,16 @@
 Pharos UI
 """
 import ctypes
+import functools
 import os
-from typing import Optional, Tuple, Any
+from typing import Optional, Tuple
 import collections
 
 import sdl2
 import sdl2.sdlttf as ttf
 import sdl2.sdlimage as img
 
-from config import color_btn_a, color_btn_b
+from config import color_btn_a
 
 # ----------------------------------------------------------------------
 # Colors
@@ -22,6 +23,7 @@ color_menu_bg = "#141414"
 color_footer_bg = "#333333"
 color_progress_bar = "#00b400"
 color_text = "#ffffff"
+color_row_text = "#c8c8c8"
 
 # ----------------------------------------------------------------------
 # Hex to SDL_Color
@@ -47,16 +49,16 @@ c_footer_bg = hex_to_sdl(color_footer_bg)
 c_progress_bar = hex_to_sdl(color_progress_bar)
 c_text = hex_to_sdl(color_text)
 c_btn_a = hex_to_sdl(color_btn_a)
-c_btn_b = hex_to_sdl(color_btn_b)
 
 from config import BASE_PATH
 FONT_PATH = os.path.join(BASE_PATH, "fonts", "romm.ttf")
 FONT_SIZE = 12
 HEADER_HEIGHT = 25
 FOOTER_HEIGHT = 20
-BODY_MARGIN_TOP = 0
 BUTTON_AREA_HEIGHT = 50
-MAX_TEXTURE_CACHE = 48
+MAX_TEXTURE_CACHE = 16
+MAX_TEXT_CACHE = 256
+MAX_FONT_SIZE = 20  # fits a row and the button bar
 
 # Reserved height for the store-icon row above the button area; 0 if no store data.
 STORE_ROW_HEIGHT = 36
@@ -128,6 +130,14 @@ class UserInterface:
         self.window = self._create_window()
         self.renderer = self._create_renderer()
 
+        # Small screens shrink the canvas
+        w, h = self._window_size()
+        scale = min(w / self.screen_width, h / self.screen_height, 1.0)
+        self.font_size = min(round(FONT_SIZE / scale), MAX_FONT_SIZE)
+        self.footer_height = FOOTER_HEIGHT + self.font_size - FONT_SIZE
+        self.desc_shift = 5 * (self.font_size - FONT_SIZE)
+        sdl2.SDL_SetHint(sdl2.SDL_HINT_RENDER_SCALE_QUALITY, b"1" if scale < 1 else b"0")
+
         # Render-target texture used as the main drawing surface.
         self.screen_texture = sdl2.SDL_CreateTexture(
             self.renderer,
@@ -138,11 +148,12 @@ class UserInterface:
         )
         if not self.screen_texture:
             raise RuntimeError("Failed to create render target texture")
+        sdl2.SDL_SetHint(sdl2.SDL_HINT_RENDER_SCALE_QUALITY, b"2")
 
         self.font = None
         if self._inited_ttf:
             try:
-                self.font = ttf.TTF_OpenFont(FONT_PATH.encode(), FONT_SIZE)
+                self.font = ttf.TTF_OpenFont(FONT_PATH.encode(), self.font_size)
                 if not self.font:
                     print("[UI] Warning: failed to load font.")
             except Exception:
@@ -157,8 +168,9 @@ class UserInterface:
         self._scroll_start_delay = 60
         self._scroll_end_delay = 60
 
-        # LRU texture cache: path -> texture
+        # LRU texture caches: path -> texture, (text, color) -> (texture, w, h)
         self.texture_cache = collections.OrderedDict()
+        self._text_cache = collections.OrderedDict()
         self._initialized = True
 
     # ------------------------------------------------------------------
@@ -182,15 +194,18 @@ class UserInterface:
         )
         if not renderer:
             raise RuntimeError(f"SDL_CreateRenderer failed: {sdl2.SDL_GetError().decode()}")
-        sdl2.SDL_SetHint(sdl2.SDL_HINT_RENDER_SCALE_QUALITY, b"0")
         return renderer
+
+    def _window_size(self) -> Tuple[int, int]:
+        w = ctypes.c_int()
+        h = ctypes.c_int()
+        sdl2.SDL_GetWindowSize(self.window, ctypes.byref(w), ctypes.byref(h))
+        return w.value, h.value
 
     # ------------------------------------------------------------------
     # Frame management
     # ------------------------------------------------------------------
     def draw_start(self):
-        sdl2.SDL_SetRenderDrawColor(self.renderer, 0, 0, 0, 255)
-        sdl2.SDL_RenderClear(self.renderer)
         sdl2.SDL_SetRenderTarget(self.renderer, self.screen_texture)
         sdl2.SDL_SetRenderDrawColor(self.renderer, 0, 0, 0, 255)
         sdl2.SDL_RenderClear(self.renderer)
@@ -201,10 +216,7 @@ class UserInterface:
 
     def render_to_screen(self):
         sdl2.SDL_SetRenderTarget(self.renderer, None)
-        w = ctypes.c_int()
-        h = ctypes.c_int()
-        sdl2.SDL_GetWindowSize(self.window, ctypes.byref(w), ctypes.byref(h))
-        dst_rect = sdl2.SDL_Rect(0, 0, w.value, h.value)
+        dst_rect = sdl2.SDL_Rect(0, 0, *self._window_size())
         sdl2.SDL_RenderCopy(self.renderer, self.screen_texture, None, dst_rect)
         sdl2.SDL_RenderPresent(self.renderer)
         sdl2.SDL_SetRenderTarget(self.renderer, self.screen_texture)
@@ -220,6 +232,9 @@ class UserInterface:
             except Exception:
                 pass
         self.texture_cache.clear()
+        for tex, _, _ in self._text_cache.values():
+            sdl2.SDL_DestroyTexture(tex)
+        self._text_cache.clear()
 
         try:
             if getattr(self, "screen_texture", None):
@@ -275,35 +290,34 @@ class UserInterface:
         except Exception:
             return None
 
-    def _blit_text(self, surface: Any, x: int, y: int):
+    def _text_texture(self, text: str, color: sdl2.SDL_Color):
+        key = (text, color.r, color.g, color.b)
+        cached = self._text_cache.get(key)
+        if cached:
+            self._text_cache.move_to_end(key)
+            return cached
+        surface = self._render_text(text, color)
         if not surface:
-            return
-        texture = None
+            return None
         try:
             texture = sdl2.SDL_CreateTextureFromSurface(self.renderer, surface)
             if not texture:
-                return
-            w = ctypes.c_int()
-            h = ctypes.c_int()
-            sdl2.SDL_QueryTexture(texture, None, None, ctypes.byref(w), ctypes.byref(h))
-            dst = sdl2.SDL_Rect(x, y, w.value, h.value)
-            sdl2.SDL_RenderCopy(self.renderer, texture, None, dst)
+                return None
+            cached = (texture, surface.contents.w, surface.contents.h)
         finally:
-            try:
-                if texture:
-                    sdl2.SDL_DestroyTexture(texture)
-            except Exception:
-                pass
-            try:
-                sdl2.SDL_FreeSurface(surface)
-            except Exception:
-                pass
+            sdl2.SDL_FreeSurface(surface)
+        if len(self._text_cache) >= MAX_TEXT_CACHE:
+            sdl2.SDL_DestroyTexture(self._text_cache.popitem(last=False)[1][0])
+        self._text_cache[key] = cached
+        return cached
 
     def draw_text(self, pos: Tuple[int, int], text: str, color: sdl2.SDL_Color = c_text):
         if isinstance(color, str):
             color = hex_to_sdl(color)
-        surface = self._render_text(text, color)
-        self._blit_text(surface, pos[0], pos[1])
+        cached = self._text_texture(text, color)
+        if cached:
+            texture, w, h = cached
+            sdl2.SDL_RenderCopy(self.renderer, texture, None, sdl2.SDL_Rect(pos[0], pos[1], w, h))
 
     # ------------------------------------------------------------------
     # Shapes
@@ -314,14 +328,6 @@ class UserInterface:
                 fill = hex_to_sdl(fill)
             sdl2.SDL_SetRenderDrawColor(self.renderer, fill.r, fill.g, fill.b, fill.a)
             sdl2.SDL_RenderFillRect(self.renderer, sdl2.SDL_Rect(*rect))
-
-    def draw_rectangle_outline(self, rect: Tuple[int, int, int, int], color: sdl2.SDL_Color, width: int = 1):
-        if isinstance(color, str):
-            color = hex_to_sdl(color)
-        sdl2.SDL_SetRenderDrawColor(self.renderer, color.r, color.g, color.b, color.a)
-        for i in range(width):
-            outer = sdl2.SDL_Rect(rect[0] - i, rect[1] - i, rect[2] + 2 * i, rect[3] + 2 * i)
-            sdl2.SDL_RenderDrawRect(self.renderer, outer)
 
     def draw_circle(self, center: Tuple[int, int], radius: int, fill: Optional[sdl2.SDL_Color] = None):
         if fill:
@@ -336,7 +342,7 @@ class UserInterface:
                     center[0] + dx, center[1] + dy
                 )
 
-    def draw_rectangle_r(self, rect, radius, fill=None, outline=None):
+    def draw_rectangle_r(self, rect, radius, fill=None):
         x, y, w, h = map(int, rect)
         if fill:
             self.draw_rectangle((x+radius, y+radius, w-2*radius, h-2*radius), fill)
@@ -348,16 +354,28 @@ class UserInterface:
             self.draw_circle((x+w-radius, y+radius), radius, fill)
             self.draw_circle((x+radius, y+h-radius), radius, fill)
             self.draw_circle((x+w-radius, y+h-radius), radius, fill)
-        if outline:
-            self.draw_rectangle_outline((x, y, w, h), outline)
 
     # ------------------------------------------------------------------
     # UI Components
     # ------------------------------------------------------------------
+    def _scroll_offset(self, states: dict, text: str, max_offset: int) -> int:
+        if max_offset <= 0:
+            states.pop(text, None)
+            return 0
+        state = states.setdefault(text, {"offset": 0, "direction": 1, "timer": self._scroll_start_delay})
+        if state["timer"] > 0:
+            state["timer"] -= 1
+        else:
+            state["offset"] += state["direction"] * self._scroll_speed
+            if state["offset"] >= max_offset:
+                state.update(offset=max_offset, direction=-1, timer=self._scroll_end_delay)
+            elif state["offset"] <= 0:
+                state.update(offset=0, direction=1, timer=self._scroll_start_delay)
+        return state["offset"]
+
     def row_list(self, text: str, pos: Tuple[float, float], width: int, height: int,
                  selected: bool = False, fill: Optional[sdl2.SDL_Color] = None,
-                 color: sdl2.SDL_Color = c_text, outline: Optional[sdl2.SDL_Color] = None,
-                 highlight: bool = False):
+                 color: sdl2.SDL_Color = c_text, highlight: bool = False):
         if highlight and not selected:
             bg = hex_to_sdl("#d3b948")
         else:
@@ -366,44 +384,28 @@ class UserInterface:
         clip_rect = sdl2.SDL_Rect(int(pos[0]), int(pos[1]), width, height)
         sdl2.SDL_RenderSetClipRect(self.renderer, clip_rect)
         text_w = self.get_text_width(text)
-        if text_w <= width - 20:
-            self.draw_text((int(pos[0] + 12), int(pos[1] + 8)), text, color)
-            if text in self._row_scroll_state:
-                self._row_scroll_state[text]["offset"] = 0
-                self._row_scroll_state[text]["timer"] = self._scroll_start_delay
-        else:
-            state = self._row_scroll_state.get(text, {"offset": 0, "direction": 1, "timer": self._scroll_start_delay})
-            if state["timer"] > 0:
-                state["timer"] -= 1
-            else:
-                state["offset"] += state["direction"] * self._scroll_speed
-                max_offset = text_w - (width - 20)
-                if state["offset"] >= max_offset:
-                    state["offset"] = max_offset
-                    state["direction"] = -1
-                    state["timer"] = self._scroll_end_delay
-                elif state["offset"] <= 0:
-                    state["offset"] = 0
-                    state["direction"] = 1
-                    state["timer"] = self._scroll_start_delay
-            self._row_scroll_state[text] = state
-            self.draw_text((int(pos[0] + 12 - state["offset"]), int(pos[1] + 8)), text, color)
+        text_y = int(pos[1] + (height - self.font_size) // 2)
+        offset = self._scroll_offset(self._row_scroll_state, text, text_w - (width - 20))
+        self.draw_text((int(pos[0] + 12 - offset), text_y), text, color)
         sdl2.SDL_RenderSetClipRect(self.renderer, None)
 
     def button_circle(self, pos: Tuple[float, float], button: str, label: str,
-                      color: Optional[sdl2.SDL_Color] = None):
+                      color: Optional[sdl2.SDL_Color] = None) -> float:
+        """Returns the x where the label ends"""
         if color is None:
             color = c_btn_a
-        radius = 8
+        radius = max(8, self.font_size // 2 + 2)
         padding = 8
         self.draw_circle((int(pos[0]), int(pos[1])), radius, fill=color)
         btn_w = self.get_text_width(button)
         text_x = int(pos[0] - btn_w // 2)
-        text_y = int(pos[1] - FONT_SIZE // 2)
+        text_y = int(pos[1] - self.font_size // 2)
         self.draw_text((text_x, text_y), button, c_text)
         label_x = int(pos[0] + radius + padding)
         self.draw_text((label_x, text_y), label, c_text)
+        return label_x + self.get_text_width(label)
 
+    @functools.lru_cache(maxsize=2048)
     def get_text_width(self, text: str) -> int:
         if not getattr(self, "font", None):
             return 0
@@ -415,12 +417,10 @@ class UserInterface:
         except Exception:
             return 0
 
-    def draw_log(self, text: str = "",
-                 text_color: str = color_text, background: bool = True):
-        y = self.screen_height - FOOTER_HEIGHT
-        self.draw_rectangle((0, y, self.screen_width, FOOTER_HEIGHT), fill=c_footer_bg)
-        text_color_sdl = hex_to_sdl(text_color)
-        self.draw_text((10, y + 3), text, text_color_sdl)
+    def draw_log(self, text: str = ""):
+        y = self.screen_height - self.footer_height
+        self.draw_rectangle((0, y, self.screen_width, self.footer_height), fill=c_footer_bg)
+        self.draw_text((10, y + 3), text, c_text)
 
     def draw_loader(self, percent: int):
         if percent < 0:
@@ -429,77 +429,56 @@ class UserInterface:
         margin = 10
         radius = 2
         loader_height = 6
-        y_start = self.screen_height - FOOTER_HEIGHT - loader_height
+        y_start = self.screen_height - self.footer_height - loader_height
         filled_width = int((self.screen_width - 2 * margin) * (percent / 100))
         if filled_width < 1:
             filled_width = 1
         self.draw_rectangle_r(
             [margin, y_start, filled_width, loader_height],
-            radius, fill=color_sdl, outline=None
+            radius, fill=color_sdl
         )
 
     def draw_header(self, title: str, color: str = color_text):
         color_sdl = hex_to_sdl(color)
         self.draw_rectangle((0, 0, self.screen_width, HEADER_HEIGHT), fill=c_menu_bg)
-        self.draw_text((self.screen_width // 2 - self.get_text_width(title)//2, 8), title, color_sdl)
+        self.draw_text((self.screen_width // 2 - self.get_text_width(title)//2,
+                        max(2, 8 - (self.font_size - FONT_SIZE))), title, color_sdl)
 
     # ------------------------------------------------------------------
     # Image loading with LRU cache
     # ------------------------------------------------------------------
-    def _cache_texture(self, path: str, texture: Any):
-        # Evict oldest if full
-        if path in self.texture_cache:
+    def _load_texture(self, path: str):
+        texture = self.texture_cache.get(path)
+        if texture is not None:
             # move to end (most recently used)
             self.texture_cache.move_to_end(path)
-            return
+            return texture
+        surface = img.IMG_Load(path.encode())
+        if not surface:
+            return None
+        texture = sdl2.SDL_CreateTextureFromSurface(self.renderer, surface)
+        sdl2.SDL_FreeSurface(surface)
+        if not texture:
+            return None
+        # Evict oldest if full
         while len(self.texture_cache) >= MAX_TEXTURE_CACHE:
-            old_path, old_tex = self.texture_cache.popitem(last=False)
-            try:
-                sdl2.SDL_DestroyTexture(old_tex)
-            except Exception:
-                pass
+            sdl2.SDL_DestroyTexture(self.texture_cache.popitem(last=False)[1])
         self.texture_cache[path] = texture
+        return texture
 
-    def draw_port_image(self, port: Any, max_w: int = 380, max_h: int = 280) -> None:
-        sdl2.SDL_SetHint(sdl2.SDL_HINT_RENDER_SCALE_QUALITY, b"2")
+    def has_texture(self, path: str) -> bool:
+        return path in self.texture_cache
 
-        path = getattr(port, "image_path", None)
-        if not path or not os.path.exists(path):
-            return
-
-        texture = self.texture_cache.get(path)
+    def draw_port_image(self, path: str, max_w: int = 380, max_h: int = 280) -> bool:
+        """Returns False if the file can't be shown"""
+        texture = self._load_texture(path)
         if texture is None:
-            surface = None
-            texture = None
-            try:
-                surface = img.IMG_Load(path.encode())
-                if not surface:
-                    return
-                texture = sdl2.SDL_CreateTextureFromSurface(self.renderer, surface)
-                if not texture:
-                    return
-                self._cache_texture(path, texture)
-            except Exception:
-                # drop any half-created texture on failure
-                try:
-                    if texture:
-                        sdl2.SDL_DestroyTexture(texture)
-                except Exception:
-                    pass
-                return
-            finally:
-                try:
-                    if surface:
-                        sdl2.SDL_FreeSurface(surface)
-                except Exception:
-                    pass
+            return False
 
         w = ctypes.c_int()
         h = ctypes.c_int()
         sdl2.SDL_QueryTexture(texture, None, None, ctypes.byref(w), ctypes.byref(h))
         tex_w, tex_h = w.value, h.value
-        if tex_w == 0 or tex_h == 0:
-            return
 
         # Anchor on the same center as the description text; clamp max_w
         # symmetrically so the image stays on-screen on both sides.
@@ -517,16 +496,14 @@ class UserInterface:
         y = 40 + (max_h - dh) // 2
 
         dst_rect = sdl2.SDL_Rect(x, y, dw, dh)
-        sdl2.SDL_RenderCopyEx(self.renderer, texture, None, dst_rect, 0, None, sdl2.SDL_FLIP_NONE)
+        sdl2.SDL_RenderCopy(self.renderer, texture, None, dst_rect)
+        return True
 
-    def draw_wrapped_text_centered(self, text: str, center_x: int, start_y: int,
-                                   max_width: int, color: sdl2.SDL_Color = c_text,
-                                   line_spacing: int = 2, reserve_bottom: int = 0):
-
-        words = text.split()
+    @functools.lru_cache(maxsize=64)
+    def wrap_text(self, text: str, max_width: int) -> Tuple[str, ...]:
         lines = []
         current_line = ""
-        for word in words:
+        for word in text.split():
             test_line = f"{current_line} {word}".strip()
             if self.get_text_width(test_line) <= max_width:
                 current_line = test_line
@@ -536,35 +513,21 @@ class UserInterface:
                 current_line = word
         if current_line:
             lines.append(current_line)
+        return tuple(lines)
 
-        line_height = FONT_SIZE + line_spacing
+    def draw_wrapped_text_centered(self, text: str, center_x: int, start_y: int,
+                                   max_width: int, color: sdl2.SDL_Color = c_text,
+                                   line_spacing: int = 2, reserve_bottom: int = 0):
+
+        lines = self.wrap_text(text, max_width)
+        line_height = self.font_size + line_spacing
         text_height = len(lines) * line_height
 
         desc_top_y = start_y
-        desc_bottom_y = self.screen_height - FOOTER_HEIGHT - BUTTON_AREA_HEIGHT - reserve_bottom
+        desc_bottom_y = self.screen_height - self.footer_height - BUTTON_AREA_HEIGHT - reserve_bottom
         max_area_height = desc_bottom_y - desc_top_y
 
-        if text_height > max_area_height:
-            state = self._desc_scroll_state.get(text, {"offset": 0, "direction": 1, "timer": self._scroll_start_delay})
-            if state["timer"] > 0:
-                state["timer"] -= 1
-            else:
-                state["offset"] += state["direction"] * self._scroll_speed
-                max_offset = text_height - max_area_height
-                if state["offset"] >= max_offset:
-                    state["offset"] = max_offset
-                    state["direction"] = -1
-                    state["timer"] = self._scroll_end_delay
-                elif state["offset"] <= 0:
-                    state["offset"] = 0
-                    state["direction"] = 1
-                    state["timer"] = self._scroll_start_delay
-            self._desc_scroll_state[text] = state
-            offset = state["offset"]
-        else:
-            offset = 0
-            if text in self._desc_scroll_state:
-                del self._desc_scroll_state[text]
+        offset = self._scroll_offset(self._desc_scroll_state, text, text_height - max_area_height)
 
         for i, line in enumerate(lines):
             line_width = self.get_text_width(line)
@@ -575,28 +538,7 @@ class UserInterface:
 
     def _load_store_texture(self, name: str):
         filename = STORE_ICON_FILES.get(name)
-        if not filename:
-            return None
-        path = os.path.join(STORE_ICONS_DIR, filename)
-        if not os.path.exists(path):
-            return None
-        texture = self.texture_cache.get(path)
-        if texture is not None:
-            return texture
-        surface = img.IMG_Load(path.encode())
-        if not surface:
-            return None
-        try:
-            texture = sdl2.SDL_CreateTextureFromSurface(self.renderer, surface)
-            if not texture:
-                return None
-            self._cache_texture(path, texture)
-            return texture
-        finally:
-            try:
-                sdl2.SDL_FreeSurface(surface)
-            except Exception:
-                pass
+        return self._load_texture(os.path.join(STORE_ICONS_DIR, filename)) if filename else None
 
     def draw_port_stores(self, stores, discount_lookup, center_x: int,
                          max_width: int, bottom_y: int):
@@ -634,7 +576,7 @@ class UserInterface:
             total_w = max_width
         x = center_x - total_w // 2
         y_icon = bottom_y - STORE_ICON_SIZE - 4  # 4px margin above button area
-        y_text = y_icon + (STORE_ICON_SIZE - FONT_SIZE) // 2
+        y_text = y_icon + (STORE_ICON_SIZE - self.font_size) // 2
 
         for tex, disc_text, entry_w in entries:
             dst = sdl2.SDL_Rect(x, y_icon, STORE_ICON_SIZE, STORE_ICON_SIZE)

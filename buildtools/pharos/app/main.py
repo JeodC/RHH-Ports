@@ -25,14 +25,15 @@ def initialize_logging() -> None:
     log_dir = os.path.join(DATA_DIR, "logs")
     os.makedirs(log_dir, exist_ok=True)
 
-    log_files = sorted(glob.glob(os.path.join(log_dir, "*.txt")), key=os.path.getmtime)
+    # The launcher names them by date
+    log_files = sorted(glob.glob(os.path.join(log_dir, "[0-9]*.log")), key=os.path.getmtime)
     while len(log_files) >= 5:
         os.remove(log_files[0])
         log_files.pop(0)
 
     log_file = os.environ.get("LOG_FILE", os.path.join(log_dir, "log.txt"))
     try:
-        _log_fd = open(log_file, "w", buffering=1)
+        _log_fd = open(log_file, "w", buffering=1, encoding="utf-8", errors="replace")
         sys.stdout = sys.stderr = _log_fd
     except Exception as e:
         print(f"Failed to open log file {log_file}: {e}", file=sys.__stdout__)
@@ -61,6 +62,26 @@ def cleanup(pharos_instance, exit_code: int) -> None:
 
     os._exit(exit_code)
 
+def _leak_checker():
+    import atexit
+    import tracemalloc
+    tracemalloc.start(25)
+    atexit.register(tracemalloc.stop)
+    snapshot = tracemalloc.take_snapshot()
+    frame = 0
+
+    def check_leaks():
+        nonlocal snapshot, frame
+        frame += 1
+        if frame % 1000 == 0:
+            s = tracemalloc.take_snapshot()
+            stats = s.compare_to(snapshot, 'lineno')
+            print("\n=== MEMORY GROWTH (top 5) ===")
+            for stat in stats[:5]:
+                print(stat)
+            snapshot = s
+    return check_leaks
+
 def main() -> None:
     from pharos import Pharos
 
@@ -76,31 +97,15 @@ def main() -> None:
         pharos.start()
 
         # Optional: memory leak debug
-        _check_leaks = lambda: None
-        if os.getenv("DEBUG_MEMORY"):
-            import tracemalloc
-            tracemalloc.start(25)
-            _snapshot = tracemalloc.take_snapshot()
-            frame = 0
-            def _check_leaks():
-                nonlocal _snapshot, frame
-                frame += 1
-                if frame % 1000 == 0:
-                    s = tracemalloc.take_snapshot()
-                    stats = s.compare_to(_snapshot, 'lineno')
-                    print("\n=== MEMORY GROWTH (top 5) ===")
-                    for stat in stats[:5]:
-                        print(stat)
-                    _snapshot = s
-            import atexit
-            atexit.register(tracemalloc.stop)
+        check_leaks = _leak_checker() if os.getenv("DEBUG_MEMORY") else None
 
         while pharos.running:
-            _check_leaks()
+            if check_leaks:
+                check_leaks()
+            pharos.input.begin_frame()
             pharos.ui.draw_start()
             pharos.update()
             pharos.ui.render_to_screen()
-            pharos.input.clear_pressed()
             sdl2.SDL_Delay(16)
 
     except KeyboardInterrupt:

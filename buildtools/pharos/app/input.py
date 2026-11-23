@@ -47,11 +47,12 @@ class Input:
         self._input_lock = Lock()
 
         self._keys_pressed: set[str] = set()
-        self._keys_held: set[str] = set()
-        self._keys_held_start_time: Dict[str, float] = {}
+        self._frame_pressed: set[str] = set()
+        self._next_repeat: Dict[str, float] = {}  # held keys
 
         # Key repeat settings
         self._initial_delay = 0.35
+        self._repeat_interval = 0.07
 
         # Enable controller events
         self._load_controller_mappings()
@@ -89,46 +90,37 @@ class Input:
         if config_path:
             config_str = config_path.decode("utf-8")
 
+            # SDL has already read an inline mapping
             if "," in config_str and not config_str.endswith((".txt", ".cfg")):
-                # Treat as mapping string - encode to bytes
-                mapping_bytes = config_str.encode("utf-8")
-                result = sdl2.SDL_GameControllerAddMapping(mapping_bytes)
+                return
+            if os.path.exists(config_str):
+                result = sdl2.SDL_GameControllerAddMappingsFromFile(config_str.encode("utf-8"))
                 if result == -1:
                     print(
-                        f"Warning: Failed to load mapping from environment: {sdl2.SDL_GetError().decode()}"
+                        f"Warning: Could not load file {config_str}: {sdl2.SDL_GetError().decode()}"
                     )
                 else:
-                    print("Loaded controller mapping from environment")
+                    print(
+                        f"Loaded {result} controller mappings from file {config_str}"
+                    )
             else:
-                # Treat as file path - encode to bytes for SDL function
-                if os.path.exists(config_str):
-                    file_path_bytes = config_str.encode("utf-8")
-                    result = sdl2.SDL_GameControllerAddMappingsFromFile(file_path_bytes)
-                    if result == -1:
-                        print(
-                            f"Warning: Could not load file {config_str}: {sdl2.SDL_GetError().decode()}"
-                        )
-                    else:
-                        print(
-                            f"Loaded {result} controller mappings from file {config_str}"
-                        )
-                else:
-                    print(f"Warning: Controller config file {config_str} not found")
+                print(f"Warning: Controller config file {config_str} not found")
         else:
             print("No controller mappings loaded - using SDL defaults")
 
     def _add_key_pressed(self, key_name: str) -> None:
         """Add a key to the pressed set"""
         with self._input_lock:
+            # A stick past the deadzone sends an event per movement
+            if key_name in self._next_repeat:
+                return
             self._keys_pressed.add(key_name)
-            self._keys_held.add(key_name)
-            self._keys_held_start_time[key_name] = time.time()
+            self._next_repeat[key_name] = time.time() + self._initial_delay
 
     def _remove_key_held(self, key_name: str) -> None:
         """Remove a key from the pressed set"""
         with self._input_lock:
-            self._keys_held.discard(key_name)
-            self._keys_held_start_time.pop(key_name, None)
+            self._next_repeat.pop(key_name, None)
 
     def check_event(self, event=None) -> bool:
         """Check for input events, update key states, and return whether one was processed."""
@@ -160,7 +152,8 @@ class Input:
 
                     # Past deadzone: register a direction press
                     if abs(value) > 10000:
-                        dir = "+" if value > 0 else "-"
+                        dir, opposite = ("+", "-") if value > 0 else ("-", "+")
+                        self._remove_key_held(f"{key_name}{opposite}")
                         self._add_key_pressed(f"{key_name}{dir}")
                         return True
 
@@ -171,16 +164,15 @@ class Input:
 
         return False
 
-    def key(self, key_name: str) -> bool:
-        """Check if a key is pressed, treating a held key as pressed past the repeat delay."""
+    def key(self, key_name: str, repeat: bool = False) -> bool:
+        """Check if a key is pressed. With repeat, a held key counts again at the repeat interval."""
         with self._input_lock:
-            is_pressed = key_name in self._keys_pressed
-            self._keys_pressed.discard(key_name)
+            is_pressed = key_name in self._frame_pressed
+            self._frame_pressed.discard(key_name)
 
-            if key_name in self._keys_held and key_name in self._keys_held_start_time:
-                held_time = time.time() - self._keys_held_start_time[key_name]
-                if held_time >= self._initial_delay:
-                    is_pressed = True
+            if repeat and not is_pressed and time.time() >= self._next_repeat.get(key_name, float("inf")):
+                self._next_repeat[key_name] = time.time() + self._repeat_interval
+                is_pressed = True
 
             return is_pressed
 
@@ -188,59 +180,25 @@ class Input:
         self, selected_position: int, items_per_page: int, total_items: int
     ) -> int:
         """Handle navigation based on pressed keys"""
-        if self.key("DY+"):  # DOWN
-            if selected_position == total_items - 1:
-                selected_position = 0
-            elif selected_position < total_items - 1:
-                selected_position += 1
-        elif self.key("DY-"):  # UP
-            if selected_position == 0:
-                selected_position = total_items - 1
-            elif selected_position > 0:
-                selected_position -= 1
-        elif self.key("DX+"):  # RIGHT
-            if selected_position < total_items - 1:
-                if selected_position + items_per_page <= total_items - 1:
-                    selected_position = selected_position + items_per_page
-                else:
-                    selected_position = total_items - 1
-        elif self.key("DX-"):  # LEFT
-            if selected_position > 0:
-                if selected_position - items_per_page >= 0:
-                    selected_position = selected_position - items_per_page
-                else:
-                    selected_position = 0
-        elif self.key("L1"):
-            if selected_position > 0:
-                if selected_position - items_per_page >= 0:
-                    selected_position = selected_position - items_per_page
-                else:
-                    selected_position = 0
-        elif self.key("R1"):
-            if selected_position < total_items - 1:
-                if selected_position + items_per_page <= total_items - 1:
-                    selected_position = selected_position + items_per_page
-                else:
-                    selected_position = total_items - 1
-        elif self.key("L2"):
-            if selected_position > 0:
-                if selected_position - 100 >= 0:
-                    selected_position = selected_position - 100
-                else:
-                    selected_position = 0
-        elif self.key("R2"):
-            if selected_position < total_items - 1:
-                if selected_position + 100 <= total_items - 1:
-                    selected_position = selected_position + 100
-                else:
-                    selected_position = total_items - 1
+        last = total_items - 1
+        if self.key("DY+", repeat=True):  # DOWN
+            return 0 if selected_position >= last else selected_position + 1
+        if self.key("DY-", repeat=True):  # UP
+            return last if selected_position <= 0 else selected_position - 1
+        for key_name, step in (
+            ("DX+", items_per_page), ("DX-", -items_per_page),
+            ("R1", items_per_page), ("L1", -items_per_page),
+            ("R2+", 100), ("L2+", -100),
+        ):
+            if self.key(key_name, repeat=True):
+                return max(0, min(selected_position + step, last))
 
         return selected_position
 
-    def clear_pressed(self) -> None:
-        """Clear the pressed keys"""
+    def begin_frame(self) -> None:
+        """Take the keys pressed since the last frame"""
         with self._input_lock:
-            self._keys_pressed.clear()
+            self._frame_pressed, self._keys_pressed = self._keys_pressed, set()
 
     def cleanup(self) -> None:
         """Clean up SDL resources"""
@@ -250,7 +208,5 @@ class Input:
 
             self.controllers = []
             self._keys_pressed = set()
-            self._keys_held = set()
-            self._keys_held_start_time = {}
-
-        sdl2.SDL_QuitSubSystem(sdl2.SDL_INIT_GAMECONTROLLER)
+            self._frame_pressed = set()
+            self._next_repeat = {}
