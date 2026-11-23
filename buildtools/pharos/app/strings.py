@@ -4,6 +4,7 @@ User-facing text
 
 # UI STRINGS
 UI_STRINGS = {
+    "LANGUAGE_NAME": "English",
     "VERSION": "Pharos v{version}",
     "CHECK_ON": "[x] {label}",
     "CHECK_OFF": "[ ] {label}",
@@ -58,8 +59,9 @@ UI_STRINGS = {
     "SETTINGS_HEADER": "Settings",
     "SETTINGS_HIDE_INCOMPATIBLE": "Filter out ports that aren't compatible with this device",
     "SETTINGS_OVERRIDE": "Override PortMaster's device info",
-    "SETTINGS_SOURCES": "Sources",
+    "SETTINGS_SOURCES": "Manage Sources",
     "SETTINGS_THEME": "Theme: {name}",
+    "SETTINGS_LANGUAGE": "Language: {name}",
     "SETTINGS_DETAILS": "List Details",
     "SETTINGS_SERVICE": "Pharos Service: {status}",
     "SETTINGS_DEVICE": "Device Info",
@@ -76,6 +78,8 @@ UI_STRINGS = {
     "THEMES_MUTED": "Muted",
     "THEMES_TEXT": "Text",
     "THEMES_POPUP": "Popup",
+    "LANGUAGES_HEADER": "Language",
+    "LANGUAGES_FOOTER": "Copy template.json in pharos/languages to add one",
     "SOURCES_HEADER": "Sources",
     "SOURCES_ADD": "Add a repository",
     "SOURCES_ADD_DEFAULT": "Add {repo}",

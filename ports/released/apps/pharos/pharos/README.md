@@ -22,10 +22,11 @@ Named after the Lighthouse of Alexandria, **Pharos** is a browser application de
 ## Settings
 - **Filter out ports that aren't compatible with this device**: Hides ports your device can't run. When it's off, Pharos asks before downloading one.
 - **Override PortMaster's device info**: Gives ports the screen size and 32-bit support Pharos measured, if PortMaster reports something different.
-- **Sources**: Add, edit, reorder, turn off or delete repositories.
+- **Manage Sources**: Add, edit, reorder, turn off or delete repositories.
 - **List Details**: Choose what to show next to port, bottle and repository names.
 - **Pharos Service**: Checks for port updates in the background.
 - **Theme**: Choose Pharos's colors. See [Making a Theme](#making-a-theme).
+- **Language**: Choose Pharos's language. See [Adding a Language](#adding-a-language).
 - **Device Info**: Shows your device's specs.
 
 ## Making a Theme
@@ -44,6 +45,11 @@ Put a `.json` file in a `themes` folder next to `sources.json`. The file name is
 - **Rows**: `row_bg`, `row_text`, `row_muted`, `row_selected`, `row_selected_text`, `row_highlight`, `row_highlight_text`
 - **Popups**: `popup_bg`, `popup_border`, `popup_text`
 - **Buttons**: `btn_a`, `btn_b`, `btn_x`, `btn_y`, `btn_l1`, `btn_r1`, `btn_text`
+
+## Adding a Language
+Open **Language** in the settings once to get `template.json` in the `languages` folder next to `sources.json`. Copy it to a new file in that folder and translate the text. `LANGUAGE_NAME` is the name to show in the list. Keep anything in braces, such as `{name}`. Missing text stays in English.
+
+Pharos can draw Latin, Cyrillic and Greek letters.
 
 ## Security
 Pharos does **not perform validation** on downloaded files. Users are responsible for ensuring that all sources are trusted and safe.

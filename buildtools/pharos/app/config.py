@@ -36,6 +36,7 @@ def save_json(path: Path, data) -> None:
 # ----------------------------------------------------------------------
 SETTINGS_PATH = Path(DATA_DIR) / "settings.json"
 SOURCES_PATH = Path(DATA_DIR) / "sources.json"
+LANGUAGES_DIR = Path(DATA_DIR) / "languages"
 
 
 def _load_settings() -> dict:
@@ -163,7 +164,7 @@ from typing import List, Optional
 class Port:
     name: str
     title: str
-    desc: str = "Missing description"
+    desc: str = ""
     download_url: str = ""
     image_path: Optional[str] = None
     date_updated: Optional[str] = None

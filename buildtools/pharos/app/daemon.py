@@ -40,6 +40,7 @@ from typing import Iterable
 from urllib.error import HTTPError, URLError
 
 from cfw import detect_cfw, set_device_override
+from language import apply_language
 from sources import catalog_entries, catalog_urls, is_portmaster, read_sources
 from strings import UI_STRINGS
 
@@ -425,19 +426,27 @@ def _trim_memory() -> None:
 
 
 # ----------------------------------------------------------------------
-# PortMaster's device info
+# User settings
 # ----------------------------------------------------------------------
-def ensure_device_override() -> None:
-    # A PortMaster update rewrites its cache
+def load_settings() -> dict:
     try:
         settings = json.loads(SETTINGS_PATH.read_text("utf-8-sig"))
-        if settings["override_device_info"] is True:
-            set_device_override(
-                settings["controlfolder"], os.path.join(os.path.realpath(INSTALL_DIR), "device_override.txt")
-            )
-    except (FileNotFoundError, KeyError):
-        pass  # never turned on
-    except (OSError, ValueError, TypeError) as e:
+    except FileNotFoundError:
+        return {}
+    except (OSError, ValueError) as e:
+        log("WARN", f"settings parse failed: {e}")
+        return {}
+    return settings if isinstance(settings, dict) else {}
+
+
+def ensure_device_override(settings: dict) -> None:
+    # A PortMaster update rewrites its cache
+    if settings.get("override_device_info") is not True:
+        return
+    script = os.path.join(os.path.realpath(INSTALL_DIR), "device_override.txt")
+    try:
+        set_device_override(settings["controlfolder"], script)
+    except (OSError, KeyError, TypeError) as e:
         log("WARN", f"device override: {e}")
 
 
@@ -456,7 +465,9 @@ def run_check() -> tuple[bool, bool]:
     _network_errors_this_pass = 0
 
     ensure_es_module()
-    ensure_device_override()
+    settings = load_settings()
+    apply_language(INSTALL_DIR / "languages", settings.get("language"), warn=lambda msg: log("WARN", msg))
+    ensure_device_override(settings)
 
     local_md5s, local_titles, local_repos, muted = load_local_manifest()
     if not local_md5s:

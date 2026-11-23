@@ -5,6 +5,7 @@ Pharos screens
 import queue
 import shutil
 import time
+from contextlib import suppress
 from itertools import cycle
 from typing import List
 
@@ -13,7 +14,8 @@ import sdl2
 import images
 import manifest
 from autoinstall import WINDOWS_DIR
-from config import SOURCES_PATH, Port, Repository, save_json
+from config import LANGUAGES_DIR, SOURCES_PATH, Port, Repository, save_json
+from language import ENGLISH, TEMPLATE, languages
 from sources import DEFAULT_REPOS, GITLAB, entry_slug, load_entries, parse_repo, repo_address
 from strings import UI_BUTTONS, UI_STRINGS
 from theme import apply_theme, theme, theme_names
@@ -492,6 +494,10 @@ class SettingsView(MenuView):
                 lambda: app.push(ServiceView(app)),
             ),
             (UI_STRINGS["SETTINGS_THEME"].format(name=app.theme), lambda: app.push(ThemesView(app))),
+            (
+                UI_STRINGS["SETTINGS_LANGUAGE"].format(name=UI_STRINGS["LANGUAGE_NAME"]),
+                lambda: app.push(LanguagesView(app)),
+            ),
             (UI_STRINGS["SETTINGS_DEVICE"], lambda: app.push(DeviceView(app))),
         ]
 
@@ -547,6 +553,29 @@ class ThemesView(View):
             if idx != self.idx:
                 self.idx = idx
                 apply_theme(self.names[idx])
+
+
+class LanguagesView(MenuView):
+    HEADER = "LANGUAGES_HEADER"
+
+    def __init__(self, app) -> None:
+        super().__init__(app)
+        template = LANGUAGES_DIR / f"{TEMPLATE}.json"
+        if not template.exists():
+            with suppress(OSError):
+                save_json(template, ENGLISH)
+        self.names = languages(LANGUAGES_DIR)
+        self.msg = UI_STRINGS["LANGUAGES_FOOTER"]
+
+    def _rows(self) -> List[tuple]:
+        return [
+            (_check(label, name == self.app.language), lambda name=name: self._select(name))
+            for name, label in self.names.items()
+        ]
+
+    def _select(self, name: str) -> str:
+        self.app.set_language(name)
+        return UI_STRINGS["LANGUAGES_FOOTER"]
 
 
 # ----------------------------------------------------------------------

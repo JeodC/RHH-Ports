@@ -20,9 +20,19 @@ import sdl2.ext
 import images
 import manifest
 from cfw import set_device_override
-from config import INSTALL_DIR, SOURCES_PATH, get_controller_layout, get_setting, put_setting, Repository, Port
+from config import (
+    INSTALL_DIR,
+    LANGUAGES_DIR,
+    SOURCES_PATH,
+    get_controller_layout,
+    get_setting,
+    put_setting,
+    Repository,
+    Port,
+)
 from device import Device
 from input import Input
+from language import DEFAULT_LANGUAGE, apply_language
 from strings import UI_STRINGS
 from theme import DEFAULT_THEME, apply_theme
 from ui import UserInterface
@@ -98,6 +108,8 @@ class Pharos:
 
         self.theme = get_setting("theme", DEFAULT_THEME)
         apply_theme(self.theme)
+        self.language = get_setting("language", DEFAULT_LANGUAGE)
+        apply_language(LANGUAGES_DIR, self.language)
         self.device = Device()
         self._window_size = (0, 0)
         self.hide_incompatible = get_setting("hide_incompatible", False)
@@ -117,11 +129,16 @@ class Pharos:
         _spawn("SelfUpdateCheck", self._check_self_update)
 
     # ------------------------------------------------------------------
-    # Theme
+    # Theme and language
     # ------------------------------------------------------------------
     def set_theme(self, name: str) -> None:
         self.theme = name
         put_setting("theme", name)
+
+    def set_language(self, name: str) -> None:
+        self.language = name
+        apply_language(LANGUAGES_DIR, name)
+        put_setting("language", name)
 
     # ------------------------------------------------------------------
     # List details
