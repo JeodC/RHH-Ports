@@ -3,7 +3,7 @@
 	<game>
 		<path>./Impostor Factory.sh</path>
 		<name>Impostor Factory</name>
-		<desc>A bonkers time-loop tragicomedy murder mystery thriller featuring multiple casualties and a suspicious cat, from the creator of To the Moon & Finding Paradise.</desc>
+		<desc>A bonkers time-loop tragicomedy murder mystery thriller featuring multiple casualties and a suspicious cat, from the creator of To the Moon &amp; Finding Paradise.</desc>
 		<image>./impostorfactory/cover.png</image>
 		<thumbnail>./impostorfactory/thumb.png</thumbnail>
 		<releasedate>20211014</releasedate>

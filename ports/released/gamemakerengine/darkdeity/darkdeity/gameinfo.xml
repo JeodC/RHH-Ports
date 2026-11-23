@@ -7,7 +7,7 @@
 		<image>./darkdeity/cover.png</image>
 		<thumbnail>./darkdeity/thumb.png</thumbnail>
 		<releasedate>20210615</releasedate>
-		<developer>Sword & Axe LLC</developer>
+		<developer>Sword &amp; Axe LLC</developer>
 		<genre>Adventure, Indie, RPG, Strategy</genre>
 	</game>
 </gamelist>
