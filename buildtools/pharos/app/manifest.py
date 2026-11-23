@@ -7,7 +7,7 @@ import threading
 from contextlib import contextmanager, suppress
 from pathlib import Path
 
-from config import DATA_DIR, Port
+from config import DATA_DIR, Port, save_json
 from sources import is_portmaster
 
 MANIFEST_PATH = Path(DATA_DIR) / "resources" / "manifest.json"
@@ -56,13 +56,7 @@ def edit():
     with _lock:
         data = load()
         yield data
-        MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
-        tmp = MANIFEST_PATH.with_suffix(".tmp")
-        with open(tmp, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-            f.flush()
-            os.fsync(f.fileno())
-        os.replace(tmp, MANIFEST_PATH)
+        save_json(MANIFEST_PATH, data)
         _index(data)
 
 

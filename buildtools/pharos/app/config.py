@@ -1,21 +1,63 @@
 #!/usr/bin/env python3
 """
-Controller layout -> button mapping
+Paths, user settings, button layouts and data containers
 """
+import json
 import os
 import sys
+from pathlib import Path
 from typing import TypedDict
 
 # ----------------------------------------------------------------------
 # Runtime paths
 #   BASE_PATH    sys._MEIPASS - where bundled resources (fonts/) extract.
-#   DATA_DIR     XDG_DATA_HOME - writable state (manifest, logs, sources.json,
+#   DATA_DIR     XDG_DATA_HOME - writable state (manifest, logs, sources.json, settings.json,
 #                .pending_update.zip) beside the binary.
 #   INSTALL_DIR  where the binary lives; extract target for self-update.
 # ----------------------------------------------------------------------
 BASE_PATH = sys._MEIPASS
 DATA_DIR = os.environ["XDG_DATA_HOME"]
 INSTALL_DIR = os.path.dirname(os.path.abspath(sys.executable))
+
+
+def save_json(path: Path, data) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".tmp")
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp, path)
+
+# ----------------------------------------------------------------------
+# User settings
+# ----------------------------------------------------------------------
+SETTINGS_PATH = Path(DATA_DIR) / "settings.json"
+
+
+def _load_settings() -> dict:
+    try:
+        data = json.loads(SETTINGS_PATH.read_text("utf-8-sig"))
+    except FileNotFoundError:
+        return {}
+    except (OSError, ValueError) as e:
+        print(f"[SETTINGS] Unreadable ({e}); using the defaults")
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def get_setting(key: str, default):
+    value = _load_settings().get(key, default)
+    return value if isinstance(value, type(default)) else default
+
+
+def put_setting(key: str, value) -> None:
+    data = _load_settings()
+    data[key] = value
+    try:
+        save_json(SETTINGS_PATH, data)
+    except OSError as e:
+        print(f"[SETTINGS] Not saved: {e}")
 
 # ----------------------------------------------------------------------
 # Button colors
