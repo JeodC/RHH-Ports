@@ -23,6 +23,7 @@ from cfw import set_device_override
 from config import DATA_DIR, INSTALL_DIR, get_controller_layout, get_setting, put_setting, Repository, Port
 from device import Device
 from input import Input
+from theme import DEFAULT_THEME, apply_theme
 from ui import UserInterface
 from download import Downloader, controlfolder, fetch
 from update import PHAROS_PORT_NAME, PHAROS_REPO, Update
@@ -94,6 +95,8 @@ class Pharos:
         self._discount_appids: set[str] = set()
         self._discount_lock = threading.Lock()
 
+        self.theme = get_setting("theme", DEFAULT_THEME)
+        apply_theme(self.theme)
         self.device = Device()
         self._window_size = (0, 0)
         self.hide_incompatible = get_setting("hide_incompatible", False)
@@ -111,6 +114,13 @@ class Pharos:
 
         self._load_sources()
         _spawn("SelfUpdateCheck", self._check_self_update)
+
+    # ------------------------------------------------------------------
+    # Theme
+    # ------------------------------------------------------------------
+    def set_theme(self, name: str) -> None:
+        self.theme = name
+        put_setting("theme", name)
 
     # ------------------------------------------------------------------
     # List details

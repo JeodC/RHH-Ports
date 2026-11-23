@@ -63,22 +63,11 @@ def put_setting(key: str, value) -> None:
 
 
 # ----------------------------------------------------------------------
-# Button colors
-# ----------------------------------------------------------------------
-color_btn_a = "#2f843e"
-color_btn_b = "#ad3c3c"
-color_btn_x = "#3b80aa"
-color_btn_y = "#d3b948"
-color_btn_shoulder = "#383838"
-
-
-# ----------------------------------------------------------------------
 # TypedDict definitions
 # ----------------------------------------------------------------------
 class Button(TypedDict):
     key: str  # SDL key name (e.g. "A")
     btn: str  # Label shown on-screen (e.g. "A")
-    color: str  # Hex color
 
 
 class ButtonConfig(TypedDict):
@@ -95,20 +84,20 @@ class ButtonConfig(TypedDict):
 # ----------------------------------------------------------------------
 BUTTON_CONFIGS: dict[str, ButtonConfig] = {
     "nintendo": {
-        "a": {"key": "A", "btn": "A", "color": color_btn_a},
-        "b": {"key": "B", "btn": "B", "color": color_btn_b},
-        "x": {"key": "X", "btn": "X", "color": color_btn_x},
-        "y": {"key": "Y", "btn": "Y", "color": color_btn_y},
-        "l1": {"key": "L1", "btn": "L1", "color": color_btn_shoulder},
-        "r1": {"key": "R1", "btn": "R1", "color": color_btn_shoulder},
+        "a": {"key": "A", "btn": "A"},
+        "b": {"key": "B", "btn": "B"},
+        "x": {"key": "X", "btn": "X"},
+        "y": {"key": "Y", "btn": "Y"},
+        "l1": {"key": "L1", "btn": "L1"},
+        "r1": {"key": "R1", "btn": "R1"},
     },
     "xbox": {
-        "a": {"key": "B", "btn": "A", "color": color_btn_a},
-        "b": {"key": "A", "btn": "B", "color": color_btn_b},
-        "x": {"key": "Y", "btn": "X", "color": color_btn_x},
-        "y": {"key": "X", "btn": "Y", "color": color_btn_y},
-        "l1": {"key": "L1", "btn": "L1", "color": color_btn_shoulder},
-        "r1": {"key": "R1", "btn": "R1", "color": color_btn_shoulder},
+        "a": {"key": "B", "btn": "A"},
+        "b": {"key": "A", "btn": "B"},
+        "x": {"key": "Y", "btn": "X"},
+        "y": {"key": "X", "btn": "Y"},
+        "l1": {"key": "L1", "btn": "L1"},
+        "r1": {"key": "R1", "btn": "R1"},
     },
 }
 

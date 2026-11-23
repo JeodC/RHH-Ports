@@ -6,54 +6,24 @@ Pharos UI
 import ctypes
 import functools
 import os
-from typing import Optional, Tuple
+from typing import Tuple
 import collections
 
 import sdl2
 import sdl2.sdlttf as ttf
 import sdl2.sdlimage as img
 
-from config import color_btn_a
-
-# ----------------------------------------------------------------------
-# Colors
-# ----------------------------------------------------------------------
-color_row_bg = "#383838"
-color_row_muted = "#2a2a2a"
-color_menu_bg = "#141414"
-color_footer_bg = "#333333"
-color_progress_bar = "#00b400"
-color_text = "#ffffff"
-color_row_text = "#c8c8c8"
+from config import BASE_PATH
+from theme import theme
 
 
 # ----------------------------------------------------------------------
 # Hex to SDL_Color
 # ----------------------------------------------------------------------
+@functools.lru_cache(maxsize=256)
 def hex_to_sdl(hex_str: str) -> sdl2.SDL_Color:
-    hex_str = hex_str.lstrip("#")
-    if len(hex_str) != 6:
-        return sdl2.SDL_Color(255, 255, 255, 255)
-    try:
-        r = int(hex_str[0:2], 16)
-        g = int(hex_str[2:4], 16)
-        b = int(hex_str[4:6], 16)
-        return sdl2.SDL_Color(r, g, b, 255)
-    except ValueError:
-        return sdl2.SDL_Color(255, 255, 255, 255)
+    return sdl2.SDL_Color(*bytes.fromhex(hex_str[1:]), 255)
 
-
-# Preconvert common colors
-c_row_bg = hex_to_sdl(color_row_bg)
-c_row_muted = hex_to_sdl(color_row_muted)
-c_row_sel = hex_to_sdl(color_btn_a)
-c_menu_bg = hex_to_sdl(color_menu_bg)
-c_footer_bg = hex_to_sdl(color_footer_bg)
-c_progress_bar = hex_to_sdl(color_progress_bar)
-c_text = hex_to_sdl(color_text)
-c_btn_a = hex_to_sdl(color_btn_a)
-
-from config import BASE_PATH
 
 FONT_PATH = os.path.join(BASE_PATH, "fonts", "romm.ttf")
 FONT_SIZE = 12
@@ -79,8 +49,6 @@ STORE_ICON_FILES = {
 }
 STORE_ICONS_DIR = os.path.join(BASE_PATH, "resources", "stores")
 STORE_ICON_SIZE = 24
-# Steam discount green.
-c_discount_text = sdl2.SDL_Color(190, 238, 17, 255)
 
 
 # ----------------------------------------------------------------------
@@ -216,11 +184,11 @@ class UserInterface:
     # ------------------------------------------------------------------
     def draw_start(self):
         sdl2.SDL_SetRenderTarget(self.renderer, self.screen_texture)
-        sdl2.SDL_SetRenderDrawColor(self.renderer, 0, 0, 0, 255)
-        sdl2.SDL_RenderClear(self.renderer)
+        self.draw_clear()
 
     def draw_clear(self):
-        sdl2.SDL_SetRenderDrawColor(self.renderer, 0, 0, 0, 255)
+        background = hex_to_sdl(theme.background)
+        sdl2.SDL_SetRenderDrawColor(self.renderer, background.r, background.g, background.b, 255)
         sdl2.SDL_RenderClear(self.renderer)
 
     def render_to_screen(self):
@@ -320,10 +288,8 @@ class UserInterface:
         self._text_cache[key] = cached
         return cached
 
-    def draw_text(self, pos: Tuple[int, int], text: str, color: sdl2.SDL_Color = c_text):
-        if isinstance(color, str):
-            color = hex_to_sdl(color)
-        cached = self._text_texture(text, color)
+    def draw_text(self, pos: Tuple[int, int], text: str, color: str = ""):
+        cached = self._text_texture(text, hex_to_sdl(color or theme.text))
         if cached:
             texture, w, h = cached
             sdl2.SDL_RenderCopy(self.renderer, texture, None, sdl2.SDL_Rect(pos[0], pos[1], w, h))
@@ -331,23 +297,21 @@ class UserInterface:
     # ------------------------------------------------------------------
     # Shapes
     # ------------------------------------------------------------------
-    def draw_rectangle(self, rect: Tuple[int, int, int, int], fill: Optional[sdl2.SDL_Color] = None):
+    def draw_rectangle(self, rect: Tuple[int, int, int, int], fill: str = ""):
         if fill:
-            if isinstance(fill, str):
-                fill = hex_to_sdl(fill)
-            sdl2.SDL_SetRenderDrawColor(self.renderer, fill.r, fill.g, fill.b, fill.a)
+            color = hex_to_sdl(fill)
+            sdl2.SDL_SetRenderDrawColor(self.renderer, color.r, color.g, color.b, color.a)
             sdl2.SDL_RenderFillRect(self.renderer, sdl2.SDL_Rect(*rect))
 
-    def draw_circle(self, center: Tuple[int, int], radius: int, fill: Optional[sdl2.SDL_Color] = None):
+    def draw_circle(self, center: Tuple[int, int], radius: int, fill: str = ""):
         if fill:
-            if isinstance(fill, str):
-                fill = hex_to_sdl(fill)
-            sdl2.SDL_SetRenderDrawColor(self.renderer, fill.r, fill.g, fill.b, fill.a)
+            color = hex_to_sdl(fill)
+            sdl2.SDL_SetRenderDrawColor(self.renderer, color.r, color.g, color.b, color.a)
             for dy in range(-radius, radius + 1):
                 dx = int((radius**2 - dy**2) ** 0.5)
                 sdl2.SDL_RenderDrawLine(self.renderer, center[0] - dx, center[1] + dy, center[0] + dx, center[1] + dy)
 
-    def draw_rectangle_r(self, rect, radius, fill=None):
+    def draw_rectangle_r(self, rect, radius, fill: str = ""):
         x, y, w, h = map(int, rect)
         if fill:
             self.draw_rectangle((x + radius, y + radius, w - 2 * radius, h - 2 * radius), fill)
@@ -385,14 +349,15 @@ class UserInterface:
         width: int,
         height: int,
         selected: bool = False,
-        fill: Optional[sdl2.SDL_Color] = None,
-        color: sdl2.SDL_Color = c_text,
         highlight: bool = False,
+        muted: bool = False,
     ):
-        if highlight and not selected:
-            bg = hex_to_sdl("#d3b948")
+        if selected:
+            bg, color = theme.row_selected, theme.row_selected_text
+        elif highlight:
+            bg, color = theme.row_highlight, theme.row_highlight_text
         else:
-            bg = c_row_sel if selected else (fill if fill else c_row_bg)
+            bg, color = theme.row_muted if muted else theme.row_bg, theme.row_text
         self.draw_rectangle((int(pos[0]), int(pos[1]), width, height), fill=bg)
         clip_rect = sdl2.SDL_Rect(int(pos[0]), int(pos[1]), width, height)
         sdl2.SDL_RenderSetClipRect(self.renderer, clip_rect)
@@ -402,21 +367,17 @@ class UserInterface:
         self.draw_text((int(pos[0] + 12 - offset), text_y), text, color)
         sdl2.SDL_RenderSetClipRect(self.renderer, None)
 
-    def button_circle(
-        self, pos: Tuple[float, float], button: str, label: str, color: Optional[sdl2.SDL_Color] = None
-    ) -> float:
+    def button_circle(self, pos: Tuple[float, float], button: str, label: str, color: str) -> float:
         """Returns the x where the label ends"""
-        if color is None:
-            color = c_btn_a
         radius = max(8, self.font_size // 2 + 2)
         padding = 8
         self.draw_circle((int(pos[0]), int(pos[1])), radius, fill=color)
         btn_w = self.get_text_width(button)
         text_x = int(pos[0] - btn_w // 2)
         text_y = int(pos[1] - self.font_size // 2)
-        self.draw_text((text_x, text_y), button, c_text)
+        self.draw_text((text_x, text_y), button, theme.btn_text)
         label_x = int(pos[0] + radius + padding)
-        self.draw_text((label_x, text_y), label, c_text)
+        self.draw_text((label_x, text_y), label)
         return label_x + self.get_text_width(label)
 
     @functools.lru_cache(maxsize=2048)
@@ -433,13 +394,12 @@ class UserInterface:
 
     def draw_log(self, text: str = ""):
         y = self.screen_height - self.footer_height
-        self.draw_rectangle((0, y, self.screen_width, self.footer_height), fill=c_footer_bg)
-        self.draw_text((10, y + 3), text, c_text)
+        self.draw_rectangle((0, y, self.screen_width, self.footer_height), fill=theme.footer_bg)
+        self.draw_text((10, y + 3), text, theme.footer_text)
 
     def draw_loader(self, percent: int):
         if percent < 0:
             return
-        color_sdl = c_progress_bar
         margin = 10
         radius = 2
         loader_height = 6
@@ -447,10 +407,10 @@ class UserInterface:
         filled_width = int((self.screen_width - 2 * margin) * (percent / 100))
         if filled_width < 1:
             filled_width = 1
-        self.draw_rectangle_r([margin, y_start, filled_width, loader_height], radius, fill=color_sdl)
+        self.draw_rectangle_r([margin, y_start, filled_width, loader_height], radius, fill=theme.progress_bar)
 
     def draw_header(self, title: str, info: str = ""):
-        self.draw_rectangle((0, 0, self.screen_width, HEADER_HEIGHT), fill=c_menu_bg)
+        self.draw_rectangle((0, 0, self.screen_width, HEADER_HEIGHT), fill=theme.header_bg)
         y = max(2, 8 - (self.font_size - FONT_SIZE))
         title_w = self.get_text_width(title)
         title_x = self.screen_width // 2 - title_w // 2
@@ -459,8 +419,8 @@ class UserInterface:
         shifted_x = min(title_x, info_x - 20 - title_w)
         if info and shifted_x >= 10:
             title_x = shifted_x
-            self.draw_text((info_x, y), info, hex_to_sdl(color_row_text))
-        self.draw_text((title_x, y), title, c_text)
+            self.draw_text((info_x, y), info, theme.header_info)
+        self.draw_text((title_x, y), title, theme.header_text)
 
     # ------------------------------------------------------------------
     # Image loading with LRU cache
@@ -538,7 +498,6 @@ class UserInterface:
         center_x: int,
         start_y: int,
         max_width: int,
-        color: sdl2.SDL_Color = c_text,
         line_spacing: int = 2,
         reserve_bottom: int = 0,
     ):
@@ -558,7 +517,7 @@ class UserInterface:
             desc_x = center_x - line_width // 2
             desc_y = desc_top_y + i * line_height - offset
             if desc_top_y <= desc_y <= desc_bottom_y - line_height:
-                self.draw_text((desc_x, desc_y), line, color)
+                self.draw_text((desc_x, desc_y), line)
 
     def _load_store_texture(self, name: str):
         filename = STORE_ICON_FILES.get(name)
@@ -608,6 +567,6 @@ class UserInterface:
                 self.draw_text(
                     (x + STORE_ICON_SIZE + gap_after_icon, y_text),
                     disc_text,
-                    c_discount_text,
+                    theme.discount,
                 )
             x += entry_w + gap_between_items

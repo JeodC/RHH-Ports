@@ -13,15 +13,8 @@ import images
 import manifest
 from autoinstall import WINDOWS_DIR
 from config import Port, Repository
-from ui import (
-    color_menu_bg,
-    color_row_text,
-    color_text,
-    c_row_muted,
-    FOOTER_HEIGHT,
-    BUTTON_AREA_HEIGHT,
-    STORE_ROW_HEIGHT,
-)
+from theme import apply_theme, theme, theme_names
+from ui import BUTTON_AREA_HEIGHT, FOOTER_HEIGHT, STORE_ROW_HEIGHT
 
 MAX_ROWS = 12
 REPO_ROWS = 10
@@ -52,26 +45,27 @@ class View:
         """buttons: (layout buttons separated by spaces, label) pairs"""
         x = 20
         for keys, label in buttons:
-            group = [self.app.layout[key] for key in keys.split()]
+            group = keys.split()
             # Small screens have no room for the last one
             if x + self.ui.get_text_width(label) + 24 * len(group) > self.ui.screen_width:
                 break
-            for b in group:
+            for key in group:
                 end = self.ui.button_circle(
-                    (x, self.ui.screen_height - 50), b["btn"], label if b is group[-1] else "", color=b["color"]
+                    (x, self.ui.screen_height - 50),
+                    self.app.layout[key]["btn"],
+                    label if key == group[-1] else "",
+                    getattr(theme, f"btn_{key}"),
                 )
                 x = int(end) + 8
             x += 14
 
-    def _draw_row(self, text: str, y: int, selected: bool) -> None:
-        self.ui.row_list(
-            text, (20, y), self.ui.screen_width - 40, 28, selected, color=color_text if selected else color_row_text
-        )
+    def _draw_row(self, text: str, y: int, selected: bool, width: int = 0) -> None:
+        self.ui.row_list(text, (20, y), width or self.ui.screen_width - 40, 28, selected)
 
-    def _draw_rows(self, rows: List[str], idx: int, count: int) -> None:
+    def _draw_rows(self, rows: List[str], idx: int, count: int, width: int = 0) -> None:
         start = max(0, min(idx, len(rows) - 1) - count + 1)
         for i, text in enumerate(rows[start : start + count]):
-            self._draw_row(text, 30 + i * 30, start + i == idx)
+            self._draw_row(text, 30 + i * 30, start + i == idx, width)
 
 
 # ----------------------------------------------------------------------
@@ -266,8 +260,7 @@ class PortsView(View):
                 # Muted ports get a darker background and lose the "update
                 # available" highlight - consistent with the daemon, which
                 # filters muted ports out before notifying.
-                fill=c_row_muted if (is_muted and not sel) else None,
-                color=color_text if sel else color_menu_bg if highlight else color_row_text,
+                muted=is_muted,
                 highlight=highlight,
             )
         if selected_item:
@@ -282,7 +275,6 @@ class PortsView(View):
                 center_x=(self.ui.screen_width * 3 // 4 - 20),
                 start_y=400 - FOOTER_HEIGHT - BUTTON_AREA_HEIGHT - 5 - self.ui.desc_shift,
                 max_width=self.ui.screen_width // 2,
-                color=color_text,
                 reserve_bottom=store_reserve,
             )
         if has_stores:
@@ -438,11 +430,13 @@ class ConfirmView(View):
         line_h = ui.font_size + 6
         h = line_h * len(lines) + 20
         x, y = (ui.screen_width - self.WIDTH) // 2, (ui.screen_height - h) // 2 - 30
-        ui.draw_rectangle((x - 2, y - 2, self.WIDTH + 4, h + 4), fill=color_row_text)
-        ui.draw_rectangle((x, y, self.WIDTH, h), fill=color_menu_bg)
+        ui.draw_rectangle((x - 2, y - 2, self.WIDTH + 4, h + 4), fill=theme.popup_border)
+        ui.draw_rectangle((x, y, self.WIDTH, h), fill=theme.popup_bg)
         for i, line in enumerate(lines):
-            ui.draw_text((ui.screen_width // 2 - ui.get_text_width(line) // 2, y + 12 + i * line_h), line, color_text)
-        ui.draw_rectangle((0, ui.screen_height - 64, ui.screen_width, 64 - ui.footer_height), fill="#000000")
+            ui.draw_text(
+                (ui.screen_width // 2 - ui.get_text_width(line) // 2, y + 12 + i * line_h), line, theme.popup_text
+            )
+        ui.draw_rectangle((0, ui.screen_height - 64, ui.screen_width, 64 - ui.footer_height), fill=theme.background)
         self._draw_button_bar([("a", "Yes"), ("b", "No")])
 
     def handle_input(self) -> None:
@@ -501,6 +495,7 @@ class SettingsView(MenuView):
             (_check("Override PortMaster's device info", app.override_device_info), app.toggle_override_device_info),
             ("List Details", lambda: app.push(DetailsView(app))),
             (f"Pharos Service: {app.service.status_text()}", lambda: app.push(ServiceView(app))),
+            (f"Theme: {app.theme}", lambda: app.push(ThemesView(app))),
             ("Device Info", lambda: app.push(DeviceView(app))),
         ]
 
@@ -522,6 +517,45 @@ class DetailsView(MenuView):
         ]
 
 
+class ThemesView(View):
+    def __init__(self, app) -> None:
+        super().__init__(app)
+        self.names = theme_names()
+        self.idx = self.names.index(app.theme) if app.theme in self.names else 0
+
+    def draw(self) -> None:
+        self._draw_header("Theme")
+        ui = self.ui
+        width = ui.screen_width // 3
+        self._draw_rows(self.names, self.idx, MAX_ROWS, width)
+
+        x = width + 50
+        ui.row_list("Update available", (x, 60), width, 28, highlight=True)
+        ui.row_list("Muted", (x, 90), width, 28, muted=True)
+        ui.draw_text((x, 135), "-60%", theme.discount)
+        ui.draw_text((x, 165), "Text")
+        ui.draw_rectangle((x, 215, width, 60), fill=theme.popup_border)
+        ui.draw_rectangle((x + 2, 217, width - 4, 56), fill=theme.popup_bg)
+        ui.draw_text((x + 12, 236), "Popup", theme.popup_text)
+
+        ui.draw_log(text=f"Pharos v{self.app.updater.current_version}")
+        ui.draw_loader(60)
+        self._draw_button_bar([("a", "Select"), ("b", "Back"), ("x", ""), ("y", ""), ("l1 r1", "Pg Up/Dn")])
+
+    def handle_input(self) -> None:
+        if self._pressed("a"):
+            self.app.set_theme(self.names[self.idx])
+            self.app.pop()
+        elif self._pressed("b"):
+            apply_theme(self.app.theme)
+            self.app.pop()
+        else:
+            idx = self.input.handle_navigation(self.idx, 10, len(self.names))
+            if idx != self.idx:
+                self.idx = idx
+                apply_theme(self.names[idx])
+
+
 # ----------------------------------------------------------------------
 # Device info
 # ----------------------------------------------------------------------
@@ -532,8 +566,8 @@ class DeviceView(View):
         value_x = 40 + max(self.ui.get_text_width(label) for label, _ in rows)
         for i, (label, value) in enumerate(rows):
             y = 36 + i * (self.ui.font_size + 10)
-            self.ui.draw_text((20, y), label, color_row_text)
-            self.ui.draw_text((value_x, y), value, color_text)
+            self.ui.draw_text((20, y), label, theme.label)
+            self.ui.draw_text((value_x, y), value)
         self.ui.draw_log(text=f"Pharos v{self.app.updater.current_version}")
         self._draw_button_bar([("b", "Back")])
 
@@ -567,7 +601,7 @@ class ServiceView(View):
         y = 50
         for paragraph in description:
             for line in self.ui.wrap_text(paragraph, min(sw - 80, 460)):
-                self.ui.draw_text((40, y), line, color_text)
+                self.ui.draw_text((40, y), line)
                 y += self.ui.font_size + 10
             y += self.ui.font_size
 
@@ -577,7 +611,6 @@ class ServiceView(View):
         self.ui.draw_text(
             (max(20, sw // 2 - sw_text // 2), max(240, y + 8)),
             status_label,
-            color_text,
         )
 
         # Footer log: most-recent action result, if any.
@@ -633,7 +666,7 @@ class UpdateView(View):
             w = self.ui.get_text_width(line)
             x = max(20, sw // 2 - w // 2)
             y = sh // 2 - 30 + i * 24
-            self.ui.draw_text((x, y), line, color_text)
+            self.ui.draw_text((x, y), line)
 
         self.ui.draw_log(text=f"Pharos update v{self.updater.latest_version} available.")
 

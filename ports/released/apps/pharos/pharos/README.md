@@ -24,7 +24,25 @@ Named after the Lighthouse of Alexandria, **Pharos** is a browser application de
 - **Override PortMaster's device info**: Gives ports the screen size and 32-bit support Pharos measured, if PortMaster reports something different.
 - **List Details**: Choose what to show next to port, bottle and repository names.
 - **Pharos Service**: Checks for port updates in the background.
+- **Theme**: Choose Pharos's colors. See [Making a Theme](#making-a-theme).
 - **Device Info**: Shows your device's specs.
+
+## Making a Theme
+Put a `.json` file in a `themes` folder next to `sources.json`. The file name is the theme's name. Missing colors come from the default theme.
+
+```json
+{
+  "background": "#000000",
+  "row_bg": "#383838",
+  "row_selected": "#2f843e"
+}
+```
+
+- **Screen**: `background`, `text`, `label`, `progress_bar`, `discount`
+- **Header and footer**: `header_bg`, `header_text`, `header_info`, `footer_bg`, `footer_text`
+- **Rows**: `row_bg`, `row_text`, `row_muted`, `row_selected`, `row_selected_text`, `row_highlight`, `row_highlight_text`
+- **Popups**: `popup_bg`, `popup_border`, `popup_text`
+- **Buttons**: `btn_a`, `btn_b`, `btn_x`, `btn_y`, `btn_l1`, `btn_r1`, `btn_text`
 
 ## Security
 Pharos does **not perform validation** on downloaded files. Users are responsible for ensuring that all sources are trusted and safe.
