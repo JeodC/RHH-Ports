@@ -22,8 +22,11 @@ AUTOINSTALL_DIR = DATA_DIR / "autoinstall"
 INSTALL_DIR = Path(_INSTALL_DIR_STR)
 PORTS_DIR = INSTALL_DIR.parent
 CFW_NAME = os.environ.get("CFW_NAME", "").lower()
-MUOS_DIR = INSTALL_DIR.parent.parent / "ROMS/Ports"
-WINDOWS_DIR = INSTALL_DIR.parent.parent / "windows"
+MUOS_DIR = PORTS_DIR.parent / "ROMS/Ports"
+EMUELEC_DIR = PORTS_DIR.parent / "ports_scripts"
+TRIMUI_PORTS_DIR = Path("/mnt/SDCARD/Data/ports")
+TRIMUI_DIR = Path("/mnt/SDCARD/Roms/PORTS")
+WINDOWS_DIR = PORTS_DIR.parent / "windows"
 
 class AutoInstaller:
     def __init__(self, autoinstall_dir: Path = AUTOINSTALL_DIR):
@@ -58,16 +61,13 @@ class AutoInstaller:
         port.json/bottle.json or a bottle can't install. May raise; install_zip maps that to 255."""
         with zipfile.ZipFile(zip_path, "r") as zf:
             print(f"[EXTRACT] Zip contents: {zf.namelist()}")
-            target_json = None
-            for file in zf.namelist():
-                if file.endswith(("port.json", "bottle.json")):
-                    target_json = file
-                    break
+            # NextOS ports have an nxport.json
+            target_json = next((f for f in zf.namelist() if os.path.basename(f) in ("port.json", "nxport.json", "bottle.json")), None)
             if not target_json:
                 print(f"[ERROR] No port.json or bottle.json in {zip_name}")
                 return 255
 
-            is_port = target_json.endswith("port.json")
+            is_port = os.path.basename(target_json) != "bottle.json"
             base_dir = PORTS_DIR if is_port else WINDOWS_DIR
             gamelist_path = base_dir / "gamelist.xml"
 
@@ -81,39 +81,12 @@ class AutoInstaller:
             self._extract_preserving_ports(zf, base_dir)
             self._join_split_payloads(zf, base_dir)
 
-            # Move launchscripts for muOS
-            if is_port and CFW_NAME == "muos":
-                launch_scripts = [
-                    base_dir / member.filename
-                    for member in zf.infolist()
-                    if not member.is_dir()
-                    and member.filename.lower().endswith(".sh")
-                    and (base_dir / member.filename).is_file()
-                ]
-
-                if launch_scripts:
-                    MUOS_DIR.mkdir(parents=True, exist_ok=True)
-
-                    for source in launch_scripts:
-                        destination = MUOS_DIR / source.name
-                        if source.resolve() == destination.resolve():
-                            continue
-
-                        print(f"[MUOS] Moving launch script {source} -> {destination}")
-                        shutil.move(str(source), str(destination))
-                else:
-                    print(f"[MUOS][WARN] No .sh launch script found in {zip_name}")
-
-            # Clean macOS junk
-            for junk in base_dir.rglob("__MACOSX"):
-                if junk.is_dir():
-                    shutil.rmtree(junk, ignore_errors=True)
-            for junk in base_dir.rglob("*.DS_Store"):
-                junk.unlink(missing_ok=True)
+            if is_port:
+                self._place_launch_scripts(zf, base_dir, zip_name)
 
             gameinfo_file = None
             for file in zf.namelist():
-                if file.endswith("gameinfo.xml"):
+                if os.path.basename(file) == "gameinfo.xml":
                     candidate = base_dir / file
                     if candidate.is_file():
                         gameinfo_file = candidate
@@ -127,9 +100,47 @@ class AutoInstaller:
 
         return 0
 
+    def _place_launch_scripts(self, zf: zipfile.ZipFile, base_dir: Path, zip_name: str) -> None:
+        place = shutil.move
+        if CFW_NAME == "muos":
+            scripts_dir = MUOS_DIR
+        elif EMUELEC_DIR.is_dir():
+            scripts_dir = EMUELEC_DIR
+        elif PORTS_DIR == TRIMUI_PORTS_DIR:
+            # PortMaster leaves one in the ports folder too
+            scripts_dir, place = TRIMUI_DIR, shutil.copy
+        else:
+            return
+
+        launch_scripts = [
+            base_dir / member.filename
+            for member in zf.infolist()
+            # Scripts inside the port's folder stay there
+            if "/" not in member.filename
+            and member.filename.lower().endswith(".sh")
+            and (base_dir / member.filename).is_file()
+        ]
+        if not launch_scripts:
+            print(f"[SCRIPT][WARN] No .sh launch script found in {zip_name}")
+            return
+
+        scripts_dir.mkdir(parents=True, exist_ok=True)
+        for source in launch_scripts:
+            destination = scripts_dir / source.name
+            if source.resolve() == destination.resolve():
+                continue
+
+            print(f"[SCRIPT] {source} -> {destination}")
+            place(str(source), str(destination))
+
     def _extract_preserving_ports(self, zf: zipfile.ZipFile, base_dir: Path) -> None:
-        """Like extractall(), but never blow away a user's GameMaker .port."""
+        """Like extractall(), but never blow away a user's GameMaker .port or sources."""
         for member in zf.infolist():
+            # macOS junk
+            if "__MACOSX" in member.filename.split("/") or member.filename.endswith(".DS_Store"):
+                continue
+            if member.filename == "pharos/sources.json" and (base_dir / member.filename).is_file():
+                continue
             if member.filename.endswith(".port") and not member.is_dir():
                 target = base_dir / member.filename
                 if target.is_file() and self._merge_port(zf, member, target):
@@ -257,7 +268,9 @@ class AutoInstaller:
                 if root.tag.lower() != "gamelist":
                     root.tag = "gameList"
             except ET.ParseError:
-                print(f"[WARN] Corrupted gamelist.xml - creating new")
+                backup = gamelist_path.with_suffix(".xml.bad")
+                print(f"[WARN] Corrupted gamelist.xml - creating new, old one kept as {backup.name}")
+                os.replace(gamelist_path, backup)
                 root = ET.Element("gameList")
                 tree = ET.ElementTree(root)
         else:
@@ -296,12 +309,14 @@ class AutoInstaller:
             if hasattr(ET, "indent"):
                 ET.indent(root, space="  ", level=0)
             gamelist_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = gamelist_path.with_suffix(".xml.tmp")
             tree.write(
-                gamelist_path,
+                tmp,
                 encoding="utf-8",
                 xml_declaration=True,
                 short_empty_elements=False
             )
+            os.replace(tmp, gamelist_path)
             print(f"[GAMELIST] Added {count_added} new game(s), updated {count_updated} existing game(s) -> {gamelist_path.name}")
         else:
             print(f"[INFO] No changes from {gameinfo_file.name}")

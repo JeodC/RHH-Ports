@@ -7,28 +7,26 @@ import errno
 import json
 import queue
 import hashlib
+import threading
 import urllib.request
-import urllib.parse
 import zipfile
 import shutil
 import time
 from dataclasses import asdict
 from pathlib import Path
 from contextlib import suppress
-from typing import Tuple
 
-from config import Port
+import manifest
+from config import DATA_DIR, Port
 from autoinstall import AutoInstaller
+from sources import runtime_catalog_urls
 
 # ----------------------------------------------------------------------
 # Paths
 # ----------------------------------------------------------------------
-from config import DATA_DIR
 BASE_DIR = Path(DATA_DIR)
 AUTOINSTALL_DIR = BASE_DIR / "autoinstall"
-MANIFEST_PATH = BASE_DIR / "resources" / "manifest.json"
 AUTOINSTALL_DIR.mkdir(parents=True, exist_ok=True)
-MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 # Runtime environment
 controlfolder = os.environ.get("controlfolder", "")
@@ -38,12 +36,13 @@ DEVICE_ARCH = os.environ.get("DEVICE_ARCH", "")
 # CLI binary every GameMaker port needs at patch time. /releases/latest/download
 # auto-redirects to the newest non-prerelease asset, so this URL never needs bumping.
 GMTOOLKIT_RELEASE_URL = "https://github.com/JeodC/gmtoolkit/releases/latest/download"
-GMTOOLKIT_API_URL = "https://api.github.com/repos/JeodC/gmtoolkit/releases/latest"
+
+PROGRESS_INTERVAL = 0.1  # seconds
 
 # ----------------------------------------------------------------------
-# GitHub request
+# Requests
 # ----------------------------------------------------------------------
-def _progress_text(prefix: str, downloaded: int, total: int, speed: float) -> str:
+def progress_text(prefix: str, downloaded: int, total: int, speed: float) -> str:
     """A percentage when the server sent a size, transferred bytes when it did not."""
     if total:
         return f"{prefix} ({downloaded / total * 100:.1f}%) - {speed:.2f} MB/s"
@@ -65,25 +64,88 @@ def _check_free_space(dest_dir: Path, needed: int) -> None:
     )
 
 
-def _gh_request(url: str, timeout: int = 30) -> Tuple[bytes, dict]:
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
-    token = os.environ.get("GITHUB_TOKEN")
-    if token:
-        headers["Authorization"] = f"token {token}"
-    req = urllib.request.Request(url, headers=headers)
+def _error_text(e: Exception, fallback: str) -> str:
+    if isinstance(e, ConnectionError):
+        return str(e)
+    return e.strerror if getattr(e, "errno", None) == errno.ENOSPC else fallback
+
+
+def md5_file(path: Path) -> str:
+    with open(path, "rb") as f:
+        return hashlib.file_digest(f, "md5").hexdigest()
+
+
+def fetch(url: str, timeout: int = 30) -> bytes:
+    req = urllib.request.Request(url, headers={"User-Agent": "Pharos/1.0"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read(), dict(resp.headers)
+        return resp.read()
+
+
+def stream(url: str, dest: Path, on_progress=None, known_etag: str = "", space: int = 1,
+           timeout: int = 60) -> str | None:
+    """Returns the ETag, or None if it's still known_etag"""
+    req = urllib.request.Request(url, headers={"User-Agent": "Pharos/1.0"})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        etag = resp.headers.get("ETag") or ""
+        if known_etag and etag == known_etag:
+            return None
+        total = int(resp.headers.get("Content-Length") or 0)
+        _check_free_space(dest.parent, total * space)
+        downloaded = 0
+        start = last = time.time()
+        with open(dest, "wb") as f:
+            while data := resp.read(64 * 1024):
+                f.write(data)
+                downloaded += len(data)
+                now = time.time()
+                if on_progress and now - last >= PROGRESS_INTERVAL:
+                    last = now
+                    on_progress(downloaded, total, downloaded / (1024 * 1024) / (now - start))
+        # A dropped connection ends read() early instead of raising
+        if total and downloaded != total:
+            raise ConnectionError(f"Connection dropped at {downloaded / total * 100:.0f}%")
+        return etag
 
 # ----------------------------------------------------------------------
 # Downloader
 # ----------------------------------------------------------------------
 class Downloader:
-    def __init__(self, dl_queue: queue.Queue, progress_q: queue.Queue):
-        self.dl_queue = dl_queue
+    def __init__(self, progress_q: queue.Queue):
+        self.dl_queue: queue.Queue = queue.Queue()
         self.progress_q = progress_q
         self.autoinstall_dir = AUTOINSTALL_DIR
         self.installer = AutoInstaller(self.autoinstall_dir)
+        self.installing = False
         self._runtime_url_cache: dict = {}
+        self._gmtoolkit_lock = threading.Lock()
+        self._thread: threading.Thread | None = None
+        self._queued: set[str] = set()
+        self._downloaded: dict[str, tuple[dict, str]] = {}  # zip name -> (manifest entry, manifest key)
+
+    # ------------------------------------------------------------------
+    # Queue
+    # ------------------------------------------------------------------
+    def enqueue(self, port: Port, kind: str) -> None:
+        if port.name in self._queued:
+            return
+        self._queued.add(port.name)
+        self.dl_queue.put((port, kind))
+        if not (self._thread and self._thread.is_alive()):
+            self._thread = threading.Thread(target=self.run, name="DownloaderThread", daemon=True)
+            self._thread.start()
+
+    def clear_queue(self) -> None:
+        with suppress(queue.Empty):
+            while True:
+                port, _ = self.dl_queue.get_nowait()
+                self._queued.discard(port.name)
+
+    def stop(self, timeout: float = 5.0) -> None:
+        self.clear_queue()
+        self.dl_queue.put(None)
+        deadline = time.time() + timeout
+        while self._thread and self._thread.is_alive() and (self.installing or time.time() < deadline):
+            time.sleep(0.05)
 
     # ------------------------------------------------------------------
     # Runtime URL resolution
@@ -95,38 +157,33 @@ class Downloader:
             return self._runtime_url_cache[repo_slug]
         urls = {}
         try:
-            data, _ = _gh_request(
-                f"https://github.com/{repo_slug}/releases/download/ports-latest/ports.json"
-            )
-            catalog = json.loads(data)
-            for section in ("utils", "official_runtimes"):
-                for name, info in catalog.get(section, {}).items():
-                    if name.endswith(".squashfs") and info.get("url"):
-                        urls[name] = info["url"]
+            for url in runtime_catalog_urls(repo_slug):
+                catalog = json.loads(fetch(url))
+                for section in ("utils", "official_runtimes"):
+                    for name, info in catalog.get(section, {}).items():
+                        if name.endswith(".squashfs") and info.get("url"):
+                            urls.setdefault(name, info["url"])
+            self._runtime_url_cache[repo_slug] = urls
         except Exception as e:
             print(f"[RUNTIME] Catalog lookup failed for {repo_slug}: {e}")
-        self._runtime_url_cache[repo_slug] = urls
         return urls
 
     # ------------------------------------------------------------------
-    # Main loop - autoinstall runs as soon as the queue is empty
+    # Main loop
     # ------------------------------------------------------------------
     def run(self) -> None:
         self._sweep_stale_partials()
-        while True:
-            item = self.dl_queue.get()
-            if item is None:
-                break
-
+        while (item := self.dl_queue.get()) is not None:
             port, kind = item
-            self._download_runtimes(port)
-            self._ensure_gmtoolkit_binary(port)
-            self._download_port(port, kind)
-
-            if self.dl_queue.empty():
+            try:
+                self._download_runtimes(port)
+                self._ensure_gmtoolkit_binary(port)
+                self._download_port(port, kind)
                 self._run_autoinstall()
-
-            self.dl_queue.task_done()
+            except Exception as e:
+                print(f"[DOWNLOAD ERROR] {port.name}: {type(e).__name__}: {e}")
+                self._fail(port, f"{type(e).__name__}: {e}")
+            self._queued.discard(port.name)
 
     def _sweep_stale_partials(self) -> None:
         for part in self.autoinstall_dir.glob("*.part"):
@@ -141,82 +198,24 @@ class Downloader:
         if not zip_files:
             return
 
-        self.progress_q.put((0, 1, "Installing packages...", "phase"))
-        for zip_file in zip_files:
-            name = zip_file.name
-            self.progress_q.put((0, 1, f"Installing {name}", "install"))
-            result = self.installer.install_zip(name)
-            status = "[ERROR] Install failed" if result != 0 else "Installed"
-            self.progress_q.put((0, 1, f"{status}: {name}", "install"))
-        self.progress_q.put((0, 1, "Installation complete", "install"))
-
-    # ------------------------------------------------------------------
-    # Image fetcher
-    # ------------------------------------------------------------------
-    def fetch_repo_images(self, repo: 'Repository') -> None:
-        if not repo.images_zip_url or not repo.images_dir:
-            return
-
-        images_dir = Path(repo.images_dir)
-        images_dir.mkdir(parents=True, exist_ok=True)
-        metadata_path = images_dir / "images.json"
-
-        local_meta = {}
-        if metadata_path.exists():
-            with suppress(Exception):
-                with open(metadata_path, "r", encoding="utf-8") as f:
-                    local_meta = json.load(f)
-
-        parts = urllib.parse.urlparse(repo.images_zip_url).path.split("/")
-        owner, repo_name, _, _, tag = parts[1:6]
-
-        # Try the configured tag, then fall back.
-        asset = None
-        for candidate_tag in dict.fromkeys((tag, "screenshots-latest")):
-            try:
-                api_url = f"https://api.github.com/repos/{owner}/{repo_name}/releases/tags/{candidate_tag}"
-                data, _ = _gh_request(api_url)
-                release = json.loads(data)
-            except Exception as e:
-                print(f"[IMAGES] No {candidate_tag} release for {repo.name}: {e}")
-                continue
-            asset = next((a for a in release.get("assets", []) if a["name"] == "images.zip"), None)
-            if asset:
-                break
-        if not asset:
-            print(f"[IMAGES] No images.zip found for {repo.name}")
-            return
-
-        remote_id = asset.get("id")
-        remote_size = asset.get("size", 0)
-        if local_meta.get("id") == remote_id and local_meta.get("size") == remote_size:
-            return
-
-        img_zip = images_dir / "images.zip"
+        failed = []
+        self.installing = True
         try:
-            data, _ = _gh_request(asset["browser_download_url"], timeout=60)
-            with open(img_zip, "wb") as f:
-                f.write(data)
-
-            for item in images_dir.iterdir():
-                if item not in (metadata_path, img_zip):
-                    if item.is_dir():
-                        shutil.rmtree(item, ignore_errors=True)
-                    else:
-                        item.unlink(missing_ok=True)
-
-            with zipfile.ZipFile(img_zip, "r") as zf:
-                zf.extractall(images_dir)
-
-            with open(metadata_path, "w", encoding="utf-8") as f:
-                json.dump({"id": remote_id, "size": remote_size}, f)
-
-            img_zip.unlink()
-            print(f"[OK] Updated images for {repo.name}")
-        except Exception as e:
-            print(f"[ERROR] Image update failed for {repo.name}: {e}")
-            with suppress(OSError):
-                img_zip.unlink()
+            for zip_file in zip_files:
+                name = zip_file.name
+                self.progress_q.put((0, 1, f"Installing {name}", "install"))
+                entry = self._downloaded.pop(name, None)
+                if self.installer.install_zip(name) != 0:
+                    failed.append(name)
+                elif entry:
+                    try:
+                        manifest.record(*entry)
+                    except OSError as e:
+                        print(f"[ERROR] Manifest update failed: {e}")
+        finally:
+            self.installing = False
+        status = f"[ERROR] Install failed: {', '.join(failed)}" if failed else "Installation complete"
+        self.progress_q.put((0, 1, status, "install"))
 
     # ------------------------------------------------------------------
     # Runtime downloads
@@ -232,67 +231,44 @@ class Downloader:
             return
 
         LIBS_DIR.mkdir(parents=True, exist_ok=True)
-        manifest_runtimes = self._load_runtime_manifest()
-        url_map = self._runtime_urls(port.repo) if port.repo else {}
+        known = manifest.load().get("runtimes", {})
 
         for rt_name in port.runtime:
             rt_path = LIBS_DIR / rt_name
 
             if rt_path.exists():
-                if manifest_runtimes.get(rt_name, {}).get("md5"):
+                if known.get(rt_name, {}).get("md5"):
                     print(f"[RUNTIME] {rt_name} present, skipping")
                     continue
                 # On disk but not in manifest - record its md5 so we skip next time
                 print(f"[RUNTIME] {rt_name} found on disk, recording md5")
-                manifest_runtimes[rt_name] = {"md5": self._md5_file(rt_path)}
-                self._save_runtime_manifest(manifest_runtimes)
+                self._record_runtime(rt_name, rt_path)
                 continue
 
-            url = url_map.get(rt_name) or f"{port.runtime_base_url}/{rt_name}"
+            url = self._runtime_urls(port.repo).get(rt_name) or f"{port.runtime_base_url}/{rt_name}"
             print(f"[RUNTIME] Downloading {rt_name} from {url}")
             self.progress_q.put((0, 1, f"Runtime: {rt_name}", "download"))
-            tmp_path = rt_path.with_suffix(".tmp")
+            tmp_path = rt_path.with_name(rt_name + ".tmp")
 
             try:
-                req = urllib.request.Request(url, headers={"User-Agent": "Pharos/1.0"})
-                with urllib.request.urlopen(req, timeout=60) as resp:
-                    total = int(resp.headers.get("Content-Length", 0))
-                    _check_free_space(LIBS_DIR, total)
-                    downloaded = 0
-                    chunk = 64 * 1024
-                    start = time.time()
-
-                    with open(tmp_path, "wb") as f:
-                        while True:
-                            data = resp.read(chunk)
-                            if not data:
-                                break
-                            f.write(data)
-                            downloaded += len(data)
-                            elapsed = time.time() - start
-                            speed = (downloaded / (1024 * 1024)) / elapsed if elapsed else 0
-                            self.progress_q.put((
-                                downloaded, total,
-                                _progress_text(f"Runtime: {rt_name}", downloaded, total, speed),
-                                "download",
-                            ))
-
+                stream(url, tmp_path, self._progress(f"Runtime: {rt_name}"))
                 os.replace(tmp_path, rt_path)
-                md5 = self._md5_file(rt_path)
-                manifest_runtimes[rt_name] = {"md5": md5}
-                self._save_runtime_manifest(manifest_runtimes)
+                self._record_runtime(rt_name, rt_path)
                 self.progress_q.put((1, 1, f"Runtime installed: {rt_name}", "download"))
-                print(f"[RUNTIME] Installed {rt_name} (md5={md5[:8]}...)")
-
+                print(f"[RUNTIME] Installed {rt_name}")
             except Exception as e:
                 print(f"[RUNTIME ERROR] {rt_name}: {type(e).__name__}: {e}")
-                if getattr(e, "errno", None) == errno.ENOSPC:
-                    msg = f"{rt_name}: {e.strerror}"
-                else:
-                    msg = f"Runtime failed: {rt_name}"
-                self.progress_q.put((0, 1, msg, "download"))
+                self.progress_q.put((0, 1, _error_text(e, f"Runtime failed: {rt_name}"), "download"))
                 with suppress(OSError):
                     tmp_path.unlink()
+
+    def _record_runtime(self, rt_name: str, rt_path: Path) -> None:
+        md5 = md5_file(rt_path)
+        try:
+            with manifest.edit() as data:
+                data.setdefault("runtimes", {})[rt_name] = {"md5": md5}
+        except OSError as e:
+            print(f"[ERROR] Manifest update failed: {e}")
 
     # ------------------------------------------------------------------
     # gmtoolkit binary check
@@ -300,7 +276,8 @@ class Downloader:
     def _ensure_gmtoolkit_binary(self, port: Port) -> None:
         if not port.runtime or "gmloadernext.squashfs" not in port.runtime:
             return
-        self._sync_gmtoolkit_binary()
+        with self._gmtoolkit_lock:
+            self._sync_gmtoolkit_binary()
 
     def refresh_gmtoolkit_if_installed(self) -> None:
         """Update a gmtoolkit that is already on disk."""
@@ -308,7 +285,8 @@ class Downloader:
             return
         if not (Path(controlfolder) / f"gmtoolkit.{DEVICE_ARCH}").exists():
             return
-        self._sync_gmtoolkit_binary()
+        with self._gmtoolkit_lock:
+            self._sync_gmtoolkit_binary()
 
     def _sync_gmtoolkit_binary(self) -> None:
         if DEVICE_ARCH != "aarch64":
@@ -316,152 +294,37 @@ class Downloader:
         if not controlfolder:
             return
 
-        bin_name = f"gmtoolkit.{DEVICE_ARCH}"
-        dest = Path(controlfolder) / bin_name
+        dest = Path(controlfolder) / f"gmtoolkit.{DEVICE_ARCH}"
         zip_name = f"gmtoolkit-{DEVICE_ARCH}.zip"
-
-        remote = self._gmtoolkit_remote_asset(zip_name)
-        local_meta = self._load_gmtoolkit_meta()
-
-        if dest.exists():
-            if not remote:
-                # Release API unreachable: keep the on-disk copy (don't break offline installs).
-                print("[GMTOOLKIT] Present, version check skipped (release query failed)")
-                return
-            if (local_meta.get("id") == remote["id"]
-                    and local_meta.get("size") == remote["size"]):
+        zip_tmp = Path(controlfolder) / f"{zip_name}.tmp"
+        etag = manifest.load().get("gmtoolkit", {}).get("etag", "") if dest.exists() else ""
+        try:
+            etag = stream(
+                f"{GMTOOLKIT_RELEASE_URL}/{zip_name}", zip_tmp, self._progress("gmtoolkit"),
+                known_etag=etag, space=2,
+            )
+            if etag is None:
                 print("[GMTOOLKIT] Present and up to date")
                 return
-            # No recorded version -> treat as stale; otherwise a newer build exists.
-            reason = "no version recorded" if not local_meta else "newer build available"
-            print(f"[GMTOOLKIT] Updating ({reason})")
-
-        # Prefer the API asset URL; fall back to the latest/download redirect if the API failed.
-        url = remote["url"] if remote and remote.get("url") else f"{GMTOOLKIT_RELEASE_URL}/{zip_name}"
-        print(f"[GMTOOLKIT] Downloading {zip_name}")
-        self.progress_q.put((0, 1, f"gmtoolkit: {zip_name}", "download"))
-        zip_tmp = Path(controlfolder) / f"{zip_name}.tmp"
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": "Pharos/1.0"})
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                total = int(resp.headers.get("Content-Length", 0))
-                _check_free_space(Path(controlfolder), total * 2)
-                downloaded = 0
-                start = time.time()
-                with open(zip_tmp, "wb") as f:
-                    while True:
-                        data = resp.read(64 * 1024)
-                        if not data:
-                            break
-                        f.write(data)
-                        downloaded += len(data)
-                        elapsed = time.time() - start
-                        speed = (downloaded / (1024 * 1024)) / elapsed if elapsed else 0
-                        self.progress_q.put((
-                            downloaded, total,
-                            _progress_text("gmtoolkit", downloaded, total, speed),
-                            "download",
-                        ))
 
             # Extract binary + license bundle into $controlfolder.
             with zipfile.ZipFile(zip_tmp) as zf:
                 zf.extractall(controlfolder)
-            zip_tmp.unlink()
-
             with suppress(OSError):
                 os.chmod(dest, 0o755)
             # Record installed version so future runs detect staleness.
-            if remote:
-                self._save_gmtoolkit_meta({"id": remote["id"], "size": remote["size"]})
+            with manifest.edit() as data:
+                data["gmtoolkit"] = {"etag": etag}
             self.progress_q.put((1, 1, "gmtoolkit installed", "download"))
             print(f"[GMTOOLKIT] Installed {dest}")
         except Exception as e:
             print(f"[GMTOOLKIT ERROR] {type(e).__name__}: {e}")
-            if getattr(e, "errno", None) == errno.ENOSPC:
-                msg = f"gmtoolkit: {e.strerror}"
-            else:
-                msg = "gmtoolkit failed"
-            self.progress_q.put((0, 1, msg, "download"))
+            # An older copy still works
+            if not dest.exists():
+                self.progress_q.put((0, 1, _error_text(e, "gmtoolkit failed"), "download"))
+        finally:
             with suppress(OSError):
                 zip_tmp.unlink()
-
-    def _gmtoolkit_remote_asset(self, zip_name: str) -> dict | None:
-        """Return {id, size, url} for the latest gmtoolkit asset, or None on failure."""
-        try:
-            data, _ = _gh_request(GMTOOLKIT_API_URL)
-            release = json.loads(data)
-        except Exception as e:
-            print(f"[GMTOOLKIT] Release query failed: {type(e).__name__}: {e}")
-            return None
-        asset = next((a for a in release.get("assets", []) if a["name"] == zip_name), None)
-        if not asset:
-            print(f"[GMTOOLKIT] Asset {zip_name} not found in latest release")
-            return None
-        return {
-            "id": asset.get("id"),
-            "size": asset.get("size", 0),
-            "url": asset.get("browser_download_url"),
-        }
-
-    def _load_gmtoolkit_meta(self) -> dict:
-        if MANIFEST_PATH.exists():
-            with suppress(Exception):
-                with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
-                    return json.load(f).get("gmtoolkit", {})
-        return {}
-
-    def _save_gmtoolkit_meta(self, meta: dict) -> None:
-        data = {}
-        if MANIFEST_PATH.exists():
-            with suppress(Exception):
-                with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-        data["gmtoolkit"] = meta
-        tmp = MANIFEST_PATH.with_suffix(".tmp")
-        try:
-            with open(tmp, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
-                f.flush()
-                os.fsync(f.fileno())
-            os.replace(tmp, MANIFEST_PATH)
-        except Exception as e:
-            print(f"[ERROR] gmtoolkit manifest update failed: {e}")
-            with suppress(OSError):
-                tmp.unlink()
-
-    def _load_runtime_manifest(self) -> dict:
-        if MANIFEST_PATH.exists():
-            with suppress(Exception):
-                with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
-                    return json.load(f).get("runtimes", {})
-        return {}
-
-    def _save_runtime_manifest(self, runtimes: dict) -> None:
-        data = {}
-        if MANIFEST_PATH.exists():
-            with suppress(Exception):
-                with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-        data["runtimes"] = runtimes
-        tmp = MANIFEST_PATH.with_suffix(".tmp")
-        try:
-            with open(tmp, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
-                f.flush()
-                os.fsync(f.fileno())
-            os.replace(tmp, MANIFEST_PATH)
-        except Exception as e:
-            print(f"[ERROR] Runtime manifest update failed: {e}")
-            with suppress(OSError):
-                tmp.unlink()
-
-    @staticmethod
-    def _md5_file(path: Path) -> str:
-        h = hashlib.md5()
-        with open(path, "rb") as f:
-            for chunk in iter(lambda: f.read(64 * 1024), b""):
-                h.update(chunk)
-        return h.hexdigest()
 
     # ------------------------------------------------------------------
     # Single-port download (streaming)
@@ -469,101 +332,32 @@ class Downloader:
     def _download_port(self, port: Port, kind: str) -> None:
         print(f"[DOWNLOAD] Starting: {port.name} from {port.download_url!r}")
         zip_path = self.autoinstall_dir / f"{port.name}.zip"
-        tmp_path = zip_path.with_suffix(".part")
+        tmp_path = zip_path.with_name(zip_path.name + ".part")
         try:
-            req = urllib.request.Request(
-                port.download_url,
-                headers={"User-Agent": "Pharos/1.0"}
-            )
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                total = int(resp.headers.get("Content-Length", 0))
-                print(f"[DOWNLOAD] Content-Length: {total} bytes")
-                _check_free_space(self.autoinstall_dir, total)
-                downloaded = 0
-                chunk = 64 * 1024
-                start = time.time()
-
-                with open(tmp_path, "wb") as f:
-                    while True:
-                        data = resp.read(chunk)
-                        if not data:
-                            break
-                        f.write(data)
-                        downloaded += len(data)
-
-                        elapsed = time.time() - start
-                        speed = (downloaded / (1024*1024)) / elapsed if elapsed else 0
-                        self.progress_q.put((
-                            downloaded,
-                            total,
-                            _progress_text(port.title, downloaded, total, speed),
-                            "download"
-                        ))
-
+            stream(port.download_url, tmp_path, self._progress(port.title))
             os.replace(tmp_path, zip_path)
+            size = zip_path.stat().st_size
+            self.progress_q.put((size, size, f"Downloaded: {port.title}", "download"))
 
-            self.progress_q.put((
-                downloaded, downloaded,
-                f"Downloaded: {port.title}",
-                "download"
-            ))
-
-            port.md5 = self._md5_file(zip_path)
-            port.size = zip_path.stat().st_size
-            self._update_manifest(port, kind)
-
-            print(f"[DOWNLOAD] Complete: {zip_path} ({downloaded} bytes, {time.time()-start:.1f}s)")
+            entry = asdict(port)
+            entry.update(md5=md5_file(zip_path), size=size)
+            self._downloaded[zip_path.name] = (entry, "ports" if kind == "port" else "bottles")
+            print(f"[DOWNLOAD] Complete: {zip_path} ({size} bytes)")
 
         except Exception as e:
             print(f"[DOWNLOAD ERROR] {port.name}: {type(e).__name__}: {e}")
-            if getattr(e, "errno", None) == errno.ENOSPC:
-                self._fail(port, e.strerror)
-            else:
-                self._fail(port, f"{type(e).__name__}: {e}")
+            self._fail(port, _error_text(e, f"{type(e).__name__}: {e}"))
             with suppress(OSError):
                 tmp_path.unlink()
 
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+    def _progress(self, label: str):
+        def report(downloaded: int, total: int, speed: float) -> None:
+            self.progress_q.put((downloaded, total, progress_text(label, downloaded, total, speed), "download"))
+        return report
+
     def _fail(self, port: Port, message: str) -> None:
         self.progress_q.put((0, 1, f"Failed {port.name}.zip: {message}", "download"))
         print(f"[ERROR] {message}")
-
-    def _update_manifest(self, port: Port, kind: str) -> None:
-        data = {"ports": [], "bottles": []}
-        if MANIFEST_PATH.exists():
-            with suppress(Exception):
-                with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-
-        key = "ports" if kind == "port" else "bottles"
-        other_key = "bottles" if kind == "port" else "ports"
-
-        # Preserve user-set fields (currently `muted`) so a re-download doesn't wipe them.
-        existing = next(
-            (d for d in data.get(key, [])
-             if d.get("name", "").lower() == port.name.lower()),
-            None,
-        )
-        data[key] = [
-            d for d in data.get(key, [])
-            if d.get("name", "").lower() != port.name.lower()
-        ]
-        new_entry = asdict(port)
-        if existing is not None and "muted" in existing:
-            new_entry["muted"] = existing["muted"]
-        data[key].append(new_entry)
-        data[other_key] = data.get(other_key, [])
-
-        tmp = MANIFEST_PATH.with_suffix(".tmp")
-        try:
-            with open(tmp, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
-                f.flush()
-                os.fsync(f.fileno())
-            os.replace(tmp, MANIFEST_PATH)
-        except Exception as e:
-            print(f"[ERROR] Manifest update failed: {e}")
-            with suppress(OSError):
-                tmp.unlink()
