@@ -37,15 +37,15 @@
       "min_glibc": ""
     },
     "source": {
-      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/am2r/am2r/screenshot.jpg",
+      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/am2r/am2r/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/am2r/am2r/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/am2r.zip",
-      "date_updated": "2026-11-21T22:51",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-05-18",
-      "md5": "d6447cac3fa89ed3f139ce1e93b6d9c0",
-      "size": 2974310,
-      "lifetime_downloads": 511,
-      "last_commit": "[AM2R] Preserve splash.png during patching"
+      "md5": "1afdda19cfafbfac17fc1abcdd478fd2",
+      "size": 3268528,
+      "lifetime_downloads": 517,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -200,12 +200,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/aurascope/aurascope/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/aurascope/aurascope/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/aurascope.zip",
-      "date_updated": "2026-07-16T21:21",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-05-18",
-      "md5": "337df94a97bbc73b31b4256e5b0dafb5",
-      "size": 2751051,
-      "lifetime_downloads": 28,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "md5": "3fc16f1895f6d78ca883dce35ccf3577",
+      "size": 3091305,
+      "lifetime_downloads": 66,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -352,12 +352,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/clannad/clannad/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/clannad/clannad/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/clannad.zip",
-      "date_updated": "2026-07-08T23:05",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-05-17",
-      "md5": "aa9cbd5972983c66319a942fa2868ada",
-      "size": 324961,
-      "lifetime_downloads": 15,
-      "last_commit": "Change rlvm runtime to rlvm-sdl2 (name collision)"
+      "md5": "e5bc852315c31ba5a7f061706c6d1259",
+      "size": 585868,
+      "lifetime_downloads": 68,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -456,12 +456,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/tomoyo_after/tomoyo_after/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/tomoyo_after/tomoyo_after/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/tomoyo_after.zip",
-      "date_updated": "2026-07-08T23:05",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-05-17",
-      "md5": "152b1b3698fa358a430fe4b9ed50ae10",
-      "size": 341560,
-      "lifetime_downloads": 8,
-      "last_commit": "Change rlvm runtime to rlvm-sdl2 (name collision)"
+      "md5": "07b8e23d1eaa86eec4cde5fddb31e45c",
+      "size": 578141,
+      "lifetime_downloads": 31,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -568,15 +568,15 @@
       "min_glibc": null
     },
     "source": {
-      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/darkdeity/darkdeity/screenshot.jpg",
+      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/darkdeity/darkdeity/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/darkdeity/darkdeity/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/darkdeity.zip",
-      "date_updated": "2026-07-16T21:21",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-05-18",
-      "md5": "5161c0af8e71f2559dbc48b9c0acd4a8",
-      "size": 4392094,
-      "lifetime_downloads": 42,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "md5": "eb277579b11351e666aea3eee20c46c3",
+      "size": 4696030,
+      "lifetime_downloads": 109,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -980,12 +980,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/digitaltamersreborn/digitaltamersreborn/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/digitaltamersreborn/digitaltamersreborn/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/digitaltamersreborn.zip",
-      "date_updated": "2026-07-18T15:07",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-05-18",
-      "md5": "76a369b680cde520d8fe11a1119ded20",
-      "size": 220691352,
-      "lifetime_downloads": 40,
-      "last_commit": "Fix splash handling"
+      "md5": "6c88d2129474363c1af78803ceeb0736",
+      "size": 220691354,
+      "lifetime_downloads": 132,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -1098,15 +1098,15 @@
       "min_glibc": null
     },
     "source": {
-      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/doomengines/doomengines/screenshot.jpg",
+      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/doomengines/doomengines/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/doomengines/doomengines/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/doomengines.zip",
-      "date_updated": "2026-09-10T01:53",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-05-17",
-      "md5": "210c68fb54f17c47f0d30d88d25716be",
-      "size": 91714038,
-      "lifetime_downloads": 124,
-      "last_commit": "[DOOMENGINES] Update engine versions"
+      "md5": "3da18d79279aaf1fd031bbb49d35444e",
+      "size": 91794710,
+      "lifetime_downloads": 249,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -1255,12 +1255,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/f-zeropocket/f-zeropocket/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/f-zeropocket/f-zeropocket/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/f-zeropocket.zip",
-      "date_updated": "2026-05-14T13:38",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-11-11",
-      "md5": "eab2440f4fd09bdb20ed2c6896840e52",
-      "size": 39169988,
-      "lifetime_downloads": 21,
-      "last_commit": "Update readmes to add runtime requirements"
+      "md5": "5c14f427b7f5a4d68ae3a2959d009dfb",
+      "size": 39250381,
+      "lifetime_downloads": 110,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -1308,12 +1308,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/yeotrilogy/fadingafternoon/fadingafternoon/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/yeotrilogy/fadingafternoon/fadingafternoon/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/fadingafternoon.zip",
-      "date_updated": "2026-07-18T15:01",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-07-02",
-      "md5": "e6824c4ad44c052d1a71f2a53d7dedf5",
-      "size": 4082639,
-      "lifetime_downloads": 95,
-      "last_commit": "[YEO] Fix the trilogy"
+      "md5": "63f6b74d4c9365dc4874197b20362953",
+      "size": 4278158,
+      "lifetime_downloads": 193,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -1627,12 +1627,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/hallowseve/hallowseve/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/hallowseve/hallowseve/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/hallowseve.zip",
-      "date_updated": "2026-05-14T16:48",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-05-18",
-      "md5": "a74b7a3a48bc82747dcbb3082b25ae9f",
-      "size": 470272,
-      "lifetime_downloads": 10,
-      "last_commit": "Remove old ports and fix all storefronts in port.json files"
+      "md5": "59018b0bc44310e2b8d1fc880de41f76",
+      "size": 621016,
+      "lifetime_downloads": 49,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -1686,12 +1686,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/haque/haque/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/haque/haque/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/haque.zip",
-      "date_updated": "2026-07-18T11:56",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-05-18",
-      "md5": "6de06cd4b8be72c286550f7ade0296df",
-      "size": 2736024,
-      "lifetime_downloads": 21,
-      "last_commit": "Fix a couple more patchscripts that were broken by gmtoolkit rollover commit"
+      "md5": "7767f363fa8a4d56a9c273d671bed589",
+      "size": 3102332,
+      "lifetime_downloads": 51,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -1881,12 +1881,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/iosas/iosas/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/iosas/iosas/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/iosas.zip",
-      "date_updated": "2026-07-16T21:22",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-11-11",
-      "md5": "b746457c4c489452d5241a41dc08aef6",
-      "size": 5654698,
-      "lifetime_downloads": 64,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "md5": "bb8bd8fd715865cf3f5d09025167a83d",
+      "size": 5727338,
+      "lifetime_downloads": 174,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -2120,12 +2120,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/littlebusters/littlebusters/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/littlebusters/littlebusters/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/littlebusters.zip",
-      "date_updated": "2026-07-08T23:05",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-05-17",
-      "md5": "165cfc980c0f3c9eb3657cdb92166480",
-      "size": 515930,
-      "lifetime_downloads": 8,
-      "last_commit": "Change rlvm runtime to rlvm-sdl2 (name collision)"
+      "md5": "be489dee52fecf664525e76baa0d0370",
+      "size": 712227,
+      "lifetime_downloads": 31,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -2193,15 +2193,15 @@
       "min_glibc": null
     },
     "source": {
-      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/lunarlux/lunarlux/screenshot.jpg",
+      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/lunarlux/lunarlux/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/lunarlux/lunarlux/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/lunarlux.zip",
-      "date_updated": "2026-07-16T21:22",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-05-18",
-      "md5": "d2c61afb28971fe9f917f66b093c3cf0",
-      "size": 5325141,
-      "lifetime_downloads": 29,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "md5": "00850e3322cbc24376c10e5a0554cee1",
+      "size": 5536232,
+      "lifetime_downloads": 77,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -2397,12 +2397,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mimisdeliverydash/mimisdeliverydash/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mimisdeliverydash/mimisdeliverydash/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/mimisdeliverydash.zip",
-      "date_updated": "2026-02-24T00:38",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-05-18",
-      "md5": "61ee894abd6a061f98ceea4078ce392d",
-      "size": 17811323,
-      "lifetime_downloads": 0,
-      "last_commit": "Convert older port.json runtime strings to arrays"
+      "md5": "3c1bd9c124387d7020b06f1438bebd09",
+      "size": 17996771,
+      "lifetime_downloads": 56,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -2524,12 +2524,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mystikbelle/mystikbelle/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mystikbelle/mystikbelle/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/mystikbelle.zip",
-      "date_updated": "2026-09-14T10:37",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-05-18",
-      "md5": "cbfacf34bc85d85d46a684ec66851669",
-      "size": 5709648,
-      "lifetime_downloads": 48,
-      "last_commit": "[MYSTIKBELLE] Don't target bytecode with new edition"
+      "md5": "ea305b221ccb85029fb0eed1192e902c",
+      "size": 5485042,
+      "lifetime_downloads": 87,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -2634,12 +2634,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/oceansheart/oceansheart/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/oceansheart/oceansheart/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/oceansheart.zip",
-      "date_updated": "2026-05-14T16:48",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-05-18",
-      "md5": "ceff40b6029559a9262d7af317a198a4",
-      "size": 1183359,
-      "lifetime_downloads": 16,
-      "last_commit": "Remove old ports and fix all storefronts in port.json files"
+      "md5": "752968d80758231bdfe11743bdbc318a",
+      "size": 1301556,
+      "lifetime_downloads": 154,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -2876,12 +2876,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/paperboat.zip",
-      "date_updated": "2026-11-21T13:05",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2026-09-17",
-      "md5": "734eb45d31f1e09af6a4523cb280fa2e",
-      "size": 11864922,
-      "lifetime_downloads": 971,
-      "last_commit": "[HM] Log port origin for smoother troubleshooting"
+      "md5": "b86986ed787d07bb279d921467ca7109",
+      "size": 11876818,
+      "lifetime_downloads": 1000,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -2977,12 +2977,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/pizzatower/pizzatower/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/pizzatower/pizzatower/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pizzatower.zip",
-      "date_updated": "2026-07-18T12:37",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-05-18",
-      "md5": "380cfe882eb3e8fe9414ecc22cc13b32",
-      "size": 7120000,
-      "lifetime_downloads": 84,
-      "last_commit": "Update stale plugins for pizza tower and grapple dog"
+      "md5": "3b7514bd5f083a57648e1b24cb50358c",
+      "size": 7366091,
+      "lifetime_downloads": 232,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -3023,12 +3023,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/planetarian/planetarian/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/planetarian/planetarian/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/planetarian.zip",
-      "date_updated": "2026-07-08T23:05",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-05-17",
-      "md5": "ab50a37e84cda4ae53e7124950ebd6ad",
-      "size": 258841,
-      "lifetime_downloads": 8,
-      "last_commit": "Change rlvm runtime to rlvm-sdl2 (name collision)"
+      "md5": "81021646c5cbe508174b4483aa2de575",
+      "size": 510038,
+      "lifetime_downloads": 25,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -3069,12 +3069,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/pocketcrystalleague/pocketcrystalleague/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/pocketcrystalleague/pocketcrystalleague/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pocketcrystalleague.zip",
-      "date_updated": "2026-06-04T16:32",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-05-18",
-      "md5": "d28f6caee5fccfa0d7d5f7bf64b596e7",
-      "size": 17537722,
-      "lifetime_downloads": 27,
-      "last_commit": "[GMS] Trim unused libs from ports"
+      "md5": "ae37d05b1c39da0cf84035baa61d0ab3",
+      "size": 17580532,
+      "lifetime_downloads": 142,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -3522,12 +3522,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/shrineslegacy/shrineslegacy/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/shrineslegacy/shrineslegacy/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/shrineslegacy.zip",
-      "date_updated": "2026-07-19T00:01",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-10-07",
-      "md5": "0708da894b4430f20ae9b6067b041836",
-      "size": 5430664,
-      "lifetime_downloads": 54,
-      "last_commit": "[SHRINESLEGACY] Patch for latest data and silhouette fix"
+      "md5": "3872f2b65705d03e369b56971994c907",
+      "size": 5637027,
+      "lifetime_downloads": 115,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -3573,12 +3573,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.1/sonic.1/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.1/sonic.1/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sonic.1.zip",
-      "date_updated": "2026-07-09T19:09",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-11-10",
-      "md5": "71182ac076663eccfc53b17307409b95",
-      "size": 3222249,
-      "lifetime_downloads": 54,
-      "last_commit": "Add missing chmod +x to 44 ports"
+      "md5": "5bcce41d453edece9a532a4fa6604686",
+      "size": 3222251,
+      "lifetime_downloads": 209,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -3624,12 +3624,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.2/sonic.2/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.2/sonic.2/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sonic.2.zip",
-      "date_updated": "2026-07-09T19:09",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-11-10",
-      "md5": "8180c1f87077b53dc265f6a715e26674",
-      "size": 3305264,
-      "lifetime_downloads": 48,
-      "last_commit": "Add missing chmod +x to 44 ports"
+      "md5": "2b572361f62dd9079a6463a866d5ecc2",
+      "size": 3305267,
+      "lifetime_downloads": 174,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -3729,12 +3729,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.cd/sonic.cd/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.cd/sonic.cd/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sonic.cd.zip",
-      "date_updated": "2026-07-09T19:09",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-11-10",
-      "md5": "b2e9dda322576a9a5d40cc0bbca280ac",
-      "size": 2977196,
-      "lifetime_downloads": 60,
-      "last_commit": "Add missing chmod +x to 44 ports"
+      "md5": "71f5d09fc4a3c42daafd67fb04e1eacc",
+      "size": 2977198,
+      "lifetime_downloads": 201,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -3787,15 +3787,15 @@
       "min_glibc": null
     },
     "source": {
-      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.mania/sonic.mania/screenshot.jpg",
+      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.mania/sonic.mania/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.mania/sonic.mania/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sonic.mania.zip",
-      "date_updated": "2026-05-14T18:18",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-11-10",
-      "md5": "134c402c3076f884f5b803763e1c4bb1",
-      "size": 2658536,
-      "lifetime_downloads": 23,
-      "last_commit": "Add discounts and more stores"
+      "md5": "776b520d032617e856d1494ff2811e44",
+      "size": 2965603,
+      "lifetime_downloads": 315,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -4038,12 +4038,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/spinelasher/spinelasher/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/spinelasher/spinelasher/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/spinelasher.zip",
-      "date_updated": "2026-07-16T21:22",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-08-11",
-      "md5": "10bfcaa69375cb89774d50332b45b57c",
-      "size": 5134000,
-      "lifetime_downloads": 26,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "md5": "ae95927f56d912193dbafa1f8334f0b7",
+      "size": 5446211,
+      "lifetime_downloads": 47,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -4280,12 +4280,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mariokartzx/mariokartzx/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mariokartzx/mariokartzx/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/mariokartzx.zip",
-      "date_updated": "2026-09-11T23:06",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2026-02-08",
-      "md5": "eb796689012e608de6cf0c9ac5a91d68",
-      "size": 2744257,
-      "lifetime_downloads": 172,
-      "last_commit": "[MKZX] Keep tracks zip file intact"
+      "md5": "d49045c62f9f4e59f02f527661a07cb0",
+      "size": 2929914,
+      "lifetime_downloads": 258,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -4373,12 +4373,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/superstartrek/superstartrek/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/superstartrek/superstartrek/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/superstartrek.zip",
-      "date_updated": "2026-09-24T22:42",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-07-01",
-      "md5": "96b74bb7598abad713c34568779bb2d4",
-      "size": 18016559,
-      "lifetime_downloads": 55,
-      "last_commit": "v1.0.4"
+      "md5": "fbbdd684eb334458b50ed71bbd206204",
+      "size": 18147355,
+      "lifetime_downloads": 84,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -4490,12 +4490,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/thegirlfromarkanya/thegirlfromarkanya/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/boxports/thegirlfromarkanya/thegirlfromarkanya/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/thegirlfromarkanya.zip",
-      "date_updated": "2026-11-04T00:53",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2026-01-17",
-      "md5": "e89229664843e3153ef5c76fbfbf0f6a",
-      "size": 697199,
-      "lifetime_downloads": 24,
-      "last_commit": "Purge unreleased ports"
+      "md5": "d356953a80f597bbadc61ea7acfb820a",
+      "size": 1098361,
+      "lifetime_downloads": 31,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -4676,12 +4676,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-mercurischest/zelda-mercurischest/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-mercurischest/zelda-mercurischest/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zelda-mercurischest.zip",
-      "date_updated": "2026-05-14T13:39",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-05-18",
-      "md5": "7aa23f49f6468f66b929b3f82315dff5",
-      "size": 2635169,
-      "lifetime_downloads": 6,
-      "last_commit": "Update readmes to add runtime requirements"
+      "md5": "53427e3b7210e0c85e3e6d6698990247",
+      "size": 2775019,
+      "lifetime_downloads": 41,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -4856,12 +4856,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-bookofmudora/zelda-bookofmudora/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-bookofmudora/zelda-bookofmudora/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zelda-bookofmudora.zip",
-      "date_updated": "2026-05-14T13:39",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-05-18",
-      "md5": "f56438f4afd81ad0c6b2caaa3403e8b3",
-      "size": 392874,
-      "lifetime_downloads": 6,
-      "last_commit": "Update readmes to add runtime requirements"
+      "md5": "71d06f39e1291f4a561bfadfc5551d27",
+      "size": 499052,
+      "lifetime_downloads": 64,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -5338,12 +5338,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/tunics!/tunics!/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/tunics!/tunics!/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/tunics.zip",
-      "date_updated": "2026-07-10T16:08",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2026-07-10",
-      "md5": "e5452b034c3c6af646b348327325e768",
-      "size": 2422618,
-      "lifetime_downloads": 0,
-      "last_commit": "Fix a bunch of stuff"
+      "md5": "a30c86e78be08c62f676a001d684aa6f",
+      "size": 2422619,
+      "lifetime_downloads": 102,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -5390,12 +5390,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/ufo50/ufo50/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/ufo50/ufo50/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/ufo50.zip",
-      "date_updated": "2026-07-16T21:22",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-05-18",
-      "md5": "2fde5373be64e354c5630d3e83d56550",
-      "size": 5327296,
-      "lifetime_downloads": 213,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "md5": "cdbd8e7291754297e6a4e610af5657d4",
+      "size": 5615356,
+      "lifetime_downloads": 1085,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -5512,12 +5512,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/undertaleredyellow/undertaleredyellow/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/undertaleredyellow/undertaleredyellow/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/undertaleredyellow.zip",
-      "date_updated": "2026-07-18T15:07",
+      "date_updated": "2026-11-23T12:16",
       "first_seen": "2025-05-19",
-      "md5": "166723e89866e15b57be720dc68b798b",
-      "size": 9966259,
-      "lifetime_downloads": 54,
-      "last_commit": "Fix splash handling"
+      "md5": "9fd1b573a7a5e7dbba2b660b44cfb284",
+      "size": 10129256,
+      "lifetime_downloads": 167,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -5706,12 +5706,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/vhr/vhr/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/vhr/vhr/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/vhr.zip",
-      "date_updated": "2026-07-16T21:22",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-11-11",
-      "md5": "93525d03d13da8dca0edc5d87dfa909e",
-      "size": 5562991,
-      "lifetime_downloads": 165,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "md5": "f44eca0d2f682e901a6a8442ec596e87",
+      "size": 5660247,
+      "lifetime_downloads": 566,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -5821,12 +5821,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/yarntown/yarntown/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/yarntown/yarntown/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/yarntown.zip",
-      "date_updated": "2026-05-14T13:39",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2025-05-18",
-      "md5": "82ff2b0aba5647e68c48fa323a342f2e",
-      "size": 497748,
-      "lifetime_downloads": 7,
-      "last_commit": "Update readmes to add runtime requirements"
+      "md5": "d7cbf6634e09e74585cb2151d2545475",
+      "size": 584691,
+      "lifetime_downloads": 73,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   },
   {
@@ -5869,12 +5869,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/zelda2enhanced/zelda2enhanced/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/zelda2enhanced/zelda2enhanced/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zelda2enhanced.zip",
-      "date_updated": "2026-07-16T21:22",
+      "date_updated": "2026-11-23T12:17",
       "first_seen": "2026-05-14",
-      "md5": "0e75f16897a8a50f87867c7950e00661",
-      "size": 2824891,
-      "lifetime_downloads": 57,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "md5": "733d6cfd1b36a9c3eb784bd130e6bdd0",
+      "size": 2913744,
+      "lifetime_downloads": 199,
+      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
     }
   }
 ]
