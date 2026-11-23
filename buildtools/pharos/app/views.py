@@ -458,21 +458,22 @@ class MenuView(View):
     def __init__(self, app) -> None:
         super().__init__(app)
         self.idx = 0
+        self.msg = ""
 
     def _rows(self) -> List[tuple]:
-        """(label, action) pairs"""
+        """(label, action) pairs. An action can return a message."""
         raise NotImplementedError
 
     def draw(self) -> None:
         self._draw_header(self.TITLE)
         self._draw_rows([label for label, _ in self._rows()], self.idx, MAX_ROWS)
-        self.ui.draw_log(text=f"Pharos v{self.app.updater.current_version}")
+        self.ui.draw_log(text=self.msg or f"Pharos v{self.app.updater.current_version}")
         self._draw_button_bar([("a", "Select"), ("b", "Back")])
 
     def handle_input(self) -> None:
         rows = self._rows()
         if self._pressed("a"):
-            rows[self.idx][1]()
+            self.msg = rows[self.idx][1]() or ""
         elif self._pressed("b"):
             self.app.pop()
         else:
@@ -486,6 +487,7 @@ class SettingsView(MenuView):
         app = self.app
         return [
             (_check("Filter out ports that aren't compatible with this device", app.hide_incompatible), app.toggle_hide_incompatible),
+            (_check("Override PortMaster's device info", app.override_device_info), app.toggle_override_device_info),
             ("List Details", lambda: app.push(DetailsView(app))),
             (f"Pharos Service: {app.service.status_text()}", lambda: app.push(ServiceView(app))),
             ("Device Info", lambda: app.push(DeviceView(app))),

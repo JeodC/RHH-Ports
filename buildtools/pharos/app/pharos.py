@@ -18,11 +18,12 @@ import sdl2.ext
 # ----------------------------------------------------------------------
 import images
 import manifest
-from config import DATA_DIR, get_controller_layout, get_setting, put_setting, Repository, Port
+from cfw import set_device_override
+from config import DATA_DIR, INSTALL_DIR, get_controller_layout, get_setting, put_setting, Repository, Port
 from device import Device
 from input import Input
 from ui import UserInterface
-from download import Downloader, fetch
+from download import Downloader, controlfolder, fetch
 from update import PHAROS_PORT_NAME, PHAROS_REPO, Update
 from service import Service
 from sources import catalog_entries, catalog_urls, is_portmaster, read_sources, release_url
@@ -92,6 +93,8 @@ class Pharos:
         self.hide_incompatible = get_setting("hide_incompatible", False)
         self._visible: dict = {}
         self.details = get_setting("list_details", DEFAULT_DETAILS)
+        self.override_device_info = get_setting("override_device_info", False)
+        self._apply_device_override()
         self._views: List[View] = [RepoView(self)]
 
         # Refresh + restart the service if the bundled daemon differs from the
@@ -109,6 +112,32 @@ class Pharos:
     def toggle_detail(self, key: str) -> None:
         self.details = [d for d in self.details if d != key] if key in self.details else self.details + [key]
         put_setting("list_details", self.details)
+
+    # ------------------------------------------------------------------
+    # PortMaster's device info
+    # ------------------------------------------------------------------
+    def toggle_override_device_info(self) -> str:
+        """Returns an error message or an empty string"""
+        self.override_device_info = not self.override_device_info
+        error = self._apply_device_override()
+        if error:
+            self.override_device_info = not self.override_device_info
+        put_setting("override_device_info", self.override_device_info)
+        return error
+
+    def _apply_device_override(self) -> str:
+        # /roms and /storage/roms can be the same folder
+        script = os.path.join(os.path.realpath(INSTALL_DIR), "device_override.txt")
+        try:
+            found = set_device_override(controlfolder, script if self.override_device_info else "")
+        except OSError as e:
+            print(f"[DEVICE] Can't change the device info cache: {e}")
+            return f"Can't change the device info cache: {e.strerror}"
+        if self.override_device_info and get_setting("controlfolder", "") != controlfolder:
+            put_setting("controlfolder", controlfolder)  # for the daemon
+        if self.override_device_info and not found:
+            return "No device info cache found."
+        return ""
 
     # ------------------------------------------------------------------
     # Compatibility filter

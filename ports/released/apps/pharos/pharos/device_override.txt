@@ -1,0 +1,85 @@
+# Overrides PortMaster's device info with measured values if they differ. Run by its
+# device info cache when the setting is on in Pharos. Prints the variables to set,
+# with old values as PM_<name>. $1 is PortMaster's folder.
+
+out=""
+caps="$DEVICE_CAPABILITIES"
+
+set_var() {
+    [ -n "$3" ] && [ "$2" != "$3" ] || return 0
+    [ -n "$2" ] && out="$out PM_$1='$2'"
+    out="$out $1='$3'"
+}
+
+# The screen SDL opens
+screen() {
+    [ -z "$NO_SDL_RESOLUTION" ] && timeout -s KILL 5 true 2>/dev/null || return
+    size="$(timeout -s KILL 5 "$1/sdl_resolution.$DEVICE_ARCH" 2>/dev/null | grep -a 'Resolution' | grep -aoE '[0-9]+x[0-9]+' | tail -n 1)"
+    w="${size%x*}"
+    h="${size#*x}"
+    # 1024x768 is what SDL reports without a display
+    [ "${w:-0}" -gt 0 ] && [ "${h:-0}" -gt 0 ] && [ "$size" != "1024x768" ] || return
+
+    # Portrait panels are mounted sideways
+    if [ "$w" -lt "$h" ]; then
+        w="${size#*x}"
+        h="${size%x*}"
+    fi
+    [ "$w" = "$DISPLAY_WIDTH" ] && [ "$h" = "$DISPLAY_HEIGHT" ] && return
+
+    a="$w"
+    b="$h"
+    while [ "$b" -ne 0 ]; do
+        t=$((a % b))
+        a="$b"
+        b="$t"
+    done
+    x=$((w / a))
+    y=$((h / a))
+    if [ "$x:$y" = "8:5" ]; then
+        x=16
+        y=10
+    fi
+
+    # Same rules as device_info.txt
+    new="${w}x${h} $x:$y"
+    [ "$x:$y" = "16:10" ] && new="$new 16:9"
+    if [ "$w" -ge 960 ] || [ "$h" -ge 720 ]; then
+        new="$new hires"
+    elif [ "$w" -lt 640 ] || [ "$h" -lt 480 ]; then
+        new="$new lowres"
+    fi
+    if [ $((w * 10 / h)) -ge 15 ]; then
+        new="$new wide"
+    elif [ $((w * 100 / h)) -le 125 ]; then
+        new="$new square"
+    fi
+    for t in $caps; do
+        case "$t" in
+            [0-9]*x[0-9]*|[0-9]*:[0-9]*|hires|lowres|wide|square) ;;
+            *) new="$new $t" ;;
+        esac
+    done
+    [ -n "$caps" ] && caps="$new"
+
+    set_var DISPLAY_WIDTH "$DISPLAY_WIDTH" "$w"
+    set_var DISPLAY_HEIGHT "$DISPLAY_HEIGHT" "$h"
+    set_var ASPECT_X "$ASPECT_X" "$x"
+    set_var ASPECT_Y "$ASPECT_Y" "$y"
+}
+
+# The loader 32-bit programs need
+armhf() {
+    [ "$DEVICE_HAS_ARMHF" = "Y" ] && [ ! -e /lib/ld-linux-armhf.so.3 ] || return
+    new=""
+    for t in $caps; do
+        [ "$t" = "armhf" ] || new="${new:+$new }$t"
+    done
+    caps="$new"
+    set_var DEVICE_HAS_ARMHF Y N
+}
+
+screen "$1"
+armhf
+set_var DEVICE_CAPABILITIES "$DEVICE_CAPABILITIES" "$caps"
+echo "$out"

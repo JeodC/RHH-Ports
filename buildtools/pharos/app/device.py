@@ -45,6 +45,11 @@ def _portmaster(name: str) -> str:
     return "" if value.lower() in ("unknown", "none") else value
 
 
+def _reported(name: str) -> str:
+    # device_override.txt keeps the old value
+    return os.environ.get(f"PM_{name}", "").strip() or _portmaster(name)
+
+
 def _read(path: str) -> str:
     try:
         return Path(path).read_text("utf-8", "replace").strip("\0\n ")
@@ -168,8 +173,8 @@ class Device:
     # ------------------------------------------------------------------
     def _differences(self) -> dict[str, str]:
         reported = {
-            "Screen": "x".join(filter(None, (_portmaster("DISPLAY_WIDTH"), _portmaster("DISPLAY_HEIGHT")))),
-            "32-bit": {"Y": "yes", "N": "no"}.get(_portmaster("DEVICE_HAS_ARMHF"), ""),
+            "Screen": "x".join(filter(None, (_reported("DISPLAY_WIDTH"), _reported("DISPLAY_HEIGHT")))),
+            "32-bit": {"Y": "yes", "N": "no"}.get(_reported("DEVICE_HAS_ARMHF"), ""),
             "glibc": re.sub(r"^(\d)(\d+)$", r"\1.\2", _portmaster("CFW_GLIBC")),
         }
         measured = {

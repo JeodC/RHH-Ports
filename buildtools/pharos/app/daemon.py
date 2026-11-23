@@ -38,7 +38,7 @@ from pathlib import Path
 from typing import Iterable
 from urllib.error import HTTPError, URLError
 
-from cfw import detect_cfw
+from cfw import detect_cfw, set_device_override
 from sources import catalog_entries, catalog_urls, is_portmaster, read_sources
 
 # Minimal CFWs (Knulli) lack CA certs in OpenSSL's default path, so HTTPS
@@ -56,6 +56,7 @@ signal.signal(signal.SIGHUP, signal.SIG_IGN)
 # ----------------------------------------------------------------------
 INSTALL_DIR = Path(os.path.dirname(os.path.abspath(sys.argv[0])))
 SOURCES_PATH = INSTALL_DIR / "sources.json"
+SETTINGS_PATH = INSTALL_DIR / "settings.json"
 MANIFEST_PATH = INSTALL_DIR / "resources" / "manifest.json"
 
 PID_FILE = INSTALL_DIR / "resources" / "daemon.pid"
@@ -411,6 +412,21 @@ def _trim_memory() -> None:
 
 
 # ----------------------------------------------------------------------
+# PortMaster's device info
+# ----------------------------------------------------------------------
+def ensure_device_override() -> None:
+    # A PortMaster update rewrites its cache
+    try:
+        settings = json.loads(SETTINGS_PATH.read_text("utf-8-sig"))
+        if settings["override_device_info"] is True:
+            set_device_override(settings["controlfolder"], os.path.join(os.path.realpath(INSTALL_DIR), "device_override.txt"))
+    except (FileNotFoundError, KeyError):
+        pass  # never turned on
+    except (OSError, ValueError, TypeError) as e:
+        log("WARN", f"device override: {e}")
+
+
+# ----------------------------------------------------------------------
 # Main check
 # ----------------------------------------------------------------------
 def run_check() -> tuple[bool, bool]:
@@ -425,6 +441,7 @@ def run_check() -> tuple[bool, bool]:
     _network_errors_this_pass = 0
 
     ensure_es_module()
+    ensure_device_override()
 
     local_md5s, local_titles, local_repos, muted = load_local_manifest()
     if not local_md5s:

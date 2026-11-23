@@ -1,9 +1,10 @@
 """
-CFW detection, shared by Pharos and the daemon
+CFW detection and PortMaster's device info cache, shared by Pharos and the daemon
 """
 import functools
 import os
 import shutil
+from contextlib import suppress
 from pathlib import Path
 
 # CFW_NAME values (case-insensitive) PortMaster's device_info.txt may export,
@@ -77,3 +78,26 @@ def detect_cfw(log) -> str:
 
     log(f"CFW detect: env={env_name!r} bucket={bucket!r} verified")
     return bucket
+
+
+_OVERRIDE_MARK = "# Pharos"
+
+
+def set_device_override(controlfolder: str, script: str) -> bool:
+    """Returns False when PortMaster has no cache"""
+    caches = list(Path(controlfolder).glob("device_info_*.env")) if controlfolder else []
+    for cache in caches:
+        text = cache.read_text("utf-8", "surrogateescape")
+        lines = [line for line in text.rstrip("\n").split("\n") if not line.endswith(_OVERRIDE_MARK)]
+        if script:
+            # PortMaster parses any line with an equals sign
+            lines.append(f'eval "$(sh "{script}" "${{CONTROL_DIR:-$controlfolder}}" 2>/dev/null)" || : {_OVERRIDE_MARK}')
+        new = "\n".join(lines) + "\n"
+        if new != text:
+            tmp = cache.with_suffix(".tmp")
+            tmp.write_text(new, "utf-8", "surrogateescape", newline="\n")
+            # PortMaster goes by the newest when there are several
+            with suppress(OSError):
+                shutil.copystat(cache, tmp)
+            os.replace(tmp, cache)
+    return bool(caches)
