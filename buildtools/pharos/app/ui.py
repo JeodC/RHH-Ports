@@ -25,7 +25,7 @@ def hex_to_sdl(hex_str: str) -> sdl2.SDL_Color:
     return sdl2.SDL_Color(*bytes.fromhex(hex_str[1:]), 255)
 
 
-FONT_PATH = os.path.join(BASE_PATH, "fonts", "romm.ttf")
+FONT_PATH = os.path.join(BASE_PATH, "fonts", "wqy-microhei-mono.ttf")
 FONT_SIZE = 12
 HEADER_HEIGHT = 25
 FOOTER_HEIGHT = 20
@@ -33,6 +33,7 @@ BUTTON_AREA_HEIGHT = 50
 BUTTON_PADDING = 8
 MAX_TEXTURE_CACHE = 16
 MAX_TEXT_CACHE = 256
+FONT_RISE = 0.1  # of the font size, text is drawn this much higher
 MAX_FONT_SIZE = 20  # fits a row and the button bar
 
 # Reserved height for the store-icon row above the button area; 0 if no store data.
@@ -293,7 +294,8 @@ class UserInterface:
         cached = self._text_texture(text, hex_to_sdl(color or theme.text))
         if cached:
             texture, w, h = cached
-            sdl2.SDL_RenderCopy(self.renderer, texture, None, sdl2.SDL_Rect(pos[0], pos[1], w, h))
+            y = pos[1] - round(self.font_size * FONT_RISE)
+            sdl2.SDL_RenderCopy(self.renderer, texture, None, sdl2.SDL_Rect(pos[0], y, w, h))
 
     # ------------------------------------------------------------------
     # Shapes

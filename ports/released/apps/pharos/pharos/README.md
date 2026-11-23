@@ -49,7 +49,7 @@ Put a `.json` file in a `themes` folder next to `sources.json`. The file name is
 ## Adding a Language
 Open **Language** in the settings once to get `template.json` in the `languages` folder next to `sources.json`. Copy it to a new file in that folder and translate the text. `LANGUAGE_NAME` is the name to show in the list. Keep anything in braces, such as `{name}`. Missing text stays in English.
 
-Pharos can draw Latin, Cyrillic and Greek letters.
+Pharos can draw Latin, Cyrillic, Greek, Chinese, Japanese and Korean text.
 
 ## Security
 Pharos does **not perform validation** on downloaded files. Users are responsible for ensuring that all sources are trusted and safe.
