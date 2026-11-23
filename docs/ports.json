@@ -87,12 +87,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/air/air/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/air/air/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/air.zip",
-      "date_updated": "2026-07-08T23:05",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-17",
-      "md5": "91343ab19219e251079dcb3e03422f42",
-      "size": 742456,
-      "lifetime_downloads": 29,
-      "last_commit": "Change rlvm runtime to rlvm-sdl2 (name collision)"
+      "md5": "a1c3016cb4c426bf2e9d12069a6c061c",
+      "size": 742494,
+      "lifetime_downloads": 86,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -352,12 +352,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/clannad/clannad/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/clannad/clannad/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/clannad.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-17",
-      "md5": "e5bc852315c31ba5a7f061706c6d1259",
-      "size": 585868,
-      "lifetime_downloads": 68,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "md5": "9da222b380f7ce4a55a60c660f88237e",
+      "size": 585906,
+      "lifetime_downloads": 69,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -404,12 +404,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/clannadss/clannadss/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/clannadss/clannadss/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/clannadss.zip",
-      "date_updated": "2026-07-08T23:05",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2026-05-16",
-      "md5": "b06f19bbda64724ef8b5a86db5708048",
-      "size": 626093,
-      "lifetime_downloads": 7,
-      "last_commit": "Change rlvm runtime to rlvm-sdl2 (name collision)"
+      "md5": "af7619a289d9ce76c77bc31dde94efdf",
+      "size": 626143,
+      "lifetime_downloads": 32,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -456,12 +456,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/tomoyo_after/tomoyo_after/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/tomoyo_after/tomoyo_after/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/tomoyo_after.zip",
-      "date_updated": "2026-11-23T13:04",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-17",
-      "md5": "846642c12df9a9b72321328b6c0ae3d3",
-      "size": 578139,
-      "lifetime_downloads": 31,
-      "last_commit": "Fix several typos in port.json files"
+      "md5": "4f2cedb460802a669f585ff75127a141",
+      "size": 578180,
+      "lifetime_downloads": 32,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -502,12 +502,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/candcra/candcra/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/candcra/candcra/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/candcra.zip",
-      "date_updated": "2026-11-11T22:06",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2026-11-11",
-      "md5": "2ecef8365be7b3e171cefa536c15b4be",
-      "size": 15900079,
-      "lifetime_downloads": 0,
-      "last_commit": "[REDALERT] Add port"
+      "md5": "86a1dc0981af28b3e9a632cb4ef9f123",
+      "size": 15900074,
+      "lifetime_downloads": 19,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -1627,12 +1627,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/hallowseve/hallowseve/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/hallowseve/hallowseve/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/hallowseve.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-18",
-      "md5": "59018b0bc44310e2b8d1fc880de41f76",
-      "size": 621016,
-      "lifetime_downloads": 49,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "md5": "58b95b8bf3c9d366a2e89acea3adbc59",
+      "size": 621020,
+      "lifetime_downloads": 50,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -1686,12 +1686,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/haque/haque/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/haque/haque/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/haque.zip",
-      "date_updated": "2026-11-23T12:16",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-18",
-      "md5": "7767f363fa8a4d56a9c273d671bed589",
-      "size": 3102332,
-      "lifetime_downloads": 51,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "md5": "31b9eb05283206648cd9caf97a1a7290",
+      "size": 3102331,
+      "lifetime_downloads": 52,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -1985,12 +1985,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/kanon/kanon/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/kanon/kanon/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/kanon.zip",
-      "date_updated": "2026-07-08T23:05",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-17",
-      "md5": "7aae1fffa7dae86d08163b4fbc277fe1",
-      "size": 333989,
-      "lifetime_downloads": 9,
-      "last_commit": "Change rlvm runtime to rlvm-sdl2 (name collision)"
+      "md5": "1d07958f96556017fcc5cc98b9c93649",
+      "size": 334026,
+      "lifetime_downloads": 35,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -2029,12 +2029,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/apps/oracles-randomizer-ng/oracles-randomizer-ng/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/apps/oracles-randomizer-ng/oracles-randomizer-ng/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/oracles-randomizer-ng.zip",
-      "date_updated": "2026-05-14T21:49",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2026-01-04",
-      "md5": "e4940091bc525773278f83fb66cc22be",
-      "size": 6180416,
-      "lifetime_downloads": 14,
-      "last_commit": "Remove libfreetype from love launcher ports"
+      "md5": "5b3eb3751e035fb40cd24eeaf5a7fe14",
+      "size": 6180395,
+      "lifetime_downloads": 129,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -2073,12 +2073,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/lighthouse/lighthouse/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/lighthouse/lighthouse/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/lighthouse.zip",
-      "date_updated": "2026-11-21T13:05",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2026-07-31",
-      "md5": "eb22aa73839c9e11a7291c568d3cb67d",
-      "size": 8348507,
-      "lifetime_downloads": 827,
-      "last_commit": "[HM] Log port origin for smoother troubleshooting"
+      "md5": "5ce654f90b05d299dd180a9efa78c0f6",
+      "size": 8348521,
+      "lifetime_downloads": 846,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -2120,12 +2120,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/littlebusters/littlebusters/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/littlebusters/littlebusters/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/littlebusters.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-17",
-      "md5": "be489dee52fecf664525e76baa0d0370",
-      "size": 712227,
-      "lifetime_downloads": 31,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "md5": "f4daf24f6f6a3a096668b79170f1ac2f",
+      "size": 711858,
+      "lifetime_downloads": 32,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -2364,7 +2364,7 @@
     "name": "mimisdeliverydash.zip",
     "items": [
       "Mimi's Delivery Dash.sh",
-      "mimisdeliverydash/"
+      "mimisdeliverydash"
     ],
     "items_opt": [],
     "attr": {
@@ -2376,7 +2376,7 @@
       ],
       "desc": "Originally created in 10 days for Movie Game Jam 2018 as a tribute to Kiki's Delivery Service.\n\nMeet Mimi! A young witch in-training who has just recently decided what her special skill is: delivering mail - by broomstick!\n\nThe town is a bustling place so she'll need to be on the look out for potential customers, and they always tip well for a speedy delivery.\n\nBut watch out, Mimi! Angry crows are one thing, but flying a broom around town can be just as dangerous! ",
       "desc_md": null,
-      "inst": "Download from:https://caffinate.itch.io/mimis-delivery-dash and extract data.win and both .ogg files to /ports/mimisdeliverydash/gamedata/",
+      "inst": "Download the game from https://caffinate.itch.io/mimis-delivery-dash and extract data.win and both .ogg files to `mimisdeliverydash/assets`.",
       "inst_md": null,
       "genres": [
         "arcade",
@@ -2386,23 +2386,27 @@
       "image": null,
       "rtr": false,
       "exp": false,
-      "runtime": [],
+      "runtime": [
+        "gmloadernext.squashfs"
+      ],
       "store": [],
       "availability": "free",
       "reqs": [],
-      "arch": [],
-      "min_glibc": null
+      "arch": [
+        "aarch64"
+      ],
+      "min_glibc": ""
     },
     "source": {
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mimisdeliverydash/mimisdeliverydash/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/mimisdeliverydash/mimisdeliverydash/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/mimisdeliverydash.zip",
-      "date_updated": "2026-11-23T13:04",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-18",
-      "md5": "025ffc338c37d97447b58efcd1da6144",
-      "size": 17997444,
-      "lifetime_downloads": 56,
-      "last_commit": "Fix several typos in port.json files"
+      "md5": "e4578abb7cacfaa01f6a23476c9fab99",
+      "size": 2716937,
+      "lifetime_downloads": 57,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -2634,12 +2638,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/oceansheart/oceansheart/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/oceansheart/oceansheart/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/oceansheart.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-18",
-      "md5": "752968d80758231bdfe11743bdbc318a",
-      "size": 1301556,
-      "lifetime_downloads": 154,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "md5": "090874725768ed950341c2941063f876",
+      "size": 1301557,
+      "lifetime_downloads": 156,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -2734,12 +2738,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/osanasrevenge/osanasrevenge/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/osanasrevenge/osanasrevenge/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/osanasrevenge.zip",
-      "date_updated": "2026-05-14T13:39",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-18",
-      "md5": "befe6b6eded073a975d380269af4c4d1",
-      "size": 373096,
-      "lifetime_downloads": 10,
-      "last_commit": "Update readmes to add runtime requirements"
+      "md5": "5cc669a06ad5cd22953d509bd6ca565f",
+      "size": 373099,
+      "lifetime_downloads": 43,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -2876,12 +2880,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/paperboat/paperboat/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/paperboat.zip",
-      "date_updated": "2026-11-23T13:04",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2026-09-17",
-      "md5": "4ef5555bc165e3a31db75f1f78be3f5e",
-      "size": 11876817,
-      "lifetime_downloads": 1000,
-      "last_commit": "Fix several typos in port.json files"
+      "md5": "1962d90c1bf85a8a5616e2fabb3870ca",
+      "size": 11876830,
+      "lifetime_downloads": 1003,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -2920,12 +2924,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/apps/pharos/pharos/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/apps/pharos/pharos/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pharos.zip",
-      "date_updated": "2026-11-23T13:04",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2026-01-29",
-      "md5": "dbfa193edb0011eeec5d0f6053dc212e",
-      "size": 21860027,
-      "lifetime_downloads": 5137,
-      "last_commit": "Fix several typos in port.json files"
+      "md5": "a1acc0917e45c196543f4e768bfac622",
+      "size": 21860167,
+      "lifetime_downloads": 5140,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -3023,12 +3027,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/planetarian/planetarian/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rlvm/planetarian/planetarian/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/planetarian.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-17",
-      "md5": "81021646c5cbe508174b4483aa2de575",
-      "size": 510038,
-      "lifetime_downloads": 25,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "md5": "a05b6769489aaa391b2d4b034b0bde96",
+      "size": 510081,
+      "lifetime_downloads": 26,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -3356,12 +3360,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/sm64-ghostship/sm64-ghostship/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/sm64-ghostship/sm64-ghostship/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sm64-ghostship.zip",
-      "date_updated": "2026-11-23T13:01",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2026-01-18",
-      "md5": "1ebf334b22b14aca9f9933e8cb371dfc",
-      "size": 7336117,
-      "lifetime_downloads": 700,
-      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
+      "md5": "82402dbcb4f0863d177d11b99cd5b7e1",
+      "size": 7336132,
+      "lifetime_downloads": 701,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -3402,12 +3406,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh/soh/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/soh.zip",
-      "date_updated": "2026-11-21T23:03",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-11-11",
-      "md5": "9d90f6a9fc6fb2a13da31ea7a8b121ec",
-      "size": 60641493,
-      "lifetime_downloads": 780,
-      "last_commit": "[SOH] Fix base shipofharkinian.json"
+      "md5": "7ff4f803ca0e9d5400ccf19b6d02fe28",
+      "size": 60641507,
+      "lifetime_downloads": 794,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -4143,12 +4147,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/starship/starship/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/starship/starship/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/starship.zip",
-      "date_updated": "2026-11-23T13:02",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-11-11",
-      "md5": "6b13e53ad38122d04becd27652a29e9d",
-      "size": 6912537,
-      "lifetime_downloads": 645,
-      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
+      "md5": "786278685c461cda8b00217a2411c926",
+      "size": 6912548,
+      "lifetime_downloads": 647,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -4190,12 +4194,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/apps/steamlink/steamlink/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/apps/steamlink/steamlink/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/steamlink.zip",
-      "date_updated": "2026-05-13T20:59",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2026-01-04",
-      "md5": "b6901071284549883762244f74d6f05b",
-      "size": 21555882,
-      "lifetime_downloads": 51,
-      "last_commit": "Integrate suckbluefrog's appimage to satisfy #39"
+      "md5": "3b71bdc7b3c024cbd78d2df7f09aab55",
+      "size": 21555872,
+      "lifetime_downloads": 373,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -4236,12 +4240,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/smb1r/smb1r/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/smb1r/smb1r/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/smb1r.zip",
-      "date_updated": "2026-05-29T12:03",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-09-15",
-      "md5": "99df21b4f62ff8bef04bf218bf5274ed",
-      "size": 67780162,
-      "lifetime_downloads": 233,
-      "last_commit": "Add westonpack license files to ports that use westonpack"
+      "md5": "3f6efe17778a4bd5a291233fc893dc1a",
+      "size": 67780144,
+      "lifetime_downloads": 735,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -4631,12 +4635,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zeldaxd-mercurischess/zeldaxd-mercurischess/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zeldaxd-mercurischess/zeldaxd-mercurischess/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zeldaxd-mercurischess.zip",
-      "date_updated": "2026-11-23T13:04",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-18",
-      "md5": "f3fe64dc2251ae0a6f6bf970d99ad768",
-      "size": 384411,
-      "lifetime_downloads": 71,
-      "last_commit": "Fix several typos in port.json files"
+      "md5": "bb53836e902b7ea36f7d2e763a1df145",
+      "size": 384414,
+      "lifetime_downloads": 72,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -4721,12 +4725,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-mysteryofsolarusdx/zelda-mysteryofsolarusdx/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-mysteryofsolarusdx/zelda-mysteryofsolarusdx/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zelda-mysteryofsolarusdx.zip",
-      "date_updated": "2026-05-14T13:39",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-18",
-      "md5": "b9f58392ae9b0c8e0b50dc047734f211",
-      "size": 390135,
-      "lifetime_downloads": 10,
-      "last_commit": "Update readmes to add runtime requirements"
+      "md5": "4288da2ad918d3b848e73df15ed4ca67",
+      "size": 390138,
+      "lifetime_downloads": 86,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -4766,12 +4770,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-mysteryofsolarusxd/zelda-mysteryofsolarusxd/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-mysteryofsolarusxd/zelda-mysteryofsolarusxd/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zelda-mysteryofsolarusxd.zip",
-      "date_updated": "2026-05-14T13:39",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-18",
-      "md5": "1b6c5c6e88f176da4e916408925a753a",
-      "size": 357915,
-      "lifetime_downloads": 7,
-      "last_commit": "Update readmes to add runtime requirements"
+      "md5": "905f98612c76c4d4ac77f5bd2d364a77",
+      "size": 357919,
+      "lifetime_downloads": 54,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -4811,12 +4815,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-roth-se/zelda-roth-se/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-roth-se/zelda-roth-se/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zelda-roth-se.zip",
-      "date_updated": "2026-11-23T13:04",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-18",
-      "md5": "8b187e048298fd99b0662150c2bb0836",
-      "size": 380976,
+      "md5": "5b944586d6fcb5eac1775a2c9a8fc608",
+      "size": 380979,
       "lifetime_downloads": 69,
-      "last_commit": "Fix several typos in port.json files"
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -4856,12 +4860,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-bookofmudora/zelda-bookofmudora/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zelda-bookofmudora/zelda-bookofmudora/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zelda-bookofmudora.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-18",
-      "md5": "71d06f39e1291f4a561bfadfc5551d27",
-      "size": 499052,
-      "lifetime_downloads": 64,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "md5": "d1ce89eb28d8b7222dce5bb44db81c25",
+      "size": 499056,
+      "lifetime_downloads": 65,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -4901,12 +4905,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zeldo-labors/zeldo-labors/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zeldo-labors/zeldo-labors/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zeldo-labors.zip",
-      "date_updated": "2026-11-23T13:04",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2026-01-01",
-      "md5": "69298e40bb7e9b0c52876a1b99b48188",
-      "size": 666462,
-      "lifetime_downloads": 44,
-      "last_commit": "Fix several typos in port.json files"
+      "md5": "7bb0b86ec1276f1910c5bf31a9a66e88",
+      "size": 666465,
+      "lifetime_downloads": 45,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -4994,12 +4998,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zeldoschallenge/zeldoschallenge/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zeldoschallenge/zeldoschallenge/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zeldoschallenge.zip",
-      "date_updated": "2026-05-14T13:39",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-18",
-      "md5": "1fccd3072e9155af115aa099cfbf30dc",
-      "size": 411976,
-      "lifetime_downloads": 5,
-      "last_commit": "Update readmes to add runtime requirements"
+      "md5": "692aa469acc0f019a3760bb28e197c00",
+      "size": 411979,
+      "lifetime_downloads": 45,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -5039,12 +5043,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zeldoschallenge2/zeldoschallenge2/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zeldoschallenge2/zeldoschallenge2/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zeldoschallenge2.zip",
-      "date_updated": "2026-05-14T13:39",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-18",
-      "md5": "f08c64f340bf6c58ca2feba384686d62",
-      "size": 610785,
-      "lifetime_downloads": 9,
-      "last_commit": "Update readmes to add runtime requirements"
+      "md5": "66f48988a6e4c9f26ef42756fb111925",
+      "size": 610788,
+      "lifetime_downloads": 56,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -5338,12 +5342,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/tunics!/tunics!/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/tunics!/tunics!/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/tunics.zip",
-      "date_updated": "2026-11-23T13:02",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2026-07-10",
-      "md5": "c42c9492882552c5433dd39769961c4f",
-      "size": 2422621,
-      "lifetime_downloads": 102,
-      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
+      "md5": "bbbb5c9bbad051d226f9d4809aa30ea0",
+      "size": 2422624,
+      "lifetime_downloads": 103,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
@@ -5821,12 +5825,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/yarntown/yarntown/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/yarntown/yarntown/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/yarntown.zip",
-      "date_updated": "2026-11-23T13:04",
+      "date_updated": "2026-11-23T15:02",
       "first_seen": "2025-05-18",
-      "md5": "8d3ab7638c525281de0a992cc2ce0679",
-      "size": 584851,
-      "lifetime_downloads": 73,
-      "last_commit": "Fix several typos in port.json files"
+      "md5": "39c07beee1b221c887d8ddb19e23d762",
+      "size": 584854,
+      "lifetime_downloads": 74,
+      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
     }
   },
   {
