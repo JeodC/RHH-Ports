@@ -48,15 +48,17 @@ class View:
         self.ui.draw_header(title, self.app.device_info())
 
     def _draw_button_bar(self, buttons: List[tuple]) -> None:
-        """buttons: (layout button, label) pairs"""
+        """buttons: (layout buttons separated by spaces, label) pairs"""
         x = 20
-        for button, label in buttons:
-            b = self.app.layout[button]
-            # Small screens have no room for Page Up and Page Down
-            if x + self.ui.get_text_width(label) + 20 > self.ui.screen_width:
+        for keys, label in buttons:
+            group = [self.app.layout[key] for key in keys.split()]
+            # Small screens have no room for the last one
+            if x + self.ui.get_text_width(label) + 24 * len(group) > self.ui.screen_width:
                 break
-            end = self.ui.button_circle((x, self.ui.screen_height - 50), b["btn"], label, color=b["color"])
-            x = int(end) + 22
+            for b in group:
+                end = self.ui.button_circle((x, self.ui.screen_height - 50), b["btn"], label if b is group[-1] else "", color=b["color"])
+                x = int(end) + 8
+            x += 14
 
     def _draw_row(self, text: str, y: int, selected: bool) -> None:
         self.ui.row_list(text, (20, y), self.ui.screen_width - 40, 28, selected,
@@ -119,13 +121,7 @@ class RepoView(View):
         for i, label in enumerate(self.MENU):
             self._draw_row(label, 352 + i * 30, self.idx == len(rows) + i)
 
-        btns = [
-            ("a", "Select"),
-            ("b", "Exit"),
-            ("l1", "Page Up"),
-            ("r1", "Page Down"),
-        ]
-        self._draw_button_bar(btns)
+        self._draw_button_bar([("a", "Select"), ("b", "Exit"), ("l1 r1", "Pg Up/Dn")])
 
     def handle_input(self) -> None:
         repos = self._repos()
@@ -320,9 +316,8 @@ class PortsView(View):
             x_label = "Unmute" if manifest.is_muted(selected_item) else "Mute"
             btns.append(("x", x_label))
 
-        btns.append(("y", self._VIEW_MODE_BTN_LABEL[mode]))
-        btns.append(("l1", "Page Up"))
-        btns.append(("r1", "Page Down"))
+        btns.append(("y", f"Filter: {self._VIEW_MODE_BTN_LABEL[mode]}"))
+        btns.append(("l1 r1", "Pg Up/Dn"))
 
         self._draw_button_bar(btns)
 
