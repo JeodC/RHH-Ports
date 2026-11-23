@@ -78,6 +78,11 @@ class Input:
             print("No game controllers found.")
             raise RuntimeError("No game controllers found.")
 
+    def controller_mapping(self) -> str:
+        """SDL mapping string in use by the first opened controller"""
+        mapping = sdl2.SDL_GameControllerMapping(self.controllers[0])
+        return mapping.decode("utf-8", "replace") if mapping else ""
+
     def _load_controller_mappings(self) -> None:
         """Load controller mappings from environment variable or fallback file."""
         config_path = sdl2.SDL_getenv(b"SDL_GAMECONTROLLERCONFIG")

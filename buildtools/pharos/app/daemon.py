@@ -33,11 +33,12 @@ import signal
 import socket
 import sys
 import time
-import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Iterable
 from urllib.error import HTTPError, URLError
+
+from sources import read_sources
 
 # Minimal CFWs (Knulli) lack CA certs in OpenSSL's default path, so HTTPS
 # fails with CERTIFICATE_VERIFY_FAILED. Point ssl at our bundled certifi store.
@@ -348,18 +349,7 @@ def parse_sources() -> list[tuple[str, str]]:
     if not SOURCES_PATH.exists():
         log("WARN", f".sources not found at {SOURCES_PATH}")
         return []
-    out: list[tuple[str, str]] = []
-    for line in SOURCES_PATH.read_text("utf-8").splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        path = urllib.parse.urlparse(line).path.lstrip("/")
-        if path.endswith(".git"):
-            path = path[:-4]
-        if "/" in path:
-            owner, name = path.split("/", 1)
-            out.append((owner, name))
-    return out
+    return read_sources(SOURCES_PATH, warn=lambda msg: log("WARN", msg))
 
 def fetch_remote_md5s(owner: str, repo: str) -> tuple[dict[str, str], dict[str, str]]:
     """Returns ({name: md5}, {name: title}) from a repo's docs/ports.json.

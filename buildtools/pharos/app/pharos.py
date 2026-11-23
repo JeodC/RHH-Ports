@@ -9,7 +9,6 @@ import re
 import sys
 import threading
 import time
-import urllib.parse
 import urllib.request
 from itertools import cycle
 from typing import List
@@ -53,6 +52,7 @@ from ui import (
 from download import Downloader
 from update import Update
 from service import Service, toggle_muted_port
+from sources import read_sources
 
 # ----------------------------------------------------------------------
 # Safe background task runner
@@ -80,7 +80,7 @@ class Pharos:
         self.port_idx = 0
         self.dl_queue: queue.Queue = queue.Queue()
         self.progress_q: queue.Queue = queue.Queue()
-        self.layout = get_controller_layout()
+        self.layout = get_controller_layout(self.input.controller_mapping())
 
         # Loading spinner (only used during repo fetch)
         self.spinner = cycle(["|", "/", "-", "\\"])
@@ -187,30 +187,20 @@ class Pharos:
         if not os.path.exists(self.sources_path):
             self.ui.draw_log(text=f"Missing .sources file at {self.sources_path}", background=True)
             return
-        with open(self.sources_path, "r", encoding="utf-8") as f:
-            for line in f:
-                url = line.strip()
-                if not url or url.startswith("#"):
-                    continue
-                parsed = urllib.parse.urlparse(url)
-                path = parsed.path.lstrip("/")
-                if path.endswith(".git"):
-                    path = path[:-4]
-                if "/" not in path:
-                    continue
-                owner, name = path.split("/", 1)
-                repo = Repository(
-                    name=name,
-                    url=f"https://github.com/{path}",
-                    images_dir=os.path.join(DATA_DIR, "resources", f"{owner}-{name}-images"),
-                    images_zip_url=f"https://github.com/{path}/releases/download/ports-latest/images.zip",
-                )
-                self.repositories.append(repo)
-                threading.Thread(
-                    target=_safe_bg(self._fetch_images, repo),
-                    name=f"ImageFetcher-{repo.name}",
-                    daemon=True
-                ).start()
+        for owner, name in read_sources(self.sources_path, warn=lambda msg: print(f"[Sources] {msg}")):
+            url = f"https://github.com/{owner}/{name}"
+            repo = Repository(
+                name=name,
+                url=url,
+                images_dir=os.path.join(DATA_DIR, "resources", f"{owner}-{name}-images"),
+                images_zip_url=f"{url}/releases/download/ports-latest/images.zip",
+            )
+            self.repositories.append(repo)
+            threading.Thread(
+                target=_safe_bg(self._fetch_images, repo),
+                name=f"ImageFetcher-{repo.name}",
+                daemon=True
+            ).start()
         self._fetch_all_ports_or_bottles()
 
     # ------------------------------------------------------------------
@@ -308,10 +298,19 @@ class Pharos:
             except Exception:
                 continue
 
+    def _fetch_repo(self, repo: Repository) -> None:
+        try:
+            self._fetch_ports_json(repo)
+            if not repo.ports:
+                self._fetch_winecask_json(repo)
+        finally:
+            repo.loaded = True
+            if not (repo.ports or repo.bottles):
+                print(f"[Sources] No ports found in {repo.url}")
+
     def _fetch_all_ports_or_bottles(self) -> None:
         for r in self.repositories:
-            threading.Thread(target=_safe_bg(self._fetch_ports_json, r), name=f"PortsFetcher-{r.name}", daemon=True).start()
-            threading.Thread(target=_safe_bg(self._fetch_winecask_json, r), name=f"WineCaskFetcher-{r.name}", daemon=True).start()
+            threading.Thread(target=_safe_bg(self._fetch_repo, r), name=f"PortsFetcher-{r.name}", daemon=True).start()
         threading.Thread(target=_safe_bg(self._fetch_discounts), name="DiscountFetcher", daemon=True).start()
 
     # Pulls ITAD-tracked discounts from the RHH-Ports Cloudflare Worker for every
@@ -408,12 +407,16 @@ class Pharos:
     # ------------------------------------------------------------------
     def _render_repos(self) -> None:
         self.ui.draw_header("Select A Repository", color_text)
-        pending = [r for r in self.repositories if not (getattr(r, "ports", None) or getattr(r, "bottles", None))]
+        pending = [r for r in self.repositories if not r.loaded]
         if pending:
             self._spin()
             self.ui.draw_log(text=f"{self.spinner_frame} Loading {len(pending)} repo(s)...", background=True)
             self._draw_button_bar([])
             return
+
+        # Sources that failed to load or hold nothing aren't listed
+        self.repositories = [r for r in self.repositories if r.ports or r.bottles]
+        self.repo_idx = max(0, min(self.repo_idx, len(self.repositories) - 1))
 
         total_items = sum(len(getattr(r, "ports", [])) + len(getattr(r, "bottles", [])) for r in self.repositories)
         total_repos = sum(1 for r in self.repositories if getattr(r, "ports", None) or getattr(r, "bottles", None))
@@ -652,6 +655,8 @@ class Pharos:
     # ------------------------------------------------------------------
     def _update_repos(self) -> None:
         if not self.repositories:
+            if self.input.key(self.layout["b"]["key"]):
+                self.running = False
             return
         repo = self.repositories[self.repo_idx]
         if self.input.key(self.layout["a"]["key"]) and (getattr(repo, "ports", None) or getattr(repo, "bottles", None)):

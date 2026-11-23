@@ -67,20 +67,18 @@ BUTTON_CONFIGS: dict[str, ButtonConfig] = {
 # ----------------------------------------------------------------------
 # Public API
 # ----------------------------------------------------------------------
-def _detect_layout_from_mapping() -> str:
-    """Pick layout from SDL_GAMECONTROLLERCONFIG. The `a:bN`/`b:bN` segments
-    reveal which SDL button raw joystick button 0 is bound to."""
-    mapping = os.getenv("SDL_GAMECONTROLLERCONFIG", "")
-    first_line = mapping.splitlines()[0] if mapping else ""
-    for part in first_line.split(","):
+def _detect_layout_from_mapping(mapping: str) -> str:
+    """Pick layout from the opened controller's SDL mapping. The `a:bN`/`b:bN`
+    segments reveal which SDL button raw joystick button 0 is bound to."""
+    for part in mapping.split(","):
         k, _, v = part.partition(":")
         if v.strip() == "b0" and k.strip() in ("a", "b"):
             return "nintendo" if k.strip() == "b" else "xbox"
     return "nintendo"
 
 
-def get_controller_layout() -> ButtonConfig:
-    return BUTTON_CONFIGS[_detect_layout_from_mapping()]
+def get_controller_layout(mapping: str = "") -> ButtonConfig:
+    return BUTTON_CONFIGS[_detect_layout_from_mapping(mapping)]
 
 # ----------------------------------------------------------------------
 # Data containers
@@ -115,3 +113,4 @@ class Repository:
     images_zip_url: Optional[str] = None
     ports: List[Port] = field(default_factory=list)
     bottles: List[Port] = field(default_factory=list)
+    loaded: bool = False
