@@ -124,11 +124,14 @@ class RepoView(View):
         self._draw_button_bar([("a", "Select"), ("b", "Exit"), ("l1 r1", "Pg Up/Dn")])
 
     def _row_text(self, repo: Repository) -> str:
+        name = repo.slug if "owner" in self.app.details else repo.slug.rpartition("/")[2]
         if not repo.loaded:
-            return f"{repo.slug} (loading...)"
+            return f"{name} (loading...)"
+        if "count" not in self.app.details:
+            return name
         shown = len(self.app.visible(repo))
         hidden = len(repo.items) - shown
-        return f"{repo.slug} ({shown} items{f', {hidden} hidden' if hidden else ''})"
+        return f"{name} ({shown} items{f', {hidden} hidden' if hidden else ''})"
 
     def handle_input(self) -> None:
         repos = self._repos()
@@ -248,11 +251,10 @@ class PortsView(View):
         for i, item in enumerate(visible):
             y = 30 + i * 30
             sel = (start + i) == self.idx
-            size = f" [{item.size / (1024*1024):.2f} MB]" if item.size else ""
             is_muted = manifest.is_muted(item)
             highlight = manifest.update_available(item) and not is_muted
             self.ui.row_list(
-                f"{item.title}{size}",
+                self._row_text(item),
                 (20, y),
                 self.ui.screen_width // 3,
                 28,
@@ -330,6 +332,14 @@ class PortsView(View):
         btns.append(("l1 r1", "Pg Up/Dn"))
 
         self._draw_button_bar(btns)
+
+    def _row_text(self, port: Port) -> str:
+        extras = {
+            "size": f"{port.size / (1024*1024):.2f} MB" if port.size else "",
+            "date": (port.date_updated or "")[:10],
+            "installed": "installed" if manifest.entry_for(port) else "",
+        }
+        return port.title + "".join(f" [{text}]" for key, text in extras.items() if text and key in self.app.details)
 
     def _update_progress(self) -> None:
         latest = None
@@ -476,8 +486,26 @@ class SettingsView(MenuView):
         app = self.app
         return [
             (_check("Filter out ports that aren't compatible with this device", app.hide_incompatible), app.toggle_hide_incompatible),
+            ("List Details", lambda: app.push(DetailsView(app))),
             (f"Pharos Service: {app.service.status_text()}", lambda: app.push(ServiceView(app))),
             ("Device Info", lambda: app.push(DeviceView(app))),
+        ]
+
+
+class DetailsView(MenuView):
+    TITLE = "List Details"
+    OPTIONS = (
+        ("size", "Ports and bottles: size"),
+        ("date", "Ports and bottles: last updated"),
+        ("installed", "Ports and bottles: installed"),
+        ("owner", "Repositories: owner"),
+        ("count", "Repositories: number of items"),
+    )
+
+    def _rows(self) -> List[tuple]:
+        return [
+            (_check(label, key in self.app.details), lambda key=key: self.app.toggle_detail(key))
+            for key, label in self.OPTIONS
         ]
 
 

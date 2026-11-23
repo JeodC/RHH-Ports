@@ -30,6 +30,7 @@ from views import RepoView, UpdateView, View
 
 STEAM_APPID = re.compile(r"store\.steampowered\.com/app/(\d+)")
 DISCOUNTS_PER_REQUEST = 100
+DEFAULT_DETAILS = ["size", "owner", "count"]
 
 # ----------------------------------------------------------------------
 # Background tasks
@@ -89,7 +90,8 @@ class Pharos:
         self.device = Device()
         self._window_size = (0, 0)
         self.hide_incompatible = get_setting("hide_incompatible", False)
-        self._visible: dict = {}  # slug -> what it depends on, ports
+        self._visible: dict = {}
+        self.details = get_setting("list_details", DEFAULT_DETAILS)
         self._views: List[View] = [RepoView(self)]
 
         # Refresh + restart the service if the bundled daemon differs from the
@@ -100,6 +102,13 @@ class Pharos:
 
         self._load_sources()
         _spawn("SelfUpdateCheck", self._check_self_update)
+
+    # ------------------------------------------------------------------
+    # List details
+    # ------------------------------------------------------------------
+    def toggle_detail(self, key: str) -> None:
+        self.details = [d for d in self.details if d != key] if key in self.details else self.details + [key]
+        put_setting("list_details", self.details)
 
     # ------------------------------------------------------------------
     # Compatibility filter

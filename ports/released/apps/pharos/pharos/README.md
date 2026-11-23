@@ -21,6 +21,7 @@ Named after the Lighthouse of Alexandria, **Pharos** is a browser application de
 
 ## Settings
 - **Filter out ports that aren't compatible with this device**: Hides ports your device can't run. When it's off, Pharos asks before downloading one.
+- **List Details**: Choose what to show next to port, bottle and repository names.
 - **Pharos Service**: Checks for port updates in the background.
 - **Device Info**: Shows your device's specs.
 
