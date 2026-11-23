@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gamelist>
+	<game>
+		<path>./Mimi's Delivery Dash.sh</path>
+		<name>Mimi's Delivery Dash</name>
+		<desc>Originally created in 10 days for Movie Game Jam 2018 as a tribute to Kiki's Delivery Service. Meet Mimi! A young witch in-training who has just recently decided what her special skill is: delivering mail - by broomstick! The town is a bustling place so she'll need to be on the look out for potential customers, and they always tip well for a speedy delivery. But watch out, Mimi! Angry crows are one thing, but flying a broom around town can be just as dangerous!</desc>
+		<image>./mimisdeliverydash/cover.png</image>
+		<releasedate>20180213</releasedate>
+		<developer>Caffinate</developer>
+		<genre>Arcade, Platformer, Puzzle</genre>
+	</game>
+</gamelist>

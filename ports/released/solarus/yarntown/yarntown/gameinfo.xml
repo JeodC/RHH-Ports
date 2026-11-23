@@ -3,6 +3,7 @@
   <game>
     <path>./Yarntown.sh</path>
     <name>Yarntown</name>
+    <desc>You’ve come on the night of the hunt. The streets of this cursed, gothic town are overrun with beasts, and what has become of the men who tried to hunt them before. Explore the twisting roads, go toe to toe with powerful foes, and uncover Yarntown’s dark secrets.</desc>
     <image>./yarntown/cover.png</image>
     <thumbnail>./yarntown/thumb.png</thumbnail>
   </game>

@@ -2,7 +2,7 @@
   "version": 4,
   "name": "descent.zip",
   "items": [
-    "descent.sh",
+    "Descent.sh",
     "descent/"
   ],
   "items_opt": [],
