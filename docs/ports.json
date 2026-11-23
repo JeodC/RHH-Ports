@@ -40,12 +40,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/am2r/am2r/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/am2r/am2r/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/am2r.zip",
-      "date_updated": "2026-11-23T12:16",
+      "date_updated": "2026-11-23T13:38",
       "first_seen": "2025-05-18",
-      "md5": "1afdda19cfafbfac17fc1abcdd478fd2",
-      "size": 3268528,
-      "lifetime_downloads": 517,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "md5": "c322704da39aca56192e5fe984fb5d95",
+      "size": 3268527,
+      "lifetime_downloads": 518,
+      "last_commit": "[AM2R] Launchscript formatting"
     }
   },
   {
