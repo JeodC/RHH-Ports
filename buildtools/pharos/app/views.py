@@ -20,6 +20,7 @@ from ui import BUTTON_AREA_HEIGHT, FOOTER_HEIGHT, STORE_ROW_HEIGHT
 
 MAX_ROWS = 12
 REPO_ROWS = 10
+SPLIT_GAP = 14
 DECODE_DELAY = 0.1  # seconds on a port before its screenshot is loaded
 FETCH_DELAY = 0.3  # seconds before one is downloaded
 PROGRESS_STICKY_SECONDS = 2.0
@@ -60,10 +61,11 @@ class View:
     def _draw_row(self, text: str, y: int, selected: bool, width: int = 0) -> None:
         self.ui.row_list(text, (20, y), width or self.ui.screen_width - 40, 28, selected)
 
-    def _draw_rows(self, rows: List[str], idx: int, count: int, width: int = 0) -> None:
+    def _draw_rows(self, rows: List[str], idx: int, count: int, width: int = 0, split: int = 0) -> None:
         start = max(0, min(idx, len(rows) - 1) - count + 1)
         for i, text in enumerate(rows[start : start + count]):
-            self._draw_row(text, 30 + i * 30, start + i == idx, width)
+            gap = SPLIT_GAP if split and start + i >= split else 0
+            self._draw_row(text, 30 + i * 30 + gap, start + i == idx, width)
 
 
 # ----------------------------------------------------------------------
@@ -457,6 +459,7 @@ def _check(label: str, checked: bool) -> str:
 
 class MenuView(View):
     TITLE = ""
+    SPLIT = 0  # rows above the gap
 
     def __init__(self, app) -> None:
         super().__init__(app)
@@ -469,7 +472,7 @@ class MenuView(View):
 
     def draw(self) -> None:
         self._draw_header(self.TITLE)
-        self._draw_rows([label for label, _ in self._rows()], self.idx, MAX_ROWS)
+        self._draw_rows([label for label, _ in self._rows()], self.idx, MAX_ROWS, split=self.SPLIT)
         self.ui.draw_log(text=self.msg or f"Pharos v{self.app.updater.current_version}")
         self._draw_button_bar([("a", "Select"), ("b", "Back")])
 
@@ -485,6 +488,7 @@ class MenuView(View):
 
 class SettingsView(MenuView):
     TITLE = "Settings"
+    SPLIT = 2
 
     def _rows(self) -> List[tuple]:
         app = self.app
@@ -609,9 +613,10 @@ class SourcesView(View):
         start = max(0, self.idx - MAX_ROWS + 1)
         for i, text in enumerate(rows[start : start + MAX_ROWS]):
             selected = start + i == self.idx
+            gap = SPLIT_GAP if count and start + i >= count else 0
             self.ui.row_list(
                 text,
-                (20, 30 + i * 30),
+                (20, 30 + i * 30 + gap),
                 self.ui.screen_width - 40,
                 28,
                 selected and self.moving is None,
