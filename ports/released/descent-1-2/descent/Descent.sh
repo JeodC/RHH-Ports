@@ -28,9 +28,6 @@ cd $GAMEDIR
 rm -rf "$GAMEDIR/config/gamelog.txt"
 $ESUDO chmod +x $GAME
 
-# Set config dir
-bind_directories ~/.$GAME $GAMEDIR/config
-
 # Add some cheats
 if [ ! -f "./cheats.txt" ]; then
 	pm_message "Error: Cheats file not found. No cheats will be used."
@@ -39,6 +36,7 @@ else
 fi
 
 # Exports
+export D1X_REBIRTH_HOME="$GAMEDIR/config"
 export LD_LIBRARY_PATH="/usr/lib:$GAMEDIR/libs:$LD_LIBRARY_PATH"
 export SDL_GAMECONTROLLERCONFIG="$sdl_controllerconfig"
 export SDL_FORCE_SOUNDFONTS=1
