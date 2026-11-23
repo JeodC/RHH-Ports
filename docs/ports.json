@@ -4431,12 +4431,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/yeotrilogy/friendsofringo/friendsofringo/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/yeotrilogy/friendsofringo/friendsofringo/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/friendsofringo.zip",
-      "date_updated": "2026-07-18T15:01",
+      "date_updated": "2026-11-23T12:03",
       "first_seen": "2025-07-02",
-      "md5": "9f94945c51d79d7632538d9ccec7d275",
-      "size": 4265391,
-      "lifetime_downloads": 61,
-      "last_commit": "[YEO] Fix the trilogy"
+      "md5": "8bfff699b4e4d897b42319276033de5b",
+      "size": 4265389,
+      "lifetime_downloads": 185,
+      "last_commit": "[RINGO] Keep 4x4 block size, adjust quality"
     }
   },
   {
