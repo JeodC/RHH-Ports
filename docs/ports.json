@@ -200,12 +200,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/aurascope/aurascope/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/aurascope/aurascope/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/aurascope.zip",
-      "date_updated": "2026-11-23T12:16",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2025-05-18",
-      "md5": "3fc16f1895f6d78ca883dce35ccf3577",
-      "size": 3091305,
+      "md5": "5123033dd1b57e0124570b233c0ed2dd",
+      "size": 3091289,
       "lifetime_downloads": 66,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -299,12 +299,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/benbowars/benbowars/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/benbowars/benbowars/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/benbowars.zip",
-      "date_updated": "2026-07-16T21:21",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2026-07-03",
-      "md5": "0e7a78f0bd3ef43f39a551ed3ed80922",
-      "size": 5319580,
-      "lifetime_downloads": 8,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "md5": "c68126d82782c33eab6b9d080709d5cc",
+      "size": 5319562,
+      "lifetime_downloads": 24,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -571,12 +571,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/darkdeity/darkdeity/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/darkdeity/darkdeity/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/darkdeity.zip",
-      "date_updated": "2026-11-23T12:16",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2025-05-18",
-      "md5": "eb277579b11351e666aea3eee20c46c3",
-      "size": 4696030,
+      "md5": "1e42aa4f54bfa2fa6e9ff70742579a32",
+      "size": 4696034,
       "lifetime_downloads": 109,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -640,12 +640,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/darkdeity2/darkdeity2/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/darkdeity2/darkdeity2/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/darkdeity2.zip",
-      "date_updated": "2026-07-16T21:21",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2025-05-18",
-      "md5": "6cf3e35392d14c376a494218f484191a",
-      "size": 6131348,
-      "lifetime_downloads": 21,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "md5": "51010b1f56000905938084d4a2e53561",
+      "size": 6131352,
+      "lifetime_downloads": 50,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -932,12 +932,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/digitaltamers2/digitaltamers2/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/digitaltamers2/digitaltamers2/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/digitaltamers2.zip",
-      "date_updated": "2026-07-16T21:21",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2026-07-03",
-      "md5": "519a365e775ce0634e9fa111e82f1dc1",
-      "size": 943042,
-      "lifetime_downloads": 34,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "md5": "61897222cbe520ca414b5eb72c9d0fc9",
+      "size": 943045,
+      "lifetime_downloads": 156,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -980,12 +980,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/digitaltamersreborn/digitaltamersreborn/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/digitaltamersreborn/digitaltamersreborn/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/digitaltamersreborn.zip",
-      "date_updated": "2026-11-23T12:16",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2025-05-18",
-      "md5": "6c88d2129474363c1af78803ceeb0736",
-      "size": 220691354,
+      "md5": "c13d4a742f34ae21b1dc13189676657d",
+      "size": 220691353,
       "lifetime_downloads": 132,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -1101,12 +1101,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/doomengines/doomengines/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/doomengines/doomengines/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/doomengines.zip",
-      "date_updated": "2026-11-23T12:16",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2025-05-17",
-      "md5": "3da18d79279aaf1fd031bbb49d35444e",
-      "size": 91794710,
+      "md5": "bb972909c505fb6f8a4b45d2130417dd",
+      "size": 91794712,
       "lifetime_downloads": 249,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -1822,12 +1822,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rpgmaker/impostorfactory/impostorfactory/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/rpgmaker/impostorfactory/impostorfactory/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/impostorfactory.zip",
-      "date_updated": "2026-11-03T12:36",
+      "date_updated": "2026-11-23T13:02",
       "first_seen": "2026-05-13",
-      "md5": "6cd752c5807fef11485daf7d1d1c87ad",
-      "size": 393399,
-      "lifetime_downloads": 67,
-      "last_commit": "[ROGMAKER] Swap pm_platform_helper location in script to prevent library conflict"
+      "md5": "d657c9061526c872d70510a525a1452c",
+      "size": 393403,
+      "lifetime_downloads": 79,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -2303,12 +2303,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/madhouse/madhouse/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/madhouse/madhouse/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/madhouse.zip",
-      "date_updated": "2026-07-18T15:38",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2025-05-28",
-      "md5": "5734a93162c93af4a7c2ce626ae0d621",
-      "size": 5153694,
-      "lifetime_downloads": 31,
-      "last_commit": "Add splash files for ports"
+      "md5": "7dad8dc2153e3d14bfa1c0c5d849bc54",
+      "size": 5153695,
+      "lifetime_downloads": 73,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -2351,12 +2351,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/metroidprimeorigins/metroidprimeorigins/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/metroidprimeorigins/metroidprimeorigins/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/metroidprimeorigins.zip",
-      "date_updated": "2026-09-16T10:57",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2026-09-09",
-      "md5": "4f87b27a83c90545d144ebdb9b41c4de",
-      "size": 5370053,
-      "lifetime_downloads": 64,
-      "last_commit": "[MPO] v1.1.2 support"
+      "md5": "473124d2c6ce1a976abdc5b96adeb5bc",
+      "size": 5370057,
+      "lifetime_downloads": 222,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -3356,12 +3356,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/sm64-ghostship/sm64-ghostship/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/sm64-ghostship/sm64-ghostship/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sm64-ghostship.zip",
-      "date_updated": "2026-11-21T13:05",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2026-01-18",
-      "md5": "3cbb1ef51b04907dba3e1cb717306b68",
-      "size": 7336116,
-      "lifetime_downloads": 682,
-      "last_commit": "[HM] Log port origin for smoother troubleshooting"
+      "md5": "1ebf334b22b14aca9f9933e8cb371dfc",
+      "size": 7336117,
+      "lifetime_downloads": 700,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -3448,12 +3448,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh2/soh2/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/soh2/soh2/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/soh2.zip",
-      "date_updated": "2026-11-21T13:05",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2025-11-11",
-      "md5": "48181d891c9cc928e948239ef345f9ba",
-      "size": 15523003,
-      "lifetime_downloads": 581,
-      "last_commit": "[HM] Log port origin for smoother troubleshooting"
+      "md5": "c8923011d06c256c6c7ba43e52652d22",
+      "size": 15523004,
+      "lifetime_downloads": 594,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -3573,12 +3573,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.1/sonic.1/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.1/sonic.1/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sonic.1.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T13:02",
       "first_seen": "2025-11-10",
-      "md5": "5bcce41d453edece9a532a4fa6604686",
-      "size": 3222251,
+      "md5": "e88c61be49a3c96e66acfa29f564a8b1",
+      "size": 3222250,
       "lifetime_downloads": 209,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -3624,12 +3624,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.2/sonic.2/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.2/sonic.2/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sonic.2.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T13:02",
       "first_seen": "2025-11-10",
-      "md5": "2b572361f62dd9079a6463a866d5ecc2",
-      "size": 3305267,
+      "md5": "ff3e574150908975195264072ae254ca",
+      "size": 3305266,
       "lifetime_downloads": 174,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -3729,12 +3729,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.cd/sonic.cd/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.cd/sonic.cd/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sonic.cd.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T13:02",
       "first_seen": "2025-11-10",
-      "md5": "71f5d09fc4a3c42daafd67fb04e1eacc",
-      "size": 2977198,
+      "md5": "7c71a4163128ec7139ca4af7b7b17525",
+      "size": 2977197,
       "lifetime_downloads": 201,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -3790,12 +3790,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.mania/sonic.mania/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/sonic-collection/sonic.mania/sonic.mania/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sonic.mania.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T13:02",
       "first_seen": "2025-11-10",
-      "md5": "776b520d032617e856d1494ff2811e44",
-      "size": 2965603,
+      "md5": "1ed486df8465a3c920fc973694e6187c",
+      "size": 2965602,
       "lifetime_downloads": 315,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -3837,12 +3837,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/sonictimetwisted/sonictimetwisted/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/sonictimetwisted/sonictimetwisted/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sonictimetwisted.zip",
-      "date_updated": "2026-08-28T11:33",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2025-05-18",
-      "md5": "4e8c380f2aa54d76acc86cdeaa1c7098",
+      "md5": "56017926c500fb2ffcde5566f0d2c24c",
       "size": 97179446,
-      "lifetime_downloads": 39,
-      "last_commit": "[STT] Merge split port file at launch"
+      "lifetime_downloads": 86,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -3887,12 +3887,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/sonictt16b/sonictt16b/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/sonictt16b/sonictt16b/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/sonictt16b.zip",
-      "date_updated": "2026-07-16T21:22",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2025-05-18",
-      "md5": "24cfe87e60752be9412bf0f90c8a62c1",
+      "md5": "a5ace5804a4cc85e26da81b2f117809f",
       "size": 14962617,
-      "lifetime_downloads": 81,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "lifetime_downloads": 183,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -3980,12 +3980,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/spaghettikart/spaghettikart/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/spaghettikart/spaghettikart/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/spaghettikart.zip",
-      "date_updated": "2026-11-04T15:53",
+      "date_updated": "2026-11-23T13:02",
       "first_seen": "2026-01-25",
-      "md5": "f504ee2ede511edbfa20bf781efa3887",
-      "size": 12875642,
-      "lifetime_downloads": 456,
-      "last_commit": "[SPAGHETTIKART] Update nightly build for Torch memory optimization"
+      "md5": "5a8e37663dc6abaf2f5397cea29602d6",
+      "size": 12875643,
+      "lifetime_downloads": 534,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -4038,12 +4038,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/spinelasher/spinelasher/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/spinelasher/spinelasher/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/spinelasher.zip",
-      "date_updated": "2026-11-23T12:16",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2025-08-11",
-      "md5": "ae95927f56d912193dbafa1f8334f0b7",
-      "size": 5446211,
+      "md5": "2c69c8c4bcc495920ad8ecfd41330e13",
+      "size": 5446193,
       "lifetime_downloads": 47,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -4143,12 +4143,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/starship/starship/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/harbourmasters/starship/starship/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/starship.zip",
-      "date_updated": "2026-11-02T12:58",
+      "date_updated": "2026-11-23T13:02",
       "first_seen": "2025-11-11",
-      "md5": "bd0e9601bc4cfe1e2097e803402ef1a0",
-      "size": 6912536,
-      "lifetime_downloads": 559,
-      "last_commit": "[HM] Add out of memory messages to ports"
+      "md5": "6b13e53ad38122d04becd27652a29e9d",
+      "size": 6912537,
+      "lifetime_downloads": 645,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -4901,12 +4901,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zeldo-labors/zeldo-labors/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/zeldo-labors/zeldo-labors/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zeldo-labors.zip",
-      "date_updated": "2026-05-14T13:39",
+      "date_updated": "2026-11-23T13:02",
       "first_seen": "2026-01-01",
-      "md5": "d46fd241af925458ec0f862dac7cc5b4",
-      "size": 666466,
-      "lifetime_downloads": 7,
-      "last_commit": "Update readmes to add runtime requirements"
+      "md5": "50a8b5f00da2e68100da893b48d0b572",
+      "size": 666468,
+      "lifetime_downloads": 44,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -5183,12 +5183,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/zelda-ladxhd/zelda-ladxhd/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/zelda-ladxhd/zelda-ladxhd/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/zelda-ladxhd.zip",
-      "date_updated": "2026-11-20T00:25",
+      "date_updated": "2026-11-23T13:02",
       "first_seen": "2026-07-09",
-      "md5": "5e285bac1a1f5e48c6842f0b2cde8dda",
-      "size": 1761706,
-      "lifetime_downloads": 714,
-      "last_commit": "[LADXHD] Fix arkos libopenal compatibility at launch"
+      "md5": "58e4a376fd1cb559817edb893bb12c54",
+      "size": 1761710,
+      "lifetime_downloads": 753,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -5236,12 +5236,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/tinymon/tinymon/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/tinymon/tinymon/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/tinymon.zip",
-      "date_updated": "2026-09-10T22:34",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2026-09-10",
-      "md5": "06491d5aa984e30afa90bd177701ab66",
-      "size": 5374792,
-      "lifetime_downloads": 0,
-      "last_commit": "[TINYMON] Release port"
+      "md5": "6dc17c9f2305edacbe936d45e53b8173",
+      "size": 5374796,
+      "lifetime_downloads": 41,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -5338,12 +5338,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/tunics!/tunics!/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/solarus/tunics!/tunics!/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/tunics.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T13:02",
       "first_seen": "2026-07-10",
-      "md5": "a30c86e78be08c62f676a001d684aa6f",
-      "size": 2422619,
+      "md5": "c42c9492882552c5433dd39769961c4f",
+      "size": 2422621,
       "lifetime_downloads": 102,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -5512,12 +5512,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/undertaleredyellow/undertaleredyellow/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/undertaleredyellow/undertaleredyellow/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/undertaleredyellow.zip",
-      "date_updated": "2026-11-23T12:16",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2025-05-19",
-      "md5": "9fd1b573a7a5e7dbba2b660b44cfb284",
-      "size": 10129256,
+      "md5": "a2157575a7dde2e6aa85955b56e906d3",
+      "size": 10129259,
       "lifetime_downloads": 167,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -5706,12 +5706,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/vhr/vhr/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/vhr/vhr/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/vhr.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-23T13:01",
       "first_seen": "2025-11-11",
-      "md5": "f44eca0d2f682e901a6a8442ec596e87",
-      "size": 5660247,
+      "md5": "87edca7efc5bb18de53d994a4155bdd1",
+      "size": 5660252,
       "lifetime_downloads": 566,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
@@ -5777,12 +5777,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/wolf3d/wolf3d/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/wolf3d/wolf3d/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/wolf3d.zip",
-      "date_updated": "2026-09-10T01:54",
+      "date_updated": "2026-11-23T13:02",
       "first_seen": "2025-11-11",
-      "md5": "ce523171a0e41161880ace0c28720d2e",
-      "size": 6875312,
-      "lifetime_downloads": 95,
-      "last_commit": "[DOOMENGINES] Update engine versions"
+      "md5": "28784ad8748a314c9eea63ccf9b02fcd",
+      "size": 6875352,
+      "lifetime_downloads": 173,
+      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
     }
   },
   {
