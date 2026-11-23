@@ -5,9 +5,11 @@ Pharos UI
 
 import ctypes
 import functools
+import math
 import os
 from typing import Tuple
 import collections
+from contextlib import suppress
 
 import sdl2
 import sdl2.sdlttf as ttf
@@ -34,6 +36,7 @@ BUTTON_PADDING = 8
 MAX_TEXTURE_CACHE = 16
 MAX_TEXT_CACHE = 256
 FONT_RISE = 0.1  # of the font size, text is drawn this much higher
+LETTER_WIDTH = 1229 / 2048  # of the font size
 MAX_FONT_SIZE = 20  # fits a row and the button bar
 
 # Reserved height for the store-icon row above the button area; 0 if no store data.
@@ -105,9 +108,10 @@ class UserInterface:
         self.window = self._create_window()
         self.renderer = self._create_renderer()
 
-        # Small screens shrink the canvas
+        # The layout is always 640x480. Small screens shrink it, others draw it at their resolution.
         w, h = self.window_size()
         scale = min(w / self.screen_width, h / self.screen_height, 1.0)
+        self.scale_x, self.scale_y = (w / self.screen_width, h / self.screen_height) if scale == 1 else (1.0, 1.0)
         self.font_size = min(round(FONT_SIZE / scale), MAX_FONT_SIZE)
         self.footer_height = FOOTER_HEIGHT + self.font_size - FONT_SIZE
         self.desc_shift = 5 * (self.font_size - FONT_SIZE)
@@ -118,18 +122,20 @@ class UserInterface:
             self.renderer,
             sdl2.SDL_PIXELFORMAT_RGBA8888,
             sdl2.SDL_TEXTUREACCESS_TARGET,
-            self.screen_width,
-            self.screen_height,
+            round(self.screen_width * self.scale_x),
+            round(self.screen_height * self.scale_y),
         )
         if not self.screen_texture:
             raise RuntimeError("Failed to create render target texture")
         sdl2.SDL_SetHint(sdl2.SDL_HINT_RENDER_SCALE_QUALITY, b"2")
 
-        self.font = None
+        self.font = self._draw_font = None
         if self._inited_ttf:
             try:
                 self.font = ttf.TTF_OpenFont(FONT_PATH.encode(), self.font_size)
-                if not self.font:
+                if self.font:
+                    self._draw_font = self._open_draw_font()
+                else:
                     print("[UI] Warning: failed to load font.")
             except Exception:
                 self.font = None
@@ -143,7 +149,7 @@ class UserInterface:
         self._scroll_start_delay = 60
         self._scroll_end_delay = 60
 
-        # LRU texture caches: path -> texture, (text, color) -> (texture, w, h)
+        # LRU texture caches: path -> texture, (text, color) -> (texture, h)
         self.texture_cache = collections.OrderedDict()
         self._text_cache = collections.OrderedDict()
         self._initialized = True
@@ -170,6 +176,24 @@ class UserInterface:
             raise RuntimeError(f"SDL_CreateRenderer failed: {sdl2.SDL_GetError().decode()}")
         return renderer
 
+    def _open_draw_font(self):
+        if self.scale_x == self.scale_y == 1:
+            return self.font
+        path = FONT_PATH.encode()
+        # Needs SDL_ttf 2.0.18, draw_text stretches the letters without it
+        with suppress(Exception):
+            # Rounding per letter would make lines longer than on the canvas
+            dpi_x = 72 * self.scale_x * self._letter_width(self.font) / (self.font_size * LETTER_WIDTH)
+            if font := ttf.TTF_OpenFontDPI(path, self.font_size, round(dpi_x), round(72 * self.scale_y)):
+                return font
+        return ttf.TTF_OpenFont(path, round(self.font_size * self.scale_y))
+
+    @staticmethod
+    def _letter_width(font) -> int:
+        w = ctypes.c_int()
+        ttf.TTF_SizeUTF8(font, b"M", ctypes.byref(w), None)
+        return w.value
+
     def window_size(self) -> Tuple[int, int]:
         w = ctypes.c_int()
         h = ctypes.c_int()
@@ -185,8 +209,15 @@ class UserInterface:
     # Frame management
     # ------------------------------------------------------------------
     def draw_start(self):
-        sdl2.SDL_SetRenderTarget(self.renderer, self.screen_texture)
+        self._target_canvas()
         self.draw_clear()
+
+    def _target_canvas(self):
+        sdl2.SDL_SetRenderTarget(self.renderer, self.screen_texture)
+        self._use_scale(True)
+
+    def _use_scale(self, on: bool):
+        sdl2.SDL_RenderSetScale(self.renderer, self.scale_x if on else 1, self.scale_y if on else 1)
 
     def draw_clear(self):
         background = hex_to_sdl(theme.background)
@@ -198,7 +229,7 @@ class UserInterface:
         dst_rect = sdl2.SDL_Rect(0, 0, *self.window_size())
         sdl2.SDL_RenderCopy(self.renderer, self.screen_texture, None, dst_rect)
         sdl2.SDL_RenderPresent(self.renderer)
-        sdl2.SDL_SetRenderTarget(self.renderer, self.screen_texture)
+        self._target_canvas()
 
     # ------------------------------------------------------------------
     # Cleanup Does NOT call SDL_Quit().
@@ -211,7 +242,7 @@ class UserInterface:
             except Exception:
                 pass
         self.texture_cache.clear()
-        for tex, _, _ in self._text_cache.values():
+        for tex, _ in self._text_cache.values():
             sdl2.SDL_DestroyTexture(tex)
         self._text_cache.clear()
 
@@ -238,8 +269,10 @@ class UserInterface:
 
         try:
             if getattr(self, "font", None):
+                if self._draw_font != self.font:
+                    ttf.TTF_CloseFont(self._draw_font)
                 ttf.TTF_CloseFont(self.font)
-                self.font = None
+                self.font = self._draw_font = None
         except Exception:
             pass
 
@@ -265,7 +298,7 @@ class UserInterface:
         if not getattr(self, "font", None):
             return None
         try:
-            return ttf.TTF_RenderUTF8_Blended(self.font, text.encode("utf-8"), color)
+            return ttf.TTF_RenderUTF8_Blended(self._draw_font, text.encode("utf-8"), color)
         except Exception:
             return None
 
@@ -282,7 +315,7 @@ class UserInterface:
             texture = sdl2.SDL_CreateTextureFromSurface(self.renderer, surface)
             if not texture:
                 return None
-            cached = (texture, surface.contents.w, surface.contents.h)
+            cached = (texture, surface.contents.h)
         finally:
             sdl2.SDL_FreeSurface(surface)
         if len(self._text_cache) >= MAX_TEXT_CACHE:
@@ -293,9 +326,13 @@ class UserInterface:
     def draw_text(self, pos: Tuple[int, int], text: str, color: str = ""):
         cached = self._text_texture(text, hex_to_sdl(color or theme.text))
         if cached:
-            texture, w, h = cached
-            y = pos[1] - round(self.font_size * FONT_RISE)
-            sdl2.SDL_RenderCopy(self.renderer, texture, None, sdl2.SDL_Rect(pos[0], y, w, h))
+            texture, h = cached
+            w = round(self.get_text_width(text) * self.scale_x)
+            x = round(pos[0] * self.scale_x)
+            y = round(pos[1] * self.scale_y) - round(self.font_size * self.scale_y * FONT_RISE)
+            self._use_scale(False)
+            sdl2.SDL_RenderCopy(self.renderer, texture, None, sdl2.SDL_Rect(x, y, w, h))
+            self._use_scale(True)
 
     # ------------------------------------------------------------------
     # Shapes
@@ -310,9 +347,13 @@ class UserInterface:
         if fill:
             color = hex_to_sdl(fill)
             sdl2.SDL_SetRenderDrawColor(self.renderer, color.r, color.g, color.b, color.a)
-            for dy in range(-radius, radius + 1):
-                dx = int((radius**2 - dy**2) ** 0.5)
-                sdl2.SDL_RenderDrawLine(self.renderer, center[0] - dx, center[1] + dy, center[0] + dx, center[1] + dy)
+            x, y = round(center[0] * self.scale_x), round(center[1] * self.scale_y)
+            radius_y = round(radius * self.scale_y)
+            self._use_scale(False)
+            for dy in range(-radius_y, radius_y + 1):
+                dx = int(radius * self.scale_x / radius_y * math.sqrt(radius_y**2 - dy**2))
+                sdl2.SDL_RenderDrawLine(self.renderer, x - dx, y + dy, x + dx, y + dy)
+            self._use_scale(True)
 
     def draw_rectangle_r(self, rect, radius, fill: str = ""):
         x, y, w, h = map(int, rect)
