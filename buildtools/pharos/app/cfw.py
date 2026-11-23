@@ -1,6 +1,7 @@
 """
 CFW detection and PortMaster's device info cache, shared by Pharos and the daemon
 """
+
 import functools
 import os
 import shutil
@@ -12,7 +13,14 @@ from pathlib import Path
 _LIBREELEC_FAMILY = ("rocknix", "amberelec", "jelos", "emuelec", "unofficialos")
 _BATOCERA_FAMILY = ("batocera", "knulli", "reglinux")
 _KNOWN_UNSUPPORTED = (
-    "muos", "arkos", "retrodeck", "trimui", "miyoo", "spruce", "thera", "retrooz",
+    "muos",
+    "arkos",
+    "retrodeck",
+    "trimui",
+    "miyoo",
+    "spruce",
+    "thera",
+    "retrooz",
 )
 
 
@@ -71,8 +79,7 @@ def detect_cfw(log) -> str:
     missing = _missing_prereqs(bucket)
     if missing:
         log(
-            f"CFW detect: env={env_name!r} bucket={bucket!r} "
-            f"but missing {', '.join(missing)}; downgrading to 'unknown'"
+            f"CFW detect: env={env_name!r} bucket={bucket!r} but missing {', '.join(missing)}; downgrading to 'unknown'"
         )
         return "unknown"
 
@@ -91,7 +98,9 @@ def set_device_override(controlfolder: str, script: str) -> bool:
         lines = [line for line in text.rstrip("\n").split("\n") if not line.endswith(_OVERRIDE_MARK)]
         if script:
             # PortMaster parses any line with an equals sign
-            lines.append(f'eval "$(sh "{script}" "${{CONTROL_DIR:-$controlfolder}}" 2>/dev/null)" || : {_OVERRIDE_MARK}')
+            lines.append(
+                f'eval "$(sh "{script}" "${{CONTROL_DIR:-$controlfolder}}" 2>/dev/null)" || : {_OVERRIDE_MARK}'
+            )
         new = "\n".join(lines) + "\n"
         if new != text:
             tmp = cache.with_suffix(".tmp")

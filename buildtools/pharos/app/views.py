@@ -1,6 +1,7 @@
 """
 Pharos screens
 """
+
 import queue
 import time
 from itertools import cycle
@@ -56,17 +57,20 @@ class View:
             if x + self.ui.get_text_width(label) + 24 * len(group) > self.ui.screen_width:
                 break
             for b in group:
-                end = self.ui.button_circle((x, self.ui.screen_height - 50), b["btn"], label if b is group[-1] else "", color=b["color"])
+                end = self.ui.button_circle(
+                    (x, self.ui.screen_height - 50), b["btn"], label if b is group[-1] else "", color=b["color"]
+                )
                 x = int(end) + 8
             x += 14
 
     def _draw_row(self, text: str, y: int, selected: bool) -> None:
-        self.ui.row_list(text, (20, y), self.ui.screen_width - 40, 28, selected,
-                         color=color_text if selected else color_row_text)
+        self.ui.row_list(
+            text, (20, y), self.ui.screen_width - 40, 28, selected, color=color_text if selected else color_row_text
+        )
 
     def _draw_rows(self, rows: List[str], idx: int, count: int) -> None:
         start = max(0, min(idx, len(rows) - 1) - count + 1)
-        for i, text in enumerate(rows[start: start + count]):
+        for i, text in enumerate(rows[start : start + count]):
             self._draw_row(text, 30 + i * 30, start + i == idx)
 
 
@@ -204,7 +208,7 @@ class PortsView(View):
         key = (mode, visible, manifest.installed, self.app.discounts_by_appid)
         if self._items_cache[0] == key:
             return self._items_cache[1]
-        old = self._items_cache[1][self.idx:self.idx + 1] if self.idx else []
+        old = self._items_cache[1][self.idx : self.idx + 1] if self.idx else []
 
         items = list(visible)
         if mode == "installed":
@@ -246,7 +250,7 @@ class PortsView(View):
         can_download = self._can_download()
 
         start = max(0, self.idx - MAX_ROWS + 1)
-        visible = items[start: start + MAX_ROWS]
+        visible = items[start : start + MAX_ROWS]
         selected_item = items[self.idx] if items else None
         for i, item in enumerate(visible):
             y = 30 + i * 30
@@ -335,7 +339,7 @@ class PortsView(View):
 
     def _row_text(self, port: Port) -> str:
         extras = {
-            "size": f"{port.size / (1024*1024):.2f} MB" if port.size else "",
+            "size": f"{port.size / (1024 * 1024):.2f} MB" if port.size else "",
             "date": (port.date_updated or "")[:10],
             "installed": "installed" if manifest.entry_for(port) else "",
         }
@@ -402,11 +406,15 @@ class PortsView(View):
 
         unmet = self.app.device.unmet(port)
         if unmet:
-            self.app.push(ConfirmView(
-                self.app, self, enqueue,
-                f"This port isn't compatible with this device. Needs {', '.join(unmet)}.",
-                "Download anyway?",
-            ))
+            self.app.push(
+                ConfirmView(
+                    self.app,
+                    self,
+                    enqueue,
+                    f"This port isn't compatible with this device. Needs {', '.join(unmet)}.",
+                    "Download anyway?",
+                )
+            )
         else:
             enqueue()
 
@@ -486,7 +494,10 @@ class SettingsView(MenuView):
     def _rows(self) -> List[tuple]:
         app = self.app
         return [
-            (_check("Filter out ports that aren't compatible with this device", app.hide_incompatible), app.toggle_hide_incompatible),
+            (
+                _check("Filter out ports that aren't compatible with this device", app.hide_incompatible),
+                app.toggle_hide_incompatible,
+            ),
             (_check("Override PortMaster's device info", app.override_device_info), app.toggle_override_device_info),
             ("List Details", lambda: app.push(DetailsView(app))),
             (f"Pharos Service: {app.service.status_text()}", lambda: app.push(ServiceView(app))),
@@ -575,9 +586,7 @@ class ServiceView(View):
         elif not supported:
             self.ui.draw_log(text="This CFW isn't supported yet.")
         else:
-            self.ui.draw_log(
-                text=("Press A to install" if not installed else "Press A to uninstall")
-            )
+            self.ui.draw_log(text=("Press A to install" if not installed else "Press A to uninstall"))
 
         btns = [("b", "Back")]
         if supported:
@@ -626,9 +635,7 @@ class UpdateView(View):
             y = sh // 2 - 30 + i * 24
             self.ui.draw_text((x, y), line, color_text)
 
-        self.ui.draw_log(
-            text=f"Pharos update v{self.updater.latest_version} available."
-        )
+        self.ui.draw_log(text=f"Pharos update v{self.updater.latest_version} available.")
 
         btns = [
             ("a", "Yes"),
@@ -646,9 +653,7 @@ class UpdateView(View):
                 sdl2.SDL_Delay(2000)
                 self.app.running = False
             else:
-                self.ui.draw_log(
-                    text="Update not ready (still publishing?) - try again in a few minutes."
-                )
+                self.ui.draw_log(text="Update not ready (still publishing?) - try again in a few minutes.")
                 self.ui.render_to_screen()
                 sdl2.SDL_Delay(1500)
                 self.app.pop()

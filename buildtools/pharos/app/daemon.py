@@ -19,6 +19,7 @@ diagnostics):
   pharos-daemon --install-module  # restore the ES Tools entry + exit
   pharos-daemon --verbose         # echo logs to stderr
 """
+
 from __future__ import annotations
 
 import argparse
@@ -44,6 +45,7 @@ from sources import catalog_entries, catalog_urls, is_portmaster, read_sources
 # Minimal CFWs (Knulli) lack CA certs in OpenSSL's default path, so HTTPS
 # fails with CERTIFICATE_VERIFY_FAILED. Point ssl at our bundled certifi store.
 import certifi
+
 os.environ.setdefault("SSL_CERT_FILE", certifi.where())
 os.environ.setdefault("REQUESTS_CA_BUNDLE", certifi.where())
 
@@ -113,6 +115,7 @@ def log(level: str, msg: str) -> None:
 def _log_info(msg: str) -> None:
     log("INFO", msg)
 
+
 # ----------------------------------------------------------------------
 # Notification backends
 # ----------------------------------------------------------------------
@@ -134,11 +137,13 @@ def notify_es_http(message: str) -> bool:
         log("WARN", f"notify_es_http failed: {e}")
         return False
 
+
 def notify(cfw: str, message: str) -> bool:
     if cfw in ("systemd", "userland"):
         return notify_es_http(message)
     log("WARN", f"unsupported CFW '{cfw}'; would have sent: {message}")
     return False
+
 
 # If there's a modules dir (used for Tools menu in ES),
 # add a Pharos launch script there if the daemon is in use.
@@ -209,6 +214,7 @@ def ensure_es_module() -> None:
     except OSError as e:
         log("WARN", f"ES module injection failed: {e}")
 
+
 # ----------------------------------------------------------------------
 # Update check
 # ----------------------------------------------------------------------
@@ -236,9 +242,8 @@ def _http_get(url: str, timeout: int = GITHUB_HTTP_TIMEOUT) -> bytes | None:
         log("WARN", f"http GET {url} failed: {e}")
         return None
 
-def load_local_manifest() -> tuple[
-    dict[str, str], dict[str, str], dict[str, str], set[str]
-]:
+
+def load_local_manifest() -> tuple[dict[str, str], dict[str, str], dict[str, str], set[str]]:
     """Returns ({name: md5}, {name: title}, {name: repo}, {muted_names}) for
     Pharos-tracked ports. Names are extensionless; `repo` is empty for legacy
     entries; `muted` defaults False."""
@@ -276,6 +281,7 @@ def load_local_manifest() -> tuple[
         log("WARN", f"manifest parse failed: {e}")
         return {}, {}, {}, set()
 
+
 def parse_sources() -> list[str]:
     """Returns the repo slugs in sources.json."""
     try:
@@ -283,6 +289,7 @@ def parse_sources() -> list[str]:
     except (OSError, ValueError) as e:
         log("WARN", f"Can't read sources.json: {e}")
         return []
+
 
 def fetch_remote_md5s(slug: str) -> tuple[dict[str, str], dict[str, str]]:
     """Returns ({name: md5}, {name: title}) from a repo's catalog.
@@ -310,9 +317,8 @@ def fetch_remote_md5s(slug: str) -> tuple[dict[str, str], dict[str, str]]:
     log("INFO", f"no ports.json on {slug}; skipping")
     return {}, {}
 
-def find_outdated(
-    local: dict[str, str], local_repos: dict[str, str]
-) -> tuple[list[str], dict[str, str]]:
+
+def find_outdated(local: dict[str, str], local_repos: dict[str, str]) -> tuple[list[str], dict[str, str]]:
     """Returns (sorted outdated names, remote-title fallback dict).
 
     Per-port:
@@ -357,11 +363,13 @@ def find_outdated(
 
     return sorted(outdated), remote_titles
 
+
 def format_message(outdated: Iterable[str], titles: dict[str, str]) -> str:
     items = list(outdated)
     if len(items) == 1:
         return f"[PHAROS] Update available for {titles.get(items[0], items[0])}"
     return f"[PHAROS] {len(items)} updates available"
+
 
 # ----------------------------------------------------------------------
 # Notify-state dedup (tmpfs-backed: survives in-session restarts, cleared
@@ -370,13 +378,16 @@ def format_message(outdated: Iterable[str], titles: dict[str, str]) -> str:
 def _outdated_hash(items: Iterable[str]) -> str:
     return hashlib.sha256(",".join(sorted(items)).encode("utf-8")).hexdigest()
 
+
 STATE_FILE = Path("/tmp/pharos-daemon.state")
+
 
 def _load_state() -> dict:
     try:
         return json.loads(STATE_FILE.read_text("utf-8"))
     except (OSError, json.JSONDecodeError):
         return {}
+
 
 def _save_state(state: dict) -> None:
     tmp = STATE_FILE.with_suffix(".tmp")
@@ -385,6 +396,7 @@ def _save_state(state: dict) -> None:
         os.replace(tmp, STATE_FILE)
     except OSError as e:
         log("WARN", f"state save failed: {e}")
+
 
 _state_cache: dict = _load_state()
 
@@ -419,7 +431,9 @@ def ensure_device_override() -> None:
     try:
         settings = json.loads(SETTINGS_PATH.read_text("utf-8-sig"))
         if settings["override_device_info"] is True:
-            set_device_override(settings["controlfolder"], os.path.join(os.path.realpath(INSTALL_DIR), "device_override.txt"))
+            set_device_override(
+                settings["controlfolder"], os.path.join(os.path.realpath(INSTALL_DIR), "device_override.txt")
+            )
     except (FileNotFoundError, KeyError):
         pass  # never turned on
     except (OSError, ValueError, TypeError) as e:
@@ -432,10 +446,10 @@ def ensure_device_override() -> None:
 def run_check() -> tuple[bool, bool]:
     """One check + notify pass. Returns (settled, network_failed).
 
-      settled        - False on notify failure (caller may retry), else True.
-      network_failed - True if any HTTP fetch hit a transport error. Independent
-                       of settled - caller schedules a retry alarm so updates
-                       aren't missed when the boot-time network was down.
+    settled        - False on notify failure (caller may retry), else True.
+    network_failed - True if any HTTP fetch hit a transport error. Independent
+                     of settled - caller schedules a retry alarm so updates
+                     aren't missed when the boot-time network was down.
     """
     global _network_errors_this_pass
     _network_errors_this_pass = 0
@@ -485,10 +499,11 @@ def run_check() -> tuple[bool, bool]:
     log("ERROR", "all notify retries exhausted")
     return False, network_failed
 
+
 # ----------------------------------------------------------------------
 # Daemon loop + signals
 # ----------------------------------------------------------------------
-_pending = False   # SIGHUP arrived inside rate-limit window; SIGALRM scheduled for window-end
+_pending = False  # SIGHUP arrived inside rate-limit window; SIGALRM scheduled for window-end
 _retrying = False  # last check hit network errors; SIGALRM scheduled for ~60s retry
 
 # Network-retry interval. Shorter than MIN_FETCH_INTERVAL_S to recover quickly
@@ -662,6 +677,7 @@ def daemon_loop() -> None:
     finally:
         remove_pidfile()
 
+
 # ----------------------------------------------------------------------
 # CLI
 # ----------------------------------------------------------------------
@@ -699,6 +715,7 @@ def main() -> int:
     except KeyboardInterrupt:
         log("INFO", "interrupted; shutting down")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,6 +1,7 @@
 """
 Port screenshots from PortMaster's images or a download cache
 """
+
 import os
 import re
 import shutil
@@ -55,10 +56,12 @@ def assign(repo: Repository) -> None:
         # cleaned form too.
         cleaned = re.sub(r"[ \.]+", ".", re.sub(r"[^a-zA-Z0-9 _\-\.]+", "", item.name.strip().lower()))
         item.image_path = next(
-            (files[f]
-             for name in dict.fromkeys((item.name, cleaned))
-             for ext in EXTENSIONS
-             if (f := f"{name}.screenshot{ext}") in files),
+            (
+                files[f]
+                for name in dict.fromkeys((item.name, cleaned))
+                for ext in EXTENSIONS
+                if (f := f"{name}.screenshot{ext}") in files
+            ),
             None,
         )
 

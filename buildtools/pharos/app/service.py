@@ -19,6 +19,7 @@ differs from the extracted on-disk copy (i.e. a Pharos self-update brought
 new daemon code), it swaps the file and restarts the service - so the daemon
 follows Pharos updates automatically.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -51,6 +52,7 @@ SYSTEMD_ES_SCRIPT = Path("/storage/.config/emulationstation/scripts/game-end/pha
 USERLAND_ES_SCRIPT = Path("/userdata/system/configs/emulationstation/scripts/game-end/pharos-check")
 
 DAEMON_PID_FILE = Path(INSTALL_DIR) / "resources" / "daemon.pid"
+
 
 # ----------------------------------------------------------------------
 # Templates
@@ -171,9 +173,7 @@ def _write_executable(path: Path, content: str) -> None:
 
 def _safe_run(cmd: list[str]) -> tuple[int, str]:
     try:
-        out = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=15, check=False
-        )
+        out = subprocess.run(cmd, capture_output=True, text=True, timeout=15, check=False)
         return out.returncode, (out.stdout + out.stderr).strip()
     except (FileNotFoundError, subprocess.TimeoutExpired) as e:
         return 1, str(e)
@@ -254,10 +254,7 @@ class Service:
         if not DAEMON_BUNDLED_PATH.exists():
             print(f"[Service] ERROR: bundled daemon missing at {DAEMON_BUNDLED_PATH}")
             return False
-        if (
-            DAEMON_EXTRACTED_PATH.exists()
-            and _hash_file(DAEMON_EXTRACTED_PATH) == _hash_file(DAEMON_BUNDLED_PATH)
-        ):
+        if DAEMON_EXTRACTED_PATH.exists() and _hash_file(DAEMON_EXTRACTED_PATH) == _hash_file(DAEMON_BUNDLED_PATH):
             print(f"[Service] daemon already at {DAEMON_EXTRACTED_PATH} (hash matches); skipping extract")
             return True
         try:
@@ -313,9 +310,7 @@ class Service:
         (self.daemon_path.parent / "tmp").mkdir(parents=True, exist_ok=True)
         if self.cfw == "systemd":
             _write_executable(SYSTEMD_UNIT_PATH, _systemd_unit(self.daemon_path))
-            _write_executable(
-                SYSTEMD_MODULE_UNIT_PATH, _systemd_module_unit(self.daemon_path)
-            )
+            _write_executable(SYSTEMD_MODULE_UNIT_PATH, _systemd_module_unit(self.daemon_path))
             _safe_run(["systemctl", "daemon-reload"])
             # Pre-1.2.1 installs have no module unit; enable it on refresh so
             # updaters get the Tools fix without a manual reinstall.
@@ -430,9 +425,7 @@ class Service:
         print(f"[Service] writing systemd unit -> {SYSTEMD_UNIT_PATH}")
         _write_executable(SYSTEMD_UNIT_PATH, _systemd_unit(self.daemon_path))
         print(f"[Service] writing module unit -> {SYSTEMD_MODULE_UNIT_PATH}")
-        _write_executable(
-            SYSTEMD_MODULE_UNIT_PATH, _systemd_module_unit(self.daemon_path)
-        )
+        _write_executable(SYSTEMD_MODULE_UNIT_PATH, _systemd_module_unit(self.daemon_path))
         rc, msg = _safe_run(["systemctl", "daemon-reload"])
         print(f"[Service] systemctl daemon-reload (rc={rc}) {msg}")
         rc, msg = _safe_run(["systemctl", "enable", "pharos-daemon.service"])
@@ -481,9 +474,7 @@ class Service:
         print("[Service] cleaned stale runtime files")
 
         _write_executable(USERLAND_SERVICE_PATH, _userland_service(self.daemon_path))
-        _safe_run([
-            "batocera-settings-set", "system.services.pharos-daemon", "enabled"
-        ])
+        _safe_run(["batocera-settings-set", "system.services.pharos-daemon", "enabled"])
         # Start it now too, so the user doesn't have to reboot.
         _safe_run([str(USERLAND_SERVICE_PATH), "start"])
         _write_executable(USERLAND_ES_SCRIPT, _es_event_script())
@@ -492,13 +483,10 @@ class Service:
     def _uninstall_userland(self) -> tuple[bool, str]:
         if USERLAND_SERVICE_PATH.exists():
             _safe_run([str(USERLAND_SERVICE_PATH), "stop"])
-        _safe_run([
-            "batocera-settings-set", "system.services.pharos-daemon", "disabled"
-        ])
+        _safe_run(["batocera-settings-set", "system.services.pharos-daemon", "disabled"])
         USERLAND_SERVICE_PATH.unlink(missing_ok=True)
         USERLAND_ES_SCRIPT.unlink(missing_ok=True)
         _kill_pid_file(Path("/var/run/pharos-daemon.pid"))
         DAEMON_EXTRACTED_PATH.unlink(missing_ok=True)
         _cleanup_runtime_files()
         return True, "Uninstalled"
-

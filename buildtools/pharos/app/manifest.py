@@ -1,6 +1,7 @@
 """
 Pharos manifest: installed ports and bottles, runtimes and gmtoolkit
 """
+
 import json
 import os
 import threading
@@ -44,7 +45,8 @@ def load() -> dict:
         for key in ("ports", "bottles"):
             entries = data.get(key)
             data[key] = [
-                e for e in (entries if isinstance(entries, list) else [])
+                e
+                for e in (entries if isinstance(entries, list) else [])
                 if isinstance(e, dict) and isinstance(e.get("name"), str)
             ]
         _index(data)

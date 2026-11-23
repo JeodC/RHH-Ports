@@ -16,18 +16,14 @@ REPO_SLUG = "JeodC/RHH-Ports"
 PORTS_RELEASE_URL = f"https://github.com/{REPO_SLUG}/releases/download/ports-latest"
 RUNTIMES_RELEASE_URL = f"https://github.com/{REPO_SLUG}/releases/download/runtimes-latest"
 
-PM_OFFICIAL_CATALOG_URL = (
-    "https://github.com/PortsMaster/PortMaster-New/releases/latest/download/ports.json"
-)
+PM_OFFICIAL_CATALOG_URL = "https://github.com/PortsMaster/PortMaster-New/releases/latest/download/ports.json"
 
 
 def fetch_official_runtimes():
     """Official aarch64 runtimes ({runtime_name: info}) from the catalog stock
     PortMaster consumes. Fetch failure aborts; the published catalog stays live."""
     try:
-        req = urllib.request.Request(
-            PM_OFFICIAL_CATALOG_URL, headers={"User-Agent": "RHH-Ports catalog generator"}
-        )
+        req = urllib.request.Request(PM_OFFICIAL_CATALOG_URL, headers={"User-Agent": "RHH-Ports catalog generator"})
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = json.load(resp)
     except Exception as exc:
@@ -53,6 +49,7 @@ def fetch_official_runtimes():
         sys.exit("ERROR: official PortMaster catalog listed no runtimes")
     print(f"Discovered {len(runtimes)} official runtimes from PortMaster catalog")
     return runtimes
+
 
 # Display names for repo-hosted runtimes (the set itself comes from
 # runtimes/*.squashfs); a missing entry just shows the filename instead.
@@ -159,9 +156,7 @@ def build_images_zip(ports, out_path):
         screenshot = None
         if port_dir is not None:
             for candidate in sorted(port_dir.iterdir()):
-                if candidate.is_file() and re.match(
-                    r"screenshot.*\.(png|jpg|jpeg)$", candidate.name, re.IGNORECASE
-                ):
+                if candidate.is_file() and re.match(r"screenshot.*\.(png|jpg|jpeg)$", candidate.name, re.IGNORECASE):
                     screenshot = candidate
                     break
         if screenshot is None:
@@ -195,9 +190,7 @@ def build_utils(declared_runtimes, official_runtimes, images_zip_path):
     # Anything in runtimes/ named like an official runtime is a mirror for
     # older Pharos builds -- skip it to avoid shadowing PortMaster's entry.
     own_runtimes = {
-        path.name
-        for path in (REPO_ROOT / "runtimes").glob("*.squashfs")
-        if path.name not in official_runtimes
+        path.name for path in (REPO_ROOT / "runtimes").glob("*.squashfs") if path.name not in official_runtimes
     }
 
     unresolvable = declared_runtimes - official_runtimes - own_runtimes
@@ -230,9 +223,7 @@ def build_utils(declared_runtimes, official_runtimes, images_zip_path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument(
-        "--output", default="temp_pm", help="output directory (default: temp_pm)"
-    )
+    parser.add_argument("--output", default="temp_pm", help="output directory (default: temp_pm)")
     parser.add_argument(
         "--catalog",
         default=str(REPO_ROOT / "docs" / "ports.json"),
@@ -270,9 +261,7 @@ def main():
         "utils": build_utils(declared_runtimes, set(official), images_zip),
         # PortMaster ignores extra top-level keys; Pharos reads this to fetch
         # official runtimes from PortMaster's hosting instead of a mirror.
-        "official_runtimes": {
-            name: official[name] for name in sorted(declared_runtimes & set(official))
-        },
+        "official_runtimes": {name: official[name] for name in sorted(declared_runtimes & set(official))},
     }
 
     ports_json = out_dir / "ports.json"

@@ -2,6 +2,7 @@
 """
 Pharos
 """
+
 import os
 import json
 import queue
@@ -33,6 +34,7 @@ STEAM_APPID = re.compile(r"store\.steampowered\.com/app/(\d+)")
 DISCOUNTS_PER_REQUEST = 100
 DEFAULT_DETAILS = ["size", "owner", "count"]
 
+
 # ----------------------------------------------------------------------
 # Background tasks
 # ----------------------------------------------------------------------
@@ -42,10 +44,13 @@ def _spawn(name: str, func, *args) -> threading.Thread:
             func(*args)
         except Exception as e:
             import traceback
+
             print(f"[{name}] CRASHED: {e}\n{traceback.format_exc()}")
+
     thread = threading.Thread(target=run, name=name, daemon=True)
     thread.start()
     return thread
+
 
 # ----------------------------------------------------------------------
 # Catalog fields can hold anything
@@ -56,6 +61,7 @@ def _text(value) -> str:
 
 def _list(value) -> list:
     return value if isinstance(value, list) else []
+
 
 # ----------------------------------------------------------------------
 # Pharos core
@@ -234,8 +240,11 @@ class Pharos:
             date_updated=_text(src.get("date_updated")),
             first_seen=_text(src.get("first_seen")) or _text(src.get("date_added")),
             # PortMaster names some without the extension
-            runtime=[r.removesuffix(".squashfs") + ".squashfs" for r in _list(runtime)
-                     if isinstance(r, str) and r and "/" not in r],
+            runtime=[
+                r.removesuffix(".squashfs") + ".squashfs"
+                for r in _list(runtime)
+                if isinstance(r, str) and r and "/" not in r
+            ],
             runtime_base_url=release_url(repo.slug, "runtimes-latest"),
             repo=repo.slug,
             store=store,
@@ -270,7 +279,7 @@ class Pharos:
         flattened: dict = {}
         for i in range(0, len(appids), DISCOUNTS_PER_REQUEST):
             try:
-                url = f"{WORKER}?appids={','.join(appids[i:i + DISCOUNTS_PER_REQUEST])}&country={COUNTRY}"
+                url = f"{WORKER}?appids={','.join(appids[i : i + DISCOUNTS_PER_REQUEST])}&country={COUNTRY}"
                 for appid, shops in json.loads(fetch(url, timeout=20)).items():
                     per_shop = {}
                     for shop_name, entry in shops.items():
@@ -325,7 +334,6 @@ class Pharos:
     def _check_self_update(self) -> None:
         if self.updater.check():
             print(
-                f"[Update] Pharos v{self.updater.latest_version} available "
-                f"(installed: v{self.updater.current_version})"
+                f"[Update] Pharos v{self.updater.latest_version} available (installed: v{self.updater.current_version})"
             )
             self.self_update_available = True

@@ -13,12 +13,14 @@ from config import DATA_DIR
 # search path, so HTTPS requests fail with CERTIFICATE_VERIFY_FAILED. Point
 # urllib + ssl at our bundled certifi store before anything tries to fetch.
 import certifi
+
 os.environ.setdefault("SSL_CERT_FILE", certifi.where())
 os.environ.setdefault("REQUESTS_CA_BUNDLE", certifi.where())
 
 import sdl2
 
 _log_fd = None
+
 
 def initialize_logging() -> None:
     global _log_fd
@@ -38,6 +40,7 @@ def initialize_logging() -> None:
     except Exception as e:
         print(f"Failed to open log file {log_file}: {e}", file=sys.__stdout__)
         _log_fd = sys.__stdout__
+
 
 def cleanup(pharos_instance, exit_code: int) -> None:
     if pharos_instance:
@@ -62,9 +65,11 @@ def cleanup(pharos_instance, exit_code: int) -> None:
 
     os._exit(exit_code)
 
+
 def _leak_checker():
     import atexit
     import tracemalloc
+
     tracemalloc.start(25)
     atexit.register(tracemalloc.stop)
     snapshot = tracemalloc.take_snapshot()
@@ -75,12 +80,14 @@ def _leak_checker():
         frame += 1
         if frame % 1000 == 0:
             s = tracemalloc.take_snapshot()
-            stats = s.compare_to(snapshot, 'lineno')
+            stats = s.compare_to(snapshot, "lineno")
             print("\n=== MEMORY GROWTH (top 5) ===")
             for stat in stats[:5]:
                 print(stat)
             snapshot = s
+
     return check_leaks
+
 
 def main() -> None:
     from pharos import Pharos
@@ -120,6 +127,7 @@ def main() -> None:
     finally:
         if pharos is None and sdl2.SDL_WasInit(0):
             sdl2.SDL_Quit()
+
 
 if __name__ == "__main__":
     main()

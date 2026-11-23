@@ -1,6 +1,7 @@
 """
 Device info and port compatibility
 """
+
 import ctypes
 import os
 import platform
@@ -114,7 +115,7 @@ class Device:
             return int(_portmaster("DEVICE_RAM"))
         total = re.search(r"MemTotal:\s+(\d+)", _read("/proc/meminfo"))
         # MemTotal leaves out reserved memory
-        return round(int(total.group(1)) / 1024 ** 2 * 1.1) if total else 0
+        return round(int(total.group(1)) / 1024**2 * 1.1) if total else 0
 
     # ------------------------------------------------------------------
     # Capabilities
@@ -166,7 +167,9 @@ class Device:
     def _req_text(req: str) -> str:
         if re.fullmatch(r"\d+gb", req):
             return f"{req[:-2]} GB RAM"
-        return REQ_TEXT.get(req) or (f"a device other than {req[1:]}" if req.startswith("!") else req.replace("|", " or "))
+        return REQ_TEXT.get(req) or (
+            f"a device other than {req[1:]}" if req.startswith("!") else req.replace("|", " or ")
+        )
 
     # ------------------------------------------------------------------
     # Info
@@ -209,7 +212,8 @@ class Device:
         }
         return [
             (label, value.strip() + (f" [PM: {differences[label]}]" if label in differences else ""))
-            for label, value in values.items() if value.strip()
+            for label, value in values.items()
+            if value.strip()
         ]
 
     def _disk_usage(self):
@@ -232,5 +236,5 @@ class Device:
 
 
 def _size_text(size: int) -> str:
-    mb = size / 1024 ** 2
+    mb = size / 1024**2
     return f"{mb:.0f} MB" if mb < 1024 else f"{mb / 1024:.1f} GB"

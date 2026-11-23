@@ -1,0 +1,4 @@
+required-version = "==0.17.6"
+target-version = "py311"
+line-length = 120
+include = ["buildtools/**/*.py"]

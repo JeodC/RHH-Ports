@@ -2,6 +2,7 @@
 """
 Pharos download worker
 """
+
 import os
 import errno
 import json
@@ -38,6 +39,7 @@ DEVICE_ARCH = os.environ.get("DEVICE_ARCH", "")
 GMTOOLKIT_RELEASE_URL = "https://github.com/JeodC/gmtoolkit/releases/latest/download"
 
 PROGRESS_INTERVAL = 0.1  # seconds
+
 
 # ----------------------------------------------------------------------
 # Requests
@@ -81,8 +83,9 @@ def fetch(url: str, timeout: int = 30) -> bytes:
         return resp.read()
 
 
-def stream(url: str, dest: Path, on_progress=None, known_etag: str = "", space: int = 1,
-           timeout: int = 60) -> str | None:
+def stream(
+    url: str, dest: Path, on_progress=None, known_etag: str = "", space: int = 1, timeout: int = 60
+) -> str | None:
     """Returns the ETag, or None if it's still known_etag"""
     req = urllib.request.Request(url, headers={"User-Agent": "Pharos/1.0"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -105,6 +108,7 @@ def stream(url: str, dest: Path, on_progress=None, known_etag: str = "", space: 
         if total and downloaded != total:
             raise ConnectionError(f"Connection dropped at {downloaded / total * 100:.0f}%")
         return etag
+
 
 # ----------------------------------------------------------------------
 # Downloader
@@ -300,8 +304,11 @@ class Downloader:
         etag = manifest.load().get("gmtoolkit", {}).get("etag", "") if dest.exists() else ""
         try:
             etag = stream(
-                f"{GMTOOLKIT_RELEASE_URL}/{zip_name}", zip_tmp, self._progress("gmtoolkit"),
-                known_etag=etag, space=2,
+                f"{GMTOOLKIT_RELEASE_URL}/{zip_name}",
+                zip_tmp,
+                self._progress("gmtoolkit"),
+                known_etag=etag,
+                space=2,
             )
             if etag is None:
                 print("[GMTOOLKIT] Present and up to date")
@@ -356,6 +363,7 @@ class Downloader:
     def _progress(self, label: str):
         def report(downloaded: int, total: int, speed: float) -> None:
             self.progress_q.put((downloaded, total, progress_text(label, downloaded, total, speed), "download"))
+
         return report
 
     def _fail(self, port: Port, message: str) -> None:

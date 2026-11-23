@@ -96,13 +96,9 @@ class Input:
             if os.path.exists(config_str):
                 result = sdl2.SDL_GameControllerAddMappingsFromFile(config_str.encode("utf-8"))
                 if result == -1:
-                    print(
-                        f"Warning: Could not load file {config_str}: {sdl2.SDL_GetError().decode()}"
-                    )
+                    print(f"Warning: Could not load file {config_str}: {sdl2.SDL_GetError().decode()}")
                 else:
-                    print(
-                        f"Loaded {result} controller mappings from file {config_str}"
-                    )
+                    print(f"Loaded {result} controller mappings from file {config_str}")
             else:
                 print(f"Warning: Controller config file {config_str} not found")
         else:
@@ -176,9 +172,7 @@ class Input:
 
             return is_pressed
 
-    def handle_navigation(
-        self, selected_position: int, items_per_page: int, total_items: int
-    ) -> int:
+    def handle_navigation(self, selected_position: int, items_per_page: int, total_items: int) -> int:
         """Handle navigation based on pressed keys"""
         last = total_items - 1
         if self.key("DY+", repeat=True):  # DOWN
@@ -186,9 +180,12 @@ class Input:
         if self.key("DY-", repeat=True):  # UP
             return last if selected_position <= 0 else selected_position - 1
         for key_name, step in (
-            ("DX+", items_per_page), ("DX-", -items_per_page),
-            ("R1", items_per_page), ("L1", -items_per_page),
-            ("R2+", 100), ("L2+", -100),
+            ("DX+", items_per_page),
+            ("DX-", -items_per_page),
+            ("R1", items_per_page),
+            ("L1", -items_per_page),
+            ("R2+", 100),
+            ("L2+", -100),
         ):
             if self.key(key_name, repeat=True):
                 return max(0, min(selected_position + step, last))

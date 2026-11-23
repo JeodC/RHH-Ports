@@ -10,6 +10,7 @@ md5 against ports.json before accepting it. The Pharos App.sh wrapper applies it
 pharos/ to GAMEDIR, and re-exec'ing the new binary.
 See ports/released/apps/pharos/Pharos App.sh::apply_pending_update.
 """
+
 import re
 from http.client import HTTPException
 from pathlib import Path
@@ -24,13 +25,8 @@ from sources import catalog_entries
 # Where Pharos publishes from. Hardcoded, unlike sources.json for ports.
 # ----------------------------------------------------------------------
 PHAROS_REPO = "JeodC/RHH-Ports"
-PHAROS_VERSION_RAW = (
-    f"https://raw.githubusercontent.com/{PHAROS_REPO}/main/"
-    "buildtools/pharos/app/__version__.py"
-)
-PHAROS_PORTS_JSON_RAW = (
-    f"https://raw.githubusercontent.com/{PHAROS_REPO}/main/docs/ports.json"
-)
+PHAROS_VERSION_RAW = f"https://raw.githubusercontent.com/{PHAROS_REPO}/main/buildtools/pharos/app/__version__.py"
+PHAROS_PORTS_JSON_RAW = f"https://raw.githubusercontent.com/{PHAROS_REPO}/main/docs/ports.json"
 PHAROS_PORT_NAME = "pharos.zip"
 
 PENDING_ZIP = Path(DATA_DIR) / ".pending_update.zip"
@@ -87,8 +83,7 @@ class Update:
         if not self.expected_size:
             return False
         try:
-            req = Request(self.download_url,
-                          headers={"User-Agent": "Pharos/Updater", "Range": "bytes=0-1023"})
+            req = Request(self.download_url, headers={"User-Agent": "Pharos/Updater", "Range": "bytes=0-1023"})
             with urlopen(req, timeout=15) as resp:
                 content_range = resp.getheader("Content-Range") or ""
                 served_size = int(content_range.rpartition("/")[2] or 0)
@@ -99,8 +94,10 @@ class Update:
             return False
 
         if served_size and served_size != self.expected_size:
-            print(f"[Update] CDN still has the previous asset "
-                  f"({served_size} bytes, dated {last_modified}; expected {self.expected_size}).")
+            print(
+                f"[Update] CDN still has the previous asset "
+                f"({served_size} bytes, dated {last_modified}; expected {self.expected_size})."
+            )
             return True
         return False
 
@@ -123,8 +120,9 @@ class Update:
             # binary and re-prompt every launch. Reject the mismatch instead.
             got = md5_file(PENDING_ZIP)
             if self.expected_md5 and got != self.expected_md5:
-                raise ValueError(f"md5 mismatch: expected {self.expected_md5}, got {got}; "
-                                 "release still propagating - not applying.")
+                raise ValueError(
+                    f"md5 mismatch: expected {self.expected_md5}, got {got}; release still propagating - not applying."
+                )
         except (OSError, ValueError, HTTPException) as e:
             # OSError covers disk-full / permission mid-write failures that would
             # otherwise propagate up and crash the input handler.

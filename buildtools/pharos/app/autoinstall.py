@@ -2,6 +2,7 @@
 """
 Unpacks queued zips into the ports/windows tree and merges their gameinfo.
 """
+
 from pathlib import Path
 from contextlib import suppress
 import io
@@ -17,6 +18,7 @@ GAME_DATA_NAMES = ("game.droid", "data.win")
 # DATA_DIR holds the autoinstall queue; INSTALL_DIR is the binary's dir. PORTS_DIR /
 # WINDOWS_DIR derive from its siblings (PortMaster's ports/ and windows/ trees).
 from config import DATA_DIR as _DATA_DIR_STR, INSTALL_DIR as _INSTALL_DIR_STR
+
 DATA_DIR = Path(_DATA_DIR_STR)
 AUTOINSTALL_DIR = DATA_DIR / "autoinstall"
 INSTALL_DIR = Path(_INSTALL_DIR_STR)
@@ -27,6 +29,7 @@ EMUELEC_DIR = PORTS_DIR.parent / "ports_scripts"
 TRIMUI_PORTS_DIR = Path("/mnt/SDCARD/Data/ports")
 TRIMUI_DIR = Path("/mnt/SDCARD/Roms/PORTS")
 WINDOWS_DIR = PORTS_DIR.parent / "windows"
+
 
 class AutoInstaller:
     def __init__(self, autoinstall_dir: Path = AUTOINSTALL_DIR):
@@ -62,7 +65,9 @@ class AutoInstaller:
         with zipfile.ZipFile(zip_path, "r") as zf:
             print(f"[EXTRACT] Zip contents: {zf.namelist()}")
             # NextOS ports have an nxport.json
-            target_json = next((f for f in zf.namelist() if os.path.basename(f) in ("port.json", "nxport.json", "bottle.json")), None)
+            target_json = next(
+                (f for f in zf.namelist() if os.path.basename(f) in ("port.json", "nxport.json", "bottle.json")), None
+            )
             if not target_json:
                 print(f"[ERROR] No port.json or bottle.json in {zip_name}")
                 return 255
@@ -157,15 +162,16 @@ class AutoInstaller:
         for base, members in sorted(groups.items()):
             members.sort()
             if [i for i, _ in members] != list(range(1, len(members) + 1)):
-                print(f"[SPLIT][ERROR] {base}: parts {[i for i, _ in members]} are not a "
-                      f"complete run from 001; leaving them unjoined")
+                print(
+                    f"[SPLIT][ERROR] {base}: parts {[i for i, _ in members]} are not a "
+                    f"complete run from 001; leaving them unjoined"
+                )
                 continue
 
             paths = [base_dir / name for _, name in members]
             missing = [p for p in paths if not p.is_file()]
             if missing:
-                print(f"[SPLIT][ERROR] {base}: {len(missing)} part(s) missing after extract; "
-                      f"leaving them unjoined")
+                print(f"[SPLIT][ERROR] {base}: {len(missing)} part(s) missing after extract; leaving them unjoined")
                 continue
 
             target = base_dir / base
@@ -213,10 +219,7 @@ class AutoInstaller:
         try:
             existing_infos = existing.infolist()
             existing_crc = {i.filename: i.CRC for i in existing_infos}
-            runtime_changed = any(
-                not i.is_dir() and existing_crc.get(i.filename) != i.CRC
-                for i in incoming_infos
-            )
+            runtime_changed = any(not i.is_dir() and existing_crc.get(i.filename) != i.CRC for i in incoming_infos)
 
             if not runtime_changed:
                 return True
@@ -279,9 +282,7 @@ class AutoInstaller:
             print(f"[CREATE] Creating {gamelist_path}")
 
         existing_games = {
-            game.find("path").text: game
-            for game in root.findall("game")
-            if game.find("path") is not None
+            game.find("path").text: game for game in root.findall("game") if game.find("path") is not None
         }
 
         count_added = 0
@@ -310,13 +311,10 @@ class AutoInstaller:
                 ET.indent(root, space="  ", level=0)
             gamelist_path.parent.mkdir(parents=True, exist_ok=True)
             tmp = gamelist_path.with_suffix(".xml.tmp")
-            tree.write(
-                tmp,
-                encoding="utf-8",
-                xml_declaration=True,
-                short_empty_elements=False
-            )
+            tree.write(tmp, encoding="utf-8", xml_declaration=True, short_empty_elements=False)
             os.replace(tmp, gamelist_path)
-            print(f"[GAMELIST] Added {count_added} new game(s), updated {count_updated} existing game(s) -> {gamelist_path.name}")
+            print(
+                f"[GAMELIST] Added {count_added} new game(s), updated {count_updated} existing game(s) -> {gamelist_path.name}"
+            )
         else:
             print(f"[INFO] No changes from {gameinfo_file.name}")

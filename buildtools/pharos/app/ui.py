@@ -2,6 +2,7 @@
 """
 Pharos UI
 """
+
 import ctypes
 import functools
 import os
@@ -25,6 +26,7 @@ color_progress_bar = "#00b400"
 color_text = "#ffffff"
 color_row_text = "#c8c8c8"
 
+
 # ----------------------------------------------------------------------
 # Hex to SDL_Color
 # ----------------------------------------------------------------------
@@ -40,6 +42,7 @@ def hex_to_sdl(hex_str: str) -> sdl2.SDL_Color:
     except ValueError:
         return sdl2.SDL_Color(255, 255, 255, 255)
 
+
 # Preconvert common colors
 c_row_bg = hex_to_sdl(color_row_bg)
 c_row_muted = hex_to_sdl(color_row_muted)
@@ -51,6 +54,7 @@ c_text = hex_to_sdl(color_text)
 c_btn_a = hex_to_sdl(color_btn_a)
 
 from config import BASE_PATH
+
 FONT_PATH = os.path.join(BASE_PATH, "fonts", "romm.ttf")
 FONT_SIZE = 12
 HEADER_HEIGHT = 25
@@ -66,17 +70,18 @@ STORE_ROW_HEIGHT = 36
 # port.json store name -> icon filename in resources/stores/
 # (populated by buildtools/pharos/download_store_icons.py).
 STORE_ICON_FILES = {
-    "Steam":        "steam.png",
-    "GOG":          "gog.png",
-    "Itch.io":      "itch.png",
-    "Epic Games":   "epic.png",
+    "Steam": "steam.png",
+    "GOG": "gog.png",
+    "Itch.io": "itch.png",
+    "Epic Games": "epic.png",
     "Humble Store": "humble.png",
-    "Fanatical":    "fanatical.png",
+    "Fanatical": "fanatical.png",
 }
 STORE_ICONS_DIR = os.path.join(BASE_PATH, "resources", "stores")
 STORE_ICON_SIZE = 24
 # Steam discount green.
 c_discount_text = sdl2.SDL_Color(190, 238, 17, 255)
+
 
 # ----------------------------------------------------------------------
 # UserInterface
@@ -144,7 +149,7 @@ class UserInterface:
             sdl2.SDL_PIXELFORMAT_RGBA8888,
             sdl2.SDL_TEXTUREACCESS_TARGET,
             self.screen_width,
-            self.screen_height
+            self.screen_height,
         )
         if not self.screen_texture:
             raise RuntimeError("Failed to create render target texture")
@@ -181,7 +186,8 @@ class UserInterface:
             b"Pharos",
             sdl2.SDL_WINDOWPOS_UNDEFINED,
             sdl2.SDL_WINDOWPOS_UNDEFINED,
-            0, 0,
+            0,
+            0,
             sdl2.SDL_WINDOW_FULLSCREEN_DESKTOP | sdl2.SDL_WINDOW_SHOWN,
         )
         if not window:
@@ -189,9 +195,7 @@ class UserInterface:
         return window
 
     def _create_renderer(self):
-        renderer = sdl2.SDL_CreateRenderer(
-            self.window, -1, sdl2.SDL_RENDERER_ACCELERATED
-        )
+        renderer = sdl2.SDL_CreateRenderer(self.window, -1, sdl2.SDL_RENDERER_ACCELERATED)
         if not renderer:
             raise RuntimeError(f"SDL_CreateRenderer failed: {sdl2.SDL_GetError().decode()}")
         return renderer
@@ -340,25 +344,21 @@ class UserInterface:
                 fill = hex_to_sdl(fill)
             sdl2.SDL_SetRenderDrawColor(self.renderer, fill.r, fill.g, fill.b, fill.a)
             for dy in range(-radius, radius + 1):
-                dx = int((radius ** 2 - dy ** 2) ** 0.5)
-                sdl2.SDL_RenderDrawLine(
-                    self.renderer,
-                    center[0] - dx, center[1] + dy,
-                    center[0] + dx, center[1] + dy
-                )
+                dx = int((radius**2 - dy**2) ** 0.5)
+                sdl2.SDL_RenderDrawLine(self.renderer, center[0] - dx, center[1] + dy, center[0] + dx, center[1] + dy)
 
     def draw_rectangle_r(self, rect, radius, fill=None):
         x, y, w, h = map(int, rect)
         if fill:
-            self.draw_rectangle((x+radius, y+radius, w-2*radius, h-2*radius), fill)
-            self.draw_rectangle((x+radius, y, w-2*radius, radius), fill)
-            self.draw_rectangle((x+radius, y+h-radius, w-2*radius, radius), fill)
-            self.draw_rectangle((x, y+radius, radius, h-2*radius), fill)
-            self.draw_rectangle((x+w-radius, y+radius, radius, h-2*radius), fill)
-            self.draw_circle((x+radius, y+radius), radius, fill)
-            self.draw_circle((x+w-radius, y+radius), radius, fill)
-            self.draw_circle((x+radius, y+h-radius), radius, fill)
-            self.draw_circle((x+w-radius, y+h-radius), radius, fill)
+            self.draw_rectangle((x + radius, y + radius, w - 2 * radius, h - 2 * radius), fill)
+            self.draw_rectangle((x + radius, y, w - 2 * radius, radius), fill)
+            self.draw_rectangle((x + radius, y + h - radius, w - 2 * radius, radius), fill)
+            self.draw_rectangle((x, y + radius, radius, h - 2 * radius), fill)
+            self.draw_rectangle((x + w - radius, y + radius, radius, h - 2 * radius), fill)
+            self.draw_circle((x + radius, y + radius), radius, fill)
+            self.draw_circle((x + w - radius, y + radius), radius, fill)
+            self.draw_circle((x + radius, y + h - radius), radius, fill)
+            self.draw_circle((x + w - radius, y + h - radius), radius, fill)
 
     # ------------------------------------------------------------------
     # UI Components
@@ -378,9 +378,17 @@ class UserInterface:
                 state.update(offset=0, direction=1, timer=self._scroll_start_delay)
         return state["offset"]
 
-    def row_list(self, text: str, pos: Tuple[float, float], width: int, height: int,
-                 selected: bool = False, fill: Optional[sdl2.SDL_Color] = None,
-                 color: sdl2.SDL_Color = c_text, highlight: bool = False):
+    def row_list(
+        self,
+        text: str,
+        pos: Tuple[float, float],
+        width: int,
+        height: int,
+        selected: bool = False,
+        fill: Optional[sdl2.SDL_Color] = None,
+        color: sdl2.SDL_Color = c_text,
+        highlight: bool = False,
+    ):
         if highlight and not selected:
             bg = hex_to_sdl("#d3b948")
         else:
@@ -394,8 +402,9 @@ class UserInterface:
         self.draw_text((int(pos[0] + 12 - offset), text_y), text, color)
         sdl2.SDL_RenderSetClipRect(self.renderer, None)
 
-    def button_circle(self, pos: Tuple[float, float], button: str, label: str,
-                      color: Optional[sdl2.SDL_Color] = None) -> float:
+    def button_circle(
+        self, pos: Tuple[float, float], button: str, label: str, color: Optional[sdl2.SDL_Color] = None
+    ) -> float:
         """Returns the x where the label ends"""
         if color is None:
             color = c_btn_a
@@ -438,10 +447,7 @@ class UserInterface:
         filled_width = int((self.screen_width - 2 * margin) * (percent / 100))
         if filled_width < 1:
             filled_width = 1
-        self.draw_rectangle_r(
-            [margin, y_start, filled_width, loader_height],
-            radius, fill=color_sdl
-        )
+        self.draw_rectangle_r([margin, y_start, filled_width, loader_height], radius, fill=color_sdl)
 
     def draw_header(self, title: str, info: str = ""):
         self.draw_rectangle((0, 0, self.screen_width, HEADER_HEIGHT), fill=c_menu_bg)
@@ -497,8 +503,7 @@ class UserInterface:
         desc_center_x = self.screen_width * 3 // 4 - 20
         right_margin = 10
         left_margin = 10
-        max_half = min(desc_center_x - left_margin,
-                       self.screen_width - right_margin - desc_center_x)
+        max_half = min(desc_center_x - left_margin, self.screen_width - right_margin - desc_center_x)
         max_w = min(max_w, 2 * max_half)
 
         scale = min(max_w / tex_w, max_h / tex_h, 1.0)
@@ -527,9 +532,16 @@ class UserInterface:
             lines.append(current_line)
         return tuple(lines)
 
-    def draw_wrapped_text_centered(self, text: str, center_x: int, start_y: int,
-                                   max_width: int, color: sdl2.SDL_Color = c_text,
-                                   line_spacing: int = 2, reserve_bottom: int = 0):
+    def draw_wrapped_text_centered(
+        self,
+        text: str,
+        center_x: int,
+        start_y: int,
+        max_width: int,
+        color: sdl2.SDL_Color = c_text,
+        line_spacing: int = 2,
+        reserve_bottom: int = 0,
+    ):
 
         lines = self.wrap_text(text, max_width)
         line_height = self.font_size + line_spacing
@@ -552,8 +564,7 @@ class UserInterface:
         filename = STORE_ICON_FILES.get(name)
         return self._load_texture(os.path.join(STORE_ICONS_DIR, filename)) if filename else None
 
-    def draw_port_stores(self, stores, discount_lookup, center_x: int,
-                         max_width: int, bottom_y: int):
+    def draw_port_stores(self, stores, discount_lookup, center_x: int, max_width: int, bottom_y: int):
         """Render the store-icon row for a port.
 
         discount_lookup: callable(store_name) -> discount percent (0/None if none).
@@ -563,8 +574,8 @@ class UserInterface:
             return
 
         # Build a list of (texture, discount_text, total_width) per entry.
-        gap_after_icon = 4         # px between icon and discount text (if shown)
-        gap_between_items = 12     # px between entries
+        gap_after_icon = 4  # px between icon and discount text (if shown)
+        gap_between_items = 12  # px between entries
         entries = []
         for s in stores:
             if not isinstance(s, dict):

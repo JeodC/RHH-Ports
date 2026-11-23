@@ -1,6 +1,7 @@
 """
 sources.json and catalog parsing, shared by Pharos and the daemon
 """
+
 import json
 import re
 
@@ -77,7 +78,9 @@ def catalog_urls(slug: str, filename: str = "ports.json") -> list[str]:
     if is_portmaster(slug):
         return [_portmaster_catalog(slug)] if filename == "ports.json" else []
     # HEAD is the default branch
-    base = f"https://{slug}/-/raw/HEAD" if slug.startswith(_GITLAB) else f"https://raw.githubusercontent.com/{slug}/HEAD"
+    base = (
+        f"https://{slug}/-/raw/HEAD" if slug.startswith(_GITLAB) else f"https://raw.githubusercontent.com/{slug}/HEAD"
+    )
     return [f"{base}/docs/{filename}", f"{base}/{filename}"]
 
 
@@ -91,7 +94,9 @@ def catalog_entries(raw: bytes, key: str = "ports") -> list[dict]:
     if not isinstance(data, list):
         raise ValueError(f"no {key} list")
     # A name becomes a file name
-    entries = [e for e in data if isinstance(e, dict) and isinstance(e.get("name"), str) and _FILE_NAME.fullmatch(e["name"])]
+    entries = [
+        e for e in data if isinstance(e, dict) and isinstance(e.get("name"), str) and _FILE_NAME.fullmatch(e["name"])
+    ]
     for e in entries:
         for field in ("source", "attr"):
             if not isinstance(e.get(field), dict):

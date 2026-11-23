@@ -2,6 +2,7 @@
 """
 Paths, user settings, button layouts and data containers
 """
+
 import json
 import os
 import sys
@@ -28,6 +29,7 @@ def save_json(path: Path, data) -> None:
         f.flush()
         os.fsync(f.fileno())
     os.replace(tmp, path)
+
 
 # ----------------------------------------------------------------------
 # User settings
@@ -59,6 +61,7 @@ def put_setting(key: str, value) -> None:
     except OSError as e:
         print(f"[SETTINGS] Not saved: {e}")
 
+
 # ----------------------------------------------------------------------
 # Button colors
 # ----------------------------------------------------------------------
@@ -68,13 +71,15 @@ color_btn_x = "#3b80aa"
 color_btn_y = "#d3b948"
 color_btn_shoulder = "#383838"
 
+
 # ----------------------------------------------------------------------
 # TypedDict definitions
 # ----------------------------------------------------------------------
 class Button(TypedDict):
-    key: str          # SDL key name (e.g. "A")
-    btn: str          # Label shown on-screen (e.g. "A")
-    color: str        # Hex color
+    key: str  # SDL key name (e.g. "A")
+    btn: str  # Label shown on-screen (e.g. "A")
+    color: str  # Hex color
+
 
 class ButtonConfig(TypedDict):
     a: Button
@@ -83,6 +88,7 @@ class ButtonConfig(TypedDict):
     y: Button
     l1: Button
     r1: Button
+
 
 # ----------------------------------------------------------------------
 # Hard-coded layouts
@@ -155,11 +161,13 @@ def get_controller_layout(mapping: str) -> ButtonConfig:
     print(f"Controller layout: {layout} for {mapping}")
     return BUTTON_CONFIGS[layout]
 
+
 # ----------------------------------------------------------------------
 # Data containers
 # ----------------------------------------------------------------------
 from dataclasses import dataclass, field
 from typing import List, Optional
+
 
 @dataclass
 class Port:
@@ -184,6 +192,7 @@ class Port:
     # Stores selling the underlying game (name/gameurl/developerurl from
     # port.json); display-only in the detail panel.
     store: List[dict] = field(default_factory=list)
+
 
 @dataclass
 class Repository:
