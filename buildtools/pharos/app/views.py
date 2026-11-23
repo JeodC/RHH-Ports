@@ -44,6 +44,9 @@ class View:
     def _pressed(self, button: str) -> bool:
         return self.input.key(self.app.layout[button]["key"])
 
+    def _draw_header(self, title: str) -> None:
+        self.ui.draw_header(title, self.app.device_info())
+
     def _draw_button_bar(self, buttons: List[tuple]) -> None:
         """buttons: (layout button, label) pairs"""
         x = 20
@@ -100,7 +103,7 @@ class RepoView(View):
         return [r.slug for r in repos] + list(self.MENU)
 
     def draw(self) -> None:
-        self.ui.draw_header("Select A Repository", color_text)
+        self._draw_header("Select A Repository")
         repos = self._repos()
 
         loading = sum(not r.loaded for r in repos)
@@ -231,7 +234,7 @@ class PortsView(View):
         label = "installed" if mode == "installed" else "items"
         suffix = self._VIEW_MODE_HEADER_SUFFIX[mode]
         header_text = f"{len(items)} {label} in {repo.slug}{suffix}"
-        self.ui.draw_header(header_text, color_text)
+        self._draw_header(header_text)
 
         can_download = self._can_download()
 
@@ -394,7 +397,7 @@ class SettingsView(View):
         ]
 
     def draw(self) -> None:
-        self.ui.draw_header("Settings", color_text)
+        self._draw_header("Settings")
         self._draw_rows([label for label, _ in self._rows()], self.idx, MAX_ROWS)
         self.ui.draw_log(text=f"Pharos v{self.app.updater.current_version}")
         self._draw_button_bar([("a", "Open"), ("b", "Back")])
@@ -420,7 +423,7 @@ class ServiceView(View):
 
     def draw(self) -> None:
         sw = self.ui.screen_width
-        self.ui.draw_header("Pharos Service", color_text)
+        self._draw_header("Pharos Service")
 
         installed = self.service.installed
         supported = self.service.supported
@@ -494,7 +497,7 @@ class UpdateView(View):
 
     def draw(self) -> None:
         sw, sh = self.ui.screen_width, self.ui.screen_height
-        self.ui.draw_header("Pharos Update Available", color_text)
+        self._draw_header("Pharos Update Available")
 
         line1 = f"v{self.updater.current_version}  ->  v{self.updater.latest_version}"
         line2 = "Download and install the new version?"

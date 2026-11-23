@@ -438,11 +438,18 @@ class UserInterface:
             radius, fill=color_sdl
         )
 
-    def draw_header(self, title: str, color: str = color_text):
-        color_sdl = hex_to_sdl(color)
+    def draw_header(self, title: str, info: str = ""):
         self.draw_rectangle((0, 0, self.screen_width, HEADER_HEIGHT), fill=c_menu_bg)
-        self.draw_text((self.screen_width // 2 - self.get_text_width(title)//2,
-                        max(2, 8 - (self.font_size - FONT_SIZE))), title, color_sdl)
+        y = max(2, 8 - (self.font_size - FONT_SIZE))
+        title_w = self.get_text_width(title)
+        title_x = self.screen_width // 2 - title_w // 2
+        info_x = self.screen_width - 10 - self.get_text_width(info)
+        # Long titles shift left for the info
+        shifted_x = min(title_x, info_x - 20 - title_w)
+        if info and shifted_x >= 10:
+            title_x = shifted_x
+            self.draw_text((info_x, y), info, hex_to_sdl(color_row_text))
+        self.draw_text((title_x, y), title, c_text)
 
     # ------------------------------------------------------------------
     # Image loading with LRU cache

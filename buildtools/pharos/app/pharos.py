@@ -6,6 +6,7 @@ import os
 import json
 import queue
 import re
+import shutil
 import threading
 import time
 from typing import List
@@ -18,6 +19,7 @@ import sdl2.ext
 # ----------------------------------------------------------------------
 import images
 import manifest
+from autoinstall import PORTS_DIR
 from config import DATA_DIR, get_controller_layout, Repository, Port
 from input import Input
 from ui import UserInterface
@@ -29,6 +31,7 @@ from views import RepoView, UpdateView, View
 
 STEAM_APPID = re.compile(r"store\.steampowered\.com/app/(\d+)")
 DISCOUNTS_PER_REQUEST = 100
+INFO_REFRESH = 5  # seconds
 
 # ----------------------------------------------------------------------
 # Background tasks
@@ -85,6 +88,7 @@ class Pharos:
         self._discount_appids: set[str] = set()
         self._discount_lock = threading.Lock()
 
+        self._device_info = ("", 0.0)  # text, time
         self._views: List[View] = [RepoView(self)]
 
         # Refresh + restart the service if the bundled daemon differs from the
@@ -95,6 +99,23 @@ class Pharos:
 
         self._load_sources()
         _spawn("SelfUpdateCheck", self._check_self_update)
+
+    # ------------------------------------------------------------------
+    # Device info
+    # ------------------------------------------------------------------
+    def device_info(self) -> str:
+        """The CFW and the space left for ports"""
+        text, checked = self._device_info
+        if time.time() - checked >= INFO_REFRESH:
+            parts = [os.environ.get("CFW_NAME", "")]
+            try:
+                free = shutil.disk_usage(PORTS_DIR).free / 1024 ** 2
+                parts.append(f"{free:.0f} MB free" if free < 1024 else f"{free / 1024:.1f} GB free")
+            except OSError:
+                pass
+            text = " | ".join(p for p in parts if p)
+            self._device_info = (text, time.time())
+        return text
 
     # ------------------------------------------------------------------
     # Views
