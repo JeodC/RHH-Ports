@@ -36,12 +36,9 @@ else
     exit 1
 fi
 
-export GMLOADER_LIB_PATH="$GMLOADER/lib"
-
-export LD_LIBRARY_PATH="$GMLOADER/lib:$LD_LIBRARY_PATH"
-
-
 # Exports
+export GMLOADER_LIB_PATH="$GMLOADER/lib"
+export LD_LIBRARY_PATH="$GMLOADER/lib:$LD_LIBRARY_PATH"
 export SDL_GAMECONTROLLERCONFIG="$sdl_controllerconfig"
 
 # Check if we need to patch the game
