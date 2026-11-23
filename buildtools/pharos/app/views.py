@@ -23,6 +23,7 @@ from ui import (
 )
 
 MAX_ROWS = 12
+REPO_ROWS = 10
 DECODE_DELAY = 0.1  # seconds on a port before its screenshot is loaded
 FETCH_DELAY = 0.3  # seconds before one is downloaded
 PROGRESS_STICKY_SECONDS = 2.0
@@ -54,15 +55,26 @@ class View:
             end = self.ui.button_circle((x, self.ui.screen_height - 50), b["btn"], label, color=b["color"])
             x = int(end) + 22
 
+    def _draw_row(self, text: str, y: int, selected: bool) -> None:
+        self.ui.row_list(text, (20, y), self.ui.screen_width - 40, 28, selected,
+                         color=color_text if selected else color_row_text)
+
+    def _draw_rows(self, rows: List[str], idx: int, count: int) -> None:
+        start = max(0, min(idx, len(rows) - 1) - count + 1)
+        for i, text in enumerate(rows[start: start + count]):
+            self._draw_row(text, 30 + i * 30, start + i == idx)
+
 
 # ----------------------------------------------------------------------
 # Repositories
 # ----------------------------------------------------------------------
 class RepoView(View):
+    MENU = ("Settings", "Exit")
+
     def __init__(self, app) -> None:
         super().__init__(app)
         self.idx = 0
-        self.slug = ""  # of the repo last moved to
+        self.selected = ""  # slug or menu label
 
         # Loading spinner (only used during repo fetch)
         self.spinner = cycle(["|", "/", "-", "\\"])
@@ -76,16 +88,20 @@ class RepoView(View):
             self.last_spinner = now
             self.spinner_frame = next(self.spinner)
 
-    def _rows(self) -> List[Repository]:
+    def _repos(self) -> List[Repository]:
         # Sources that failed to load or hold nothing aren't listed
         repos = [r for r in self.app.repositories if not r.loaded or r.items]
-        # One that drops out above the selection doesn't move it to another repo
-        self.idx = next((i for i, r in enumerate(repos) if r.slug == self.slug), max(0, min(self.idx, len(repos) - 1)))
+        # Keep the selection when a row above it goes away
+        rows = self._row_keys(repos)
+        self.idx = rows.index(self.selected) if self.selected in rows else min(self.idx, len(repos))
         return repos
+
+    def _row_keys(self, repos: List[Repository]) -> List[str]:
+        return [r.slug for r in repos] + list(self.MENU)
 
     def draw(self) -> None:
         self.ui.draw_header("Select A Repository", color_text)
-        repos = self._rows()
+        repos = self._repos()
 
         loading = sum(not r.loaded for r in repos)
         if loading:
@@ -95,36 +111,40 @@ class RepoView(View):
             total_items = sum(len(r.items) for r in repos)
             self.ui.draw_log(text=self.app.sources_error or f"Loaded {total_items} items in {len(repos)} repositories")
 
-        start = max(0, self.idx - MAX_ROWS + 1)
-        visible = repos[start: start + MAX_ROWS]
-        for i, repo in enumerate(visible):
-            y = 30 + i * 30
-            sel = (start + i) == self.idx
-            txt = f"{repo.slug} ({len(repo.items)} items)" if repo.loaded else f"{repo.slug} (loading...)"
-            self.ui.row_list(txt, (20, y), self.ui.screen_width - 40, 28, sel, color=color_text if sel else color_row_text)
+        rows = [f"{r.slug} ({len(r.items)} items)" if r.loaded else f"{r.slug} (loading...)" for r in repos]
+        self._draw_rows(rows, self.idx, REPO_ROWS)
+        for i, label in enumerate(self.MENU):
+            self._draw_row(label, 352 + i * 30, self.idx == len(rows) + i)
 
         btns = [
-            ("a", "Open"),
+            ("a", "Select"),
             ("b", "Exit"),
-            ("x", "Pharos Service"),
             ("l1", "Page Up"),
             ("r1", "Page Down"),
         ]
         self._draw_button_bar(btns)
 
     def handle_input(self) -> None:
-        repos = self._rows()
-        if repos and repos[self.idx].loaded and self._pressed("a"):
-            self.app.push(PortsView(self.app, repos[self.idx]))
+        repos = self._repos()
+        rows = self._row_keys(repos)
+        row = rows[self.idx]
+        if self._pressed("a"):
+            if row == "Settings":
+                self.app.push(SettingsView(self.app))
+            elif row == "Exit":
+                self._exit()
+            elif repos[self.idx].loaded:
+                self.app.push(PortsView(self.app, repos[self.idx]))
         elif self._pressed("b"):
-            print("[USER] Exit requested via B button")
-            self.app.running = False
-        elif self._pressed("x"):
-            self.app.push(ServiceView(self.app))
-        elif repos:
-            idx = self.input.handle_navigation(self.idx, 10, len(repos))
+            self._exit()
+        else:
+            idx = self.input.handle_navigation(self.idx, 10, len(rows))
             if idx != self.idx:
-                self.idx, self.slug = idx, repos[idx].slug
+                self.idx, self.selected = idx, rows[idx]
+
+    def _exit(self) -> None:
+        print("[USER] Exit requested")
+        self.app.running = False
 
 
 # ----------------------------------------------------------------------
@@ -357,6 +377,36 @@ class PortsView(View):
 
         else:
             self.idx = self.input.handle_navigation(self.idx, 10, len(items))
+
+
+# ----------------------------------------------------------------------
+# Settings
+# ----------------------------------------------------------------------
+class SettingsView(View):
+    def __init__(self, app) -> None:
+        super().__init__(app)
+        self.idx = 0
+
+    def _rows(self) -> List[tuple]:
+        """(label, view) pairs"""
+        return [
+            (f"Pharos Service: {self.app.service.status_text()}", ServiceView),
+        ]
+
+    def draw(self) -> None:
+        self.ui.draw_header("Settings", color_text)
+        self._draw_rows([label for label, _ in self._rows()], self.idx, MAX_ROWS)
+        self.ui.draw_log(text=f"Pharos v{self.app.updater.current_version}")
+        self._draw_button_bar([("a", "Open"), ("b", "Back")])
+
+    def handle_input(self) -> None:
+        rows = self._rows()
+        if self._pressed("a"):
+            self.app.push(rows[self.idx][1](self.app))
+        elif self._pressed("b"):
+            self.app.pop()
+        else:
+            self.idx = self.input.handle_navigation(self.idx, 10, len(rows))
 
 
 # ----------------------------------------------------------------------
