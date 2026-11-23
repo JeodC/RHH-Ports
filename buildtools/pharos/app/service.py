@@ -32,11 +32,10 @@ from pathlib import Path
 
 from cfw import detect_cfw
 from config import BASE_PATH, INSTALL_DIR
+from strings import UI_STRINGS
 
 DAEMON_NAME = "pharos-daemon"
 
-# Shared "unsupported CFW" wording, used by status_text() and install/uninstall.
-UNSUPPORTED_MSG = "CFW '{cfw}' not supported"
 
 # Bundled binary (read-only, inside _MEIPASS) and on-disk location after install.
 DAEMON_BUNDLED_PATH = Path(BASE_PATH) / DAEMON_NAME
@@ -281,11 +280,11 @@ class Service:
 
     def status_text(self) -> str:
         if not self.supported:
-            return UNSUPPORTED_MSG.format(cfw=self._cfw_display_name())
-        return "Installed" if self.installed else "Not installed"
+            return UI_STRINGS["SERVICE_UNSUPPORTED"].format(cfw=self._cfw_display_name())
+        return UI_STRINGS["SERVICE_INSTALLED" if self.installed else "SERVICE_NOT_INSTALLED"]
 
     def _unsupported_result(self) -> tuple[bool, str]:
-        return False, UNSUPPORTED_MSG.format(cfw=self._cfw_display_name())
+        return False, UI_STRINGS["SERVICE_UNSUPPORTED"].format(cfw=self._cfw_display_name())
 
     def _cfw_display_name(self) -> str:
         """Friendly CFW name for user-facing strings: $CFW_NAME preserves
@@ -391,14 +390,14 @@ class Service:
         if not self.supported:
             return self._unsupported_result()
         if not self._extract_daemon():
-            return False, f"could not extract daemon to {self.daemon_path}"
+            return False, UI_STRINGS["SERVICE_EXTRACT_FAILED"].format(path=self.daemon_path)
         try:
             if self.cfw == "systemd":
                 return self._install_systemd()
             if self.cfw == "userland":
                 return self._install_userland()
         except OSError as e:
-            return False, f"install failed: {e}"
+            return False, UI_STRINGS["SERVICE_INSTALL_FAILED"].format(error=e)
         return self._unsupported_result()
 
     def uninstall(self) -> tuple[bool, str]:
@@ -410,7 +409,7 @@ class Service:
             if self.cfw == "userland":
                 return self._uninstall_userland()
         except OSError as e:
-            return False, f"uninstall failed: {e}"
+            return False, UI_STRINGS["SERVICE_UNINSTALL_FAILED"].format(error=e)
         return self._unsupported_result()
 
     # ---- systemd bucket (LibreELEC family) --------------------------
@@ -438,10 +437,10 @@ class Service:
         rc, msg = _safe_run(["systemctl", "start", "pharos-daemon.service"])
         print(f"[Service] systemctl start (rc={rc}) {msg}")
         if rc != 0:
-            return False, f"systemctl start failed: {msg}"
+            return False, UI_STRINGS["SERVICE_START_FAILED"].format(error=msg)
         print(f"[Service] writing ES event script -> {SYSTEMD_ES_SCRIPT}")
         _write_executable(SYSTEMD_ES_SCRIPT, _es_event_script())
-        return True, "Installed (systemd unit enabled + ES hook)"
+        return True, UI_STRINGS["SERVICE_INSTALLED_SYSTEMD"]
 
     def _uninstall_systemd(self) -> tuple[bool, str]:
         for unit in ("pharos-daemon.service", "pharos-module.service"):
@@ -462,7 +461,7 @@ class Service:
         print(f"[Service] removed daemon binary {DAEMON_EXTRACTED_PATH} (existed={existed})")
         _cleanup_runtime_files()
         print("[Service] cleaned up runtime files (pid/state/log)")
-        return True, "Uninstalled"
+        return True, UI_STRINGS["SERVICE_UNINSTALLED"]
 
     # ---- userland bucket (Batocera-family user-service) -------------
     def _install_userland(self) -> tuple[bool, str]:
@@ -478,7 +477,7 @@ class Service:
         # Start it now too, so the user doesn't have to reboot.
         _safe_run([str(USERLAND_SERVICE_PATH), "start"])
         _write_executable(USERLAND_ES_SCRIPT, _es_event_script())
-        return True, "Installed (Batocera service registered + ES hook)"
+        return True, UI_STRINGS["SERVICE_INSTALLED_USERLAND"]
 
     def _uninstall_userland(self) -> tuple[bool, str]:
         if USERLAND_SERVICE_PATH.exists():
@@ -489,4 +488,4 @@ class Service:
         _kill_pid_file(Path("/var/run/pharos-daemon.pid"))
         DAEMON_EXTRACTED_PATH.unlink(missing_ok=True)
         _cleanup_runtime_files()
-        return True, "Uninstalled"
+        return True, UI_STRINGS["SERVICE_UNINSTALLED"]

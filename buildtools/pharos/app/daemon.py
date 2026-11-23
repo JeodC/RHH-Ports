@@ -41,6 +41,7 @@ from urllib.error import HTTPError, URLError
 
 from cfw import detect_cfw, set_device_override
 from sources import catalog_entries, catalog_urls, is_portmaster, read_sources
+from strings import UI_STRINGS
 
 # Minimal CFWs (Knulli) lack CA certs in OpenSSL's default path, so HTTPS
 # fails with CERTIFICATE_VERIFY_FAILED. Point ssl at our bundled certifi store.
@@ -367,8 +368,8 @@ def find_outdated(local: dict[str, str], local_repos: dict[str, str]) -> tuple[l
 def format_message(outdated: Iterable[str], titles: dict[str, str]) -> str:
     items = list(outdated)
     if len(items) == 1:
-        return f"[PHAROS] Update available for {titles.get(items[0], items[0])}"
-    return f"[PHAROS] {len(items)} updates available"
+        return UI_STRINGS["NOTIFY_ONE"].format(title=titles.get(items[0], items[0]))
+    return UI_STRINGS["NOTIFY_MANY"].format(count=len(items))
 
 
 # ----------------------------------------------------------------------

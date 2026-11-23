@@ -15,6 +15,7 @@ import manifest
 from autoinstall import WINDOWS_DIR
 from config import SOURCES_PATH, Port, Repository, save_json
 from sources import DEFAULT_REPOS, GITLAB, entry_slug, load_entries, parse_repo, repo_address
+from strings import UI_BUTTONS, UI_STRINGS
 from theme import apply_theme, theme, theme_names
 from ui import BUTTON_AREA_HEIGHT, FOOTER_HEIGHT, STORE_ROW_HEIGHT
 
@@ -44,17 +45,20 @@ class View:
     def _draw_header(self, title: str) -> None:
         self.ui.draw_header(title, self.app.device.summary())
 
-    def _draw_button_bar(self, buttons: List[tuple]) -> None:
-        """buttons: (layout buttons separated by spaces, label) pairs"""
+    def _draw_version(self) -> None:
+        self.ui.draw_log(text=UI_STRINGS["VERSION"].format(version=self.app.updater.current_version))
+
+    def _draw_button_bar(self, *buttons: str, **values: str) -> None:
         x = 20
-        for keys, label in buttons:
-            group = [(self.app.layout[key]["btn"], getattr(theme, f"btn_{key}")) for key in keys.split()]
-            labels = [""] * (len(group) - 1) + [label]
+        for name in buttons:
+            button = UI_BUTTONS[name]
+            group = [(self.app.layout[key]["btn"], getattr(theme, f"btn_{key}")) for key in button["btn"].split()]
+            labels = [""] * (len(group) - 1) + [button["label"].format(**values)]
             # Small screens have no room for the last one
             if x + sum(self.ui.button_width(b[0], text) + 8 for b, text in zip(group, labels)) > self.ui.screen_width:
                 break
-            for (button, color), text in zip(group, labels):
-                end = self.ui.button_circle((x, self.ui.screen_height - 50), button, text, color)
+            for (btn, color), text in zip(group, labels):
+                end = self.ui.button_circle((x, self.ui.screen_height - 50), btn, text, color)
                 x = int(end) + 8
             x += 14
 
@@ -72,12 +76,12 @@ class View:
 # Repositories
 # ----------------------------------------------------------------------
 class RepoView(View):
-    MENU = ("Settings", "Exit")
+    MENU = ("MAIN_SETTINGS", "MAIN_EXIT")
 
     def __init__(self, app) -> None:
         super().__init__(app)
         self.idx = 0
-        self.selected = ""  # slug or menu label
+        self.selected = ""  # slug or MENU key
 
         # Loading spinner (only used during repo fetch)
         self.spinner = cycle(["|", "/", "-", "\\"])
@@ -103,42 +107,46 @@ class RepoView(View):
         return [r.slug for r in repos] + list(self.MENU)
 
     def draw(self) -> None:
-        self._draw_header("Select A Repository")
+        self._draw_header(UI_STRINGS["MAIN_HEADER"])
         repos = self._repos()
 
         loading = sum(not r.loaded for r in repos)
         if loading:
             self._spin()
-            self.ui.draw_log(text=f"{self.spinner_frame} Loading {loading} repo(s)...")
+            self.ui.draw_log(text=UI_STRINGS["MAIN_LOADING"].format(spinner=self.spinner_frame, count=loading))
         else:
             total_items = sum(len(self.app.visible(r)) for r in repos)
-            self.ui.draw_log(text=self.app.sources_error or f"Loaded {total_items} items in {len(repos)} repositories")
+            text = UI_STRINGS["MAIN_LOADED"].format(items=total_items, repos=len(repos))
+            if self.app.sources_error:
+                text = UI_STRINGS["SOURCES_READ_FAILED"].format(error=self.app.sources_error)
+            self.ui.draw_log(text=text)
 
         rows = [self._row_text(r) for r in repos]
         self._draw_rows(rows, self.idx, REPO_ROWS)
-        for i, label in enumerate(self.MENU):
-            self._draw_row(label, 352 + i * 30, self.idx == len(rows) + i)
+        for i, key in enumerate(self.MENU):
+            self._draw_row(UI_STRINGS[key], 352 + i * 30, self.idx == len(rows) + i)
 
-        self._draw_button_bar([("a", "Select"), ("b", "Exit"), ("l1 r1", "Pg Up/Dn")])
+        self._draw_button_bar("SELECT", "EXIT", "PAGE")
 
     def _row_text(self, repo: Repository) -> str:
         name = repo.slug if "owner" in self.app.details else repo.slug.rpartition("/")[2]
         if not repo.loaded:
-            return f"{name} (loading...)"
+            return UI_STRINGS["MAIN_REPO_LOADING"].format(name=name)
         if "count" not in self.app.details:
             return name
         shown = len(self.app.visible(repo))
         hidden = len(repo.items) - shown
-        return f"{name} ({shown} items{f', {hidden} hidden' if hidden else ''})"
+        key = "MAIN_REPO_HIDDEN" if hidden else "MAIN_REPO_COUNT"
+        return UI_STRINGS[key].format(name=name, shown=shown, hidden=hidden)
 
     def handle_input(self) -> None:
         repos = self._repos()
         rows = self._row_keys(repos)
         row = rows[self.idx]
         if self._pressed("a"):
-            if row == "Settings":
+            if row == "MAIN_SETTINGS":
                 self.app.push(SettingsView(self.app))
-            elif row == "Exit":
+            elif row == "MAIN_EXIT":
                 self._exit()
             elif repos[self.idx].loaded:
                 self.app.push(PortsView(self.app, repos[self.idx]))
@@ -159,20 +167,6 @@ class RepoView(View):
 # ----------------------------------------------------------------------
 class PortsView(View):
     VIEW_MODES = ("all", "updated", "new", "discount", "installed")
-    _VIEW_MODE_BTN_LABEL = {
-        "all": "All",
-        "updated": "Updated",
-        "new": "New",
-        "discount": "On Sale",
-        "installed": "Installed",
-    }
-    _VIEW_MODE_HEADER_SUFFIX = {
-        "all": "",
-        "updated": " - by last update",
-        "new": " - newest first",
-        "discount": " - biggest discount first",
-        "installed": "",
-    }
 
     def __init__(self, app, repo: Repository) -> None:
         super().__init__(app)
@@ -236,10 +230,8 @@ class PortsView(View):
     def draw(self) -> None:
         repo, mode = self.repo, self.app.view_mode
         items = self.items()
-        label = "installed" if mode == "installed" else "items"
-        suffix = self._VIEW_MODE_HEADER_SUFFIX[mode]
-        header_text = f"{len(items)} {label} in {repo.slug}{suffix}"
-        self._draw_header(header_text)
+        header = UI_STRINGS[f"PORTS_HEADER_{mode.upper()}"]
+        self._draw_header(header.format(count=len(items), repo=repo.slug))
 
         can_download = self._can_download()
 
@@ -269,9 +261,9 @@ class PortsView(View):
         # the port has stores, else the description gets the full vertical area).
         has_stores = bool(selected_item and selected_item.store)
         store_reserve = STORE_ROW_HEIGHT if has_stores else 0
-        if selected_item and selected_item.desc:
+        if selected_item:
             self.ui.draw_wrapped_text_centered(
-                selected_item.desc,
+                selected_item.desc or UI_STRINGS["PORTS_NO_DESCRIPTION"],
                 center_x=(self.ui.screen_width * 3 // 4 - 20),
                 start_y=400 - FOOTER_HEIGHT - BUTTON_AREA_HEIGHT - 5 - self.ui.desc_shift,
                 max_width=self.ui.screen_width // 2,
@@ -298,42 +290,38 @@ class PortsView(View):
             if stage == "download":
                 self.ui.draw_loader(self.progress_percent)
         elif not can_download:
-            bottom_log = f"ERROR: {WINDOWS_DIR} not found!"
+            bottom_log = UI_STRINGS["PORTS_NO_FOLDER"].format(folder=WINDOWS_DIR)
         elif selected_item and manifest.update_available(selected_item):
-            bottom_log = f"{selected_item.title} - Update available!"
+            bottom_log = UI_STRINGS["PORTS_UPDATE"].format(title=selected_item.title)
         elif selected_item and (unmet := self.app.device.unmet(selected_item)):
-            bottom_log = f"Not compatible. Needs {', '.join(unmet)}"
+            bottom_log = UI_STRINGS["PORTS_INCOMPATIBLE"].format(needs=", ".join(unmet))
         elif selected_item:
             bottom_log = selected_item.last_commit
         elif mode == "installed":
-            bottom_log = "No installed ports in this repository."
+            bottom_log = UI_STRINGS["PORTS_NONE_INSTALLED"]
         else:
-            bottom_log = "Nothing here is compatible with this device."
+            bottom_log = UI_STRINGS["PORTS_NONE_COMPATIBLE"]
 
         self.ui.draw_log(text=bottom_log)
 
         btns = []
         if can_download:
-            btns.append(("a", "Download"))
+            btns.append("DOWNLOAD")
 
-        btns.append(("b", "Back"))
+        btns.append("BACK")
 
         # X toggles per-port mute - only meaningful for ports in the local
         # manifest; nothing to mute otherwise.
         if selected_item and manifest.entry_for(selected_item):
-            x_label = "Unmute" if manifest.is_muted(selected_item) else "Mute"
-            btns.append(("x", x_label))
+            btns.append("UNMUTE" if manifest.is_muted(selected_item) else "MUTE")
 
-        btns.append(("y", f"Filter: {self._VIEW_MODE_BTN_LABEL[mode]}"))
-        btns.append(("l1 r1", "Pg Up/Dn"))
-
-        self._draw_button_bar(btns)
+        self._draw_button_bar(*btns, "FILTER", "PAGE", filter=UI_STRINGS[f"PORTS_FILTER_{mode.upper()}"])
 
     def _row_text(self, port: Port) -> str:
         extras = {
-            "size": f"{port.size / (1024 * 1024):.2f} MB" if port.size else "",
+            "size": UI_STRINGS["PORTS_SIZE"].format(size=port.size / (1024 * 1024)) if port.size else "",
             "date": (port.date_updated or "")[:10],
-            "installed": "installed" if manifest.entry_for(port) else "",
+            "installed": UI_STRINGS["PORTS_INSTALLED"] if manifest.entry_for(port) else "",
         }
         return port.title + "".join(f" [{text}]" for key, text in extras.items() if text and key in self.app.details)
 
@@ -403,8 +391,8 @@ class PortsView(View):
                     self.app,
                     self,
                     enqueue,
-                    f"This port isn't compatible with this device. Needs {', '.join(unmet)}.",
-                    "Download anyway?",
+                    UI_STRINGS["PORTS_WARNING"].format(needs=", ".join(unmet)),
+                    UI_STRINGS["PORTS_WARNING_PROMPT"],
                 )
             )
         else:
@@ -438,7 +426,7 @@ class ConfirmView(View):
                 (ui.screen_width // 2 - ui.get_text_width(line) // 2, y + 12 + i * line_h), line, theme.popup_text
             )
         ui.draw_rectangle((0, ui.screen_height - 64, ui.screen_width, 64 - ui.footer_height), fill=theme.background)
-        self._draw_button_bar([("a", "Yes"), ("b", "No")])
+        self._draw_button_bar("YES", "NO")
 
     def handle_input(self) -> None:
         if self._pressed("a"):
@@ -454,11 +442,11 @@ class ConfirmView(View):
 # Settings
 # ----------------------------------------------------------------------
 def _check(label: str, checked: bool) -> str:
-    return f"[{'x' if checked else ' '}] {label}"
+    return UI_STRINGS["CHECK_ON" if checked else "CHECK_OFF"].format(label=label)
 
 
 class MenuView(View):
-    TITLE = ""
+    HEADER = ""
     SPLIT = 0  # rows above the gap
 
     def __init__(self, app) -> None:
@@ -471,10 +459,12 @@ class MenuView(View):
         raise NotImplementedError
 
     def draw(self) -> None:
-        self._draw_header(self.TITLE)
+        self._draw_header(UI_STRINGS[self.HEADER])
         self._draw_rows([label for label, _ in self._rows()], self.idx, MAX_ROWS, split=self.SPLIT)
-        self.ui.draw_log(text=self.msg or f"Pharos v{self.app.updater.current_version}")
-        self._draw_button_bar([("a", "Select"), ("b", "Back")])
+        self._draw_version()
+        if self.msg:
+            self.ui.draw_log(text=self.msg)
+        self._draw_button_bar("SELECT", "BACK")
 
     def handle_input(self) -> None:
         rows = self._rows()
@@ -487,39 +477,36 @@ class MenuView(View):
 
 
 class SettingsView(MenuView):
-    TITLE = "Settings"
+    HEADER = "SETTINGS_HEADER"
     SPLIT = 2
 
     def _rows(self) -> List[tuple]:
         app = self.app
         return [
+            (_check(UI_STRINGS["SETTINGS_HIDE_INCOMPATIBLE"], app.hide_incompatible), app.toggle_hide_incompatible),
+            (_check(UI_STRINGS["SETTINGS_OVERRIDE"], app.override_device_info), app.toggle_override_device_info),
+            (UI_STRINGS["SETTINGS_SOURCES"], lambda: app.push(SourcesView(app))),
+            (UI_STRINGS["SETTINGS_DETAILS"], lambda: app.push(DetailsView(app))),
             (
-                _check("Filter out ports that aren't compatible with this device", app.hide_incompatible),
-                app.toggle_hide_incompatible,
+                UI_STRINGS["SETTINGS_SERVICE"].format(status=app.service.status_text()),
+                lambda: app.push(ServiceView(app)),
             ),
-            (_check("Override PortMaster's device info", app.override_device_info), app.toggle_override_device_info),
-            ("Sources", lambda: app.push(SourcesView(app))),
-            ("List Details", lambda: app.push(DetailsView(app))),
-            (f"Pharos Service: {app.service.status_text()}", lambda: app.push(ServiceView(app))),
-            (f"Theme: {app.theme}", lambda: app.push(ThemesView(app))),
-            ("Device Info", lambda: app.push(DeviceView(app))),
+            (UI_STRINGS["SETTINGS_THEME"].format(name=app.theme), lambda: app.push(ThemesView(app))),
+            (UI_STRINGS["SETTINGS_DEVICE"], lambda: app.push(DeviceView(app))),
         ]
 
 
 class DetailsView(MenuView):
-    TITLE = "List Details"
-    OPTIONS = (
-        ("size", "Ports and bottles: size"),
-        ("date", "Ports and bottles: last updated"),
-        ("installed", "Ports and bottles: installed"),
-        ("owner", "Repositories: owner"),
-        ("count", "Repositories: number of items"),
-    )
+    HEADER = "DETAILS_HEADER"
+    OPTIONS = ("size", "date", "installed", "owner", "count")
 
     def _rows(self) -> List[tuple]:
         return [
-            (_check(label, key in self.app.details), lambda key=key: self.app.toggle_detail(key))
-            for key, label in self.OPTIONS
+            (
+                _check(UI_STRINGS[f"DETAILS_{key.upper()}"], key in self.app.details),
+                lambda key=key: self.app.toggle_detail(key),
+            )
+            for key in self.OPTIONS
         ]
 
 
@@ -530,23 +517,23 @@ class ThemesView(View):
         self.idx = self.names.index(app.theme) if app.theme in self.names else 0
 
     def draw(self) -> None:
-        self._draw_header("Theme")
+        self._draw_header(UI_STRINGS["THEMES_HEADER"])
         ui = self.ui
         width = ui.screen_width // 3
         self._draw_rows(self.names, self.idx, MAX_ROWS, width)
 
         x = width + 50
-        ui.row_list("Update available", (x, 60), width, 28, highlight=True)
-        ui.row_list("Muted", (x, 90), width, 28, muted=True)
+        ui.row_list(UI_STRINGS["THEMES_UPDATE"], (x, 60), width, 28, highlight=True)
+        ui.row_list(UI_STRINGS["THEMES_MUTED"], (x, 90), width, 28, muted=True)
         ui.draw_text((x, 135), "-60%", theme.discount)
-        ui.draw_text((x, 165), "Text")
+        ui.draw_text((x, 165), UI_STRINGS["THEMES_TEXT"])
         ui.draw_rectangle((x, 215, width, 60), fill=theme.popup_border)
         ui.draw_rectangle((x + 2, 217, width - 4, 56), fill=theme.popup_bg)
-        ui.draw_text((x + 12, 236), "Popup", theme.popup_text)
+        ui.draw_text((x + 12, 236), UI_STRINGS["THEMES_POPUP"], theme.popup_text)
 
-        ui.draw_log(text=f"Pharos v{self.app.updater.current_version}")
+        self._draw_version()
         ui.draw_loader(60)
-        self._draw_button_bar([("a", "Select"), ("b", "Back"), ("x", ""), ("y", ""), ("l1 r1", "Pg Up/Dn")])
+        self._draw_button_bar("SELECT", "BACK", "SAMPLE_X", "SAMPLE_Y", "PAGE")
 
     def handle_input(self) -> None:
         if self._pressed("a"):
@@ -578,7 +565,7 @@ class SourcesView(View):
         except (OSError, ValueError) as e:
             self.broken = SOURCES_PATH.exists()
             self.entries = []
-            self.msg = f"Can't read sources.json: {e}"
+            self.msg = UI_STRINGS["SOURCES_READ_FAILED"].format(error=e)
 
     def _slugs(self) -> List[str]:
         return [(entry_slug(e) or "").lower() for e in self.entries]
@@ -594,21 +581,21 @@ class SourcesView(View):
                 self.broken = False
             save_json(SOURCES_PATH, self.entries)
         except OSError as e:
-            self.msg = f"Can't save sources.json: {e.strerror}"
+            self.msg = UI_STRINGS["SOURCES_SAVE_FAILED"].format(error=e.strerror)
 
     def _row_text(self, entry) -> str:
         slug = entry_slug(entry)
         if not slug:
-            return f"[ ] {ascii(entry)[:100]}"
+            return _check(ascii(entry)[:100], False)
         return _check(slug, entry.get("enabled", True))
 
     def draw(self) -> None:
-        self._draw_header("Sources")
+        self._draw_header(UI_STRINGS["SOURCES_HEADER"])
         count = len(self.entries)
         rows = (
             [self._row_text(e) for e in self.entries]
-            + ["Add a repository"]
-            + [f"Add {slug}" for slug in self._missing()]
+            + [UI_STRINGS["SOURCES_ADD"]]
+            + [UI_STRINGS["SOURCES_ADD_DEFAULT"].format(repo=slug) for slug in self._missing()]
         )
         start = max(0, self.idx - MAX_ROWS + 1)
         for i, text in enumerate(rows[start : start + MAX_ROWS]):
@@ -624,19 +611,19 @@ class SourcesView(View):
                 muted=start + i < count and not entry_slug(self.entries[start + i]),
             )
         if self.checking:
-            self.ui.draw_log(text=f"Checking {self.checking[0].slug}...")
-            self._draw_button_bar([("b", "Cancel")])
+            self.ui.draw_log(text=UI_STRINGS["SOURCES_CHECKING"].format(repo=self.checking[0].slug))
+            self._draw_button_bar("CANCEL")
         elif self.moving is not None:
-            self.ui.draw_log(text="Move with up and down")
-            self._draw_button_bar([("a", "Drop"), ("b", "Cancel")])
+            self.ui.draw_log(text=UI_STRINGS["SOURCES_MOVING"])
+            self._draw_button_bar("DROP", "CANCEL")
         else:
             self.ui.draw_log(text=self.msg)
-            buttons = [("b", "Back"), ("x", "Edit"), ("y", "Move")]
+            buttons = ["BACK", "EDIT", "MOVE"]
             if self.idx >= count:
-                buttons = [("a", "Add"), ("b", "Back")]
+                buttons = ["ADD", "BACK"]
             elif entry_slug(self.entries[self.idx]):
-                buttons.insert(0, ("a", "Off" if self._enabled() else "On"))
-            self._draw_button_bar(buttons)
+                buttons.insert(0, "OFF" if self._enabled() else "ON")
+            self._draw_button_bar(*buttons)
 
     def _enabled(self) -> bool:
         return bool(self.entries[self.idx].get("enabled", True))
@@ -695,7 +682,7 @@ class SourcesView(View):
             return ""
         slugs = self._slugs()
         if slug.lower() in slugs and slugs.index(slug.lower()) != idx:
-            return "That repository is already in the list"
+            return UI_STRINGS["SOURCES_DUPLICATE"]
         self.checking = (self.app.fetch_repo(slug), idx)
         return ""
 
@@ -709,15 +696,15 @@ class SourcesView(View):
             if repo.items:
                 self.app.repositories.append(repo)  # so it isn't fetched again
                 self._put(repo.slug, idx)
-                self.msg = self.msg or f"{len(repo.items)} items found"
+                self.msg = self.msg or UI_STRINGS["SOURCES_FOUND"].format(count=len(repo.items))
             else:
                 self.app.push(
                     ConfirmView(
                         self.app,
                         self,
                         lambda: self._put(repo.slug, idx),
-                        f"Nothing found in {repo.slug}.",
-                        "Use it anyway?",
+                        UI_STRINGS["SOURCES_NOTHING_FOUND"].format(repo=repo.slug),
+                        UI_STRINGS["SOURCES_NOTHING_FOUND_PROMPT"],
                         on_no=lambda: self.edit(idx, repo.slug),
                     )
                 )
@@ -737,7 +724,7 @@ class SourcesView(View):
 
 
 class SourceView(MenuView):
-    TITLE = "Source"
+    HEADER = "SOURCE_HEADER"
 
     def __init__(self, app, sources: SourcesView, entry: int) -> None:
         super().__init__(app)
@@ -746,7 +733,7 @@ class SourceView(MenuView):
         self.slug = self.msg = entry_slug(sources.entries[entry]) or ""
 
     def _rows(self) -> List[tuple]:
-        return [("Edit", self._edit), ("Delete", self._delete)]
+        return [(UI_STRINGS["SOURCE_EDIT"], self._edit), (UI_STRINGS["SOURCE_DELETE"], self._delete)]
 
     def _edit(self) -> None:
         self.app.pop()
@@ -759,14 +746,14 @@ class SourceView(MenuView):
                 self.app,
                 self.sources,
                 lambda: self.sources.delete(self.entry),
-                f"Delete {self.slug or 'this source'}? Its ports stay installed.",
+                UI_STRINGS["SOURCE_DELETE_PROMPT"].format(repo=self.slug or UI_STRINGS["SOURCE_UNREADABLE"]),
             )
         )
 
 
 class KeyboardView(View):
     ROWS = ("1234567890", "qwertyuiop", "asdfghjkl-", "zxcvbnm._/")
-    ACTIONS = ("Shift", "Cancel", "Done (Start)")
+    ACTIONS = ("KEYBOARD_SHIFT", "KEYBOARD_CANCEL", "KEYBOARD_DONE")
     GITHUB = "github.com/"
 
     def __init__(self, app, slug: str, on_done) -> None:
@@ -780,7 +767,7 @@ class KeyboardView(View):
 
     def draw(self) -> None:
         ui = self.ui
-        self._draw_header("Repository")
+        self._draw_header(UI_STRINGS["KEYBOARD_HEADER"])
         text = f"https://{self.host}{self.text}_"
         while ui.get_text_width(text) > ui.screen_width - 64 and len(text) > 1:
             text = text[1:]
@@ -790,11 +777,11 @@ class KeyboardView(View):
             for c, key in enumerate(keys):
                 self._draw_key(key.upper() if self.shift else key, 20 + c * w, 110 + r * 52, w - 4, (r, c))
         w = (ui.screen_width - 40) // len(self.ACTIONS)
-        for c, label in enumerate(self.ACTIONS):
-            self._draw_key(label, 20 + c * w, 110 + 4 * 52, w - 4, (4, c))
+        for c, action in enumerate(self.ACTIONS):
+            self._draw_key(UI_STRINGS[action], 20 + c * w, 110 + 4 * 52, w - 4, (4, c))
         ui.draw_log(text=self.msg)
-        other = "GitLab" if self.host == self.GITHUB else "GitHub"
-        self._draw_button_bar([("a", "Type"), ("b", "Delete" if self.text else "Cancel"), ("x", "Shift"), ("y", other)])
+        other = "GITLAB" if self.host == self.GITHUB else "GITHUB"
+        self._draw_button_bar("TYPE", "DELETE" if self.text else "CANCEL", "SHIFT", other)
 
     def _draw_key(self, label: str, x: int, y: int, w: int, at: tuple) -> None:
         ui = self.ui
@@ -840,16 +827,16 @@ class KeyboardView(View):
         if self.row < len(self.ROWS):
             key = self.ROWS[self.row][self.col]
             self.text += key.upper() if self.shift else key
-        elif self.ACTIONS[self.col] == "Shift":
+        elif self.ACTIONS[self.col] == "KEYBOARD_SHIFT":
             self.shift = not self.shift
-        elif self.ACTIONS[self.col] == "Cancel":
+        elif self.ACTIONS[self.col] == "KEYBOARD_CANCEL":
             self.app.pop()
         else:
             self._done()
 
     def _done(self) -> None:
         slug = parse_repo(f"https://{self.host}{self.text}")
-        self.msg = self.on_done(slug) if slug else "Enter owner/name"
+        self.msg = self.on_done(slug) if slug else UI_STRINGS["KEYBOARD_INVALID"]
         if not self.msg:
             self.app.pop()
 
@@ -859,15 +846,15 @@ class KeyboardView(View):
 # ----------------------------------------------------------------------
 class DeviceView(View):
     def draw(self) -> None:
-        self._draw_header("Device Info")
+        self._draw_header(UI_STRINGS["DEVICE_HEADER"])
         rows = self.app.device.rows()
         value_x = 40 + max(self.ui.get_text_width(label) for label, _ in rows)
         for i, (label, value) in enumerate(rows):
             y = 36 + i * (self.ui.font_size + 10)
             self.ui.draw_text((20, y), label, theme.label)
             self.ui.draw_text((value_x, y), value)
-        self.ui.draw_log(text=f"Pharos v{self.app.updater.current_version}")
-        self._draw_button_bar([("b", "Back")])
+        self._draw_version()
+        self._draw_button_bar("BACK")
 
     def handle_input(self) -> None:
         if self._pressed("b"):
@@ -885,20 +872,14 @@ class ServiceView(View):
 
     def draw(self) -> None:
         sw = self.ui.screen_width
-        self._draw_header("Pharos Service")
+        self._draw_header(UI_STRINGS["SERVICE_HEADER"])
 
         installed = self.service.installed
         supported = self.service.supported
 
-        description = (
-            "Pharos Service is a small background daemon that watches the repos in sources.json "
-            "for port updates without you having to open Pharos.",
-            "It runs at boot, fires a notification if any installed ports are out of date, "
-            "and re-checks whenever you exit a game. Notifications appear as an EmulationStation toast.",
-        )
         y = 50
-        for paragraph in description:
-            for line in self.ui.wrap_text(paragraph, min(sw - 80, 460)):
+        for key in ("SERVICE_ABOUT", "SERVICE_ABOUT_BOOT"):
+            for line in self.ui.wrap_text(UI_STRINGS[key], min(sw - 80, 460)):
                 self.ui.draw_text((40, y), line)
                 y += self.ui.font_size + 10
             y += self.ui.font_size
@@ -915,15 +896,14 @@ class ServiceView(View):
         if self.msg:
             self.ui.draw_log(text=self.msg)
         elif not supported:
-            self.ui.draw_log(text="This CFW isn't supported yet.")
+            self.ui.draw_log(text=UI_STRINGS["SERVICE_UNSUPPORTED_FOOTER"])
         else:
-            self.ui.draw_log(text=("Press A to install" if not installed else "Press A to uninstall"))
+            self.ui.draw_log(text=UI_STRINGS["SERVICE_UNINSTALL_PROMPT" if installed else "SERVICE_INSTALL_PROMPT"])
 
-        btns = [("b", "Back")]
+        btns = ["BACK"]
         if supported:
-            label = "Uninstall" if installed else "Install"
-            btns.insert(0, ("a", label))
-        self._draw_button_bar(btns)
+            btns.insert(0, "UNINSTALL" if installed else "INSTALL")
+        self._draw_button_bar(*btns)
 
     def handle_input(self) -> None:
         if self._pressed("b"):
@@ -936,13 +916,13 @@ class ServiceView(View):
         if self._pressed("a"):
             # install/uninstall blocks for a couple seconds (systemctl /
             # batocera-settings / filesystem); show a transient "Working..." hint.
-            self.ui.draw_log(text="Working...")
+            self.ui.draw_log(text=UI_STRINGS["SERVICE_WORKING"])
             self.ui.render_to_screen()
             if self.service.installed:
                 ok, msg = self.service.uninstall()
             else:
                 ok, msg = self.service.install()
-            self.msg = ("[OK] " if ok else "[ERR] ") + msg
+            self.msg = UI_STRINGS["SERVICE_OK" if ok else "SERVICE_ERROR"].format(msg=msg)
             self.input.begin_frame()  # drop presses made meanwhile
 
 
@@ -956,35 +936,31 @@ class UpdateView(View):
 
     def draw(self) -> None:
         sw, sh = self.ui.screen_width, self.ui.screen_height
-        self._draw_header("Pharos Update Available")
+        self._draw_header(UI_STRINGS["UPDATE_HEADER"])
 
-        line1 = f"v{self.updater.current_version}  ->  v{self.updater.latest_version}"
-        line2 = "Download and install the new version?"
+        line1 = UI_STRINGS["UPDATE_VERSIONS"].format(
+            current=self.updater.current_version, latest=self.updater.latest_version
+        )
+        line2 = UI_STRINGS["UPDATE_PROMPT"]
         for i, line in enumerate((line1, line2)):
             w = self.ui.get_text_width(line)
             x = max(20, sw // 2 - w // 2)
             y = sh // 2 - 30 + i * 24
             self.ui.draw_text((x, y), line)
 
-        self.ui.draw_log(text=f"Pharos update v{self.updater.latest_version} available.")
+        self.ui.draw_log(text=UI_STRINGS["UPDATE_FOOTER"].format(latest=self.updater.latest_version))
 
-        btns = [
-            ("a", "Yes"),
-            ("b", "No"),
-        ]
-        self._draw_button_bar(btns)
+        self._draw_button_bar("YES", "NO")
 
     def handle_input(self) -> None:
         if self._pressed("a"):
             if self.updater.download():
-                self.ui.draw_log(
-                    text=f"Pharos v{self.updater.latest_version} downloaded - applying and re-launching..."
-                )
+                self.ui.draw_log(text=UI_STRINGS["UPDATE_DOWNLOADED"].format(latest=self.updater.latest_version))
                 self.ui.render_to_screen()
                 sdl2.SDL_Delay(2000)
                 self.app.running = False
             else:
-                self.ui.draw_log(text="Update not ready (still publishing?) - try again in a few minutes.")
+                self.ui.draw_log(text=UI_STRINGS["UPDATE_NOT_READY"])
                 self.ui.render_to_screen()
                 sdl2.SDL_Delay(1500)
                 self.app.pop()

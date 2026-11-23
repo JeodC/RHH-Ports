@@ -23,6 +23,7 @@ from cfw import set_device_override
 from config import INSTALL_DIR, SOURCES_PATH, get_controller_layout, get_setting, put_setting, Repository, Port
 from device import Device
 from input import Input
+from strings import UI_STRINGS
 from theme import DEFAULT_THEME, apply_theme
 from ui import UserInterface
 from download import Downloader, controlfolder, fetch
@@ -148,11 +149,11 @@ class Pharos:
             found = set_device_override(controlfolder, script if self.override_device_info else "")
         except OSError as e:
             print(f"[DEVICE] Can't change the device info cache: {e}")
-            return f"Can't change the device info cache: {e.strerror}"
+            return UI_STRINGS["OVERRIDE_FAILED"].format(error=e.strerror)
         if self.override_device_info and get_setting("controlfolder", "") != controlfolder:
             put_setting("controlfolder", controlfolder)  # for the daemon
         if self.override_device_info and not found:
-            return "No device info cache found."
+            return UI_STRINGS["OVERRIDE_NO_CACHE"]
         return ""
 
     # ------------------------------------------------------------------
@@ -200,8 +201,8 @@ class Pharos:
         try:
             slugs = read_sources(SOURCES_PATH, warn=lambda msg: print(f"[Sources] {msg}"))
         except (OSError, ValueError) as e:
-            self.sources_error = f"Can't read sources.json: {e}"
-            print(f"[Sources] {self.sources_error}")
+            self.sources_error = str(e)
+            print(f"[Sources] Can't read sources.json: {e}")
             return
         self.sources_error = ""
         # Ones that failed are fetched again
@@ -249,7 +250,7 @@ class Pharos:
         return Port(
             name=name,
             title=_text(attr.get("title")) or name,
-            desc=_text(attr.get("desc")) or "Missing description",
+            desc=_text(attr.get("desc")),
             download_url=_text(src.get("download_url")) or _text(src.get("url")),
             size=src["size"] if isinstance(src.get("size"), int) else None,
             md5=_text(src.get("md5")),

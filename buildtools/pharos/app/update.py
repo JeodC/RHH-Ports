@@ -20,6 +20,7 @@ import __version__
 from config import DATA_DIR
 from download import fetch, md5_file, progress_text, stream
 from sources import catalog_entries
+from strings import UI_STRINGS
 
 # ----------------------------------------------------------------------
 # Where Pharos publishes from. Hardcoded, unlike sources.json for ports.
@@ -136,5 +137,6 @@ class Update:
     def _show_progress(self, downloaded: int, total: int, speed: float) -> None:
         if total:
             self.ui.draw_loader(downloaded / total * 100)
-        self.ui.draw_log(text=progress_text(f"Downloading Pharos v{self.latest_version}...", downloaded, total, speed))
+        label = UI_STRINGS["UPDATE_DOWNLOADING"].format(latest=self.latest_version)
+        self.ui.draw_log(text=progress_text(label, downloaded, total, speed))
         self.ui.render_to_screen()

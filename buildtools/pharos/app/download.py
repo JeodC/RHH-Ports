@@ -21,6 +21,7 @@ import manifest
 from config import DATA_DIR, Port
 from autoinstall import AutoInstaller
 from sources import runtime_catalog_urls
+from strings import UI_STRINGS
 
 # ----------------------------------------------------------------------
 # Paths
@@ -47,8 +48,8 @@ PROGRESS_INTERVAL = 0.1  # seconds
 def progress_text(prefix: str, downloaded: int, total: int, speed: float) -> str:
     """A percentage when the server sent a size, transferred bytes when it did not."""
     if total:
-        return f"{prefix} ({downloaded / total * 100:.1f}%) - {speed:.2f} MB/s"
-    return f"{prefix} ({downloaded / (1024 * 1024):.1f} MB) - {speed:.2f} MB/s"
+        return UI_STRINGS["DOWNLOAD_PERCENT"].format(label=prefix, percent=downloaded / total * 100, speed=speed)
+    return UI_STRINGS["DOWNLOAD_SIZE"].format(label=prefix, size=downloaded / (1024 * 1024), speed=speed)
 
 
 def _check_free_space(dest_dir: Path, needed: int) -> None:
@@ -62,7 +63,7 @@ def _check_free_space(dest_dir: Path, needed: int) -> None:
         mount = mount.parent
     raise OSError(
         errno.ENOSPC,
-        f"No space on {mount} (need {needed / (1024 * 1024):.0f} MB, {free / (1024 * 1024):.0f} MB free)",
+        UI_STRINGS["DOWNLOAD_NO_SPACE"].format(mount=mount, needed=needed / (1024 * 1024), free=free / (1024 * 1024)),
     )
 
 
@@ -106,7 +107,7 @@ def stream(
                     on_progress(downloaded, total, downloaded / (1024 * 1024) / (now - start))
         # A dropped connection ends read() early instead of raising
         if total and downloaded != total:
-            raise ConnectionError(f"Connection dropped at {downloaded / total * 100:.0f}%")
+            raise ConnectionError(UI_STRINGS["DOWNLOAD_DROPPED"].format(percent=downloaded / total * 100))
         return etag
 
 
@@ -207,7 +208,7 @@ class Downloader:
         try:
             for zip_file in zip_files:
                 name = zip_file.name
-                self.progress_q.put((0, 1, f"Installing {name}", "install"))
+                self.progress_q.put((0, 1, UI_STRINGS["INSTALL_RUNNING"].format(name=name), "install"))
                 entry = self._downloaded.pop(name, None)
                 if self.installer.install_zip(name) != 0:
                     failed.append(name)
@@ -218,7 +219,9 @@ class Downloader:
                         print(f"[ERROR] Manifest update failed: {e}")
         finally:
             self.installing = False
-        status = f"[ERROR] Install failed: {', '.join(failed)}" if failed else "Installation complete"
+        status = UI_STRINGS["INSTALL_DONE"]
+        if failed:
+            status = UI_STRINGS["INSTALL_FAILED"].format(names=", ".join(failed))
         self.progress_q.put((0, 1, status, "install"))
 
     # ------------------------------------------------------------------
@@ -251,18 +254,20 @@ class Downloader:
 
             url = self._runtime_urls(port.repo).get(rt_name) or f"{port.runtime_base_url}/{rt_name}"
             print(f"[RUNTIME] Downloading {rt_name} from {url}")
-            self.progress_q.put((0, 1, f"Runtime: {rt_name}", "download"))
+            label = UI_STRINGS["DOWNLOAD_RUNTIME"].format(name=rt_name)
+            self.progress_q.put((0, 1, label, "download"))
             tmp_path = rt_path.with_name(rt_name + ".tmp")
 
             try:
-                stream(url, tmp_path, self._progress(f"Runtime: {rt_name}"))
+                stream(url, tmp_path, self._progress(label))
                 os.replace(tmp_path, rt_path)
                 self._record_runtime(rt_name, rt_path)
-                self.progress_q.put((1, 1, f"Runtime installed: {rt_name}", "download"))
+                self.progress_q.put((1, 1, UI_STRINGS["DOWNLOAD_RUNTIME_DONE"].format(name=rt_name), "download"))
                 print(f"[RUNTIME] Installed {rt_name}")
             except Exception as e:
                 print(f"[RUNTIME ERROR] {rt_name}: {type(e).__name__}: {e}")
-                self.progress_q.put((0, 1, _error_text(e, f"Runtime failed: {rt_name}"), "download"))
+                failed = UI_STRINGS["DOWNLOAD_RUNTIME_FAILED"].format(name=rt_name)
+                self.progress_q.put((0, 1, _error_text(e, failed), "download"))
                 with suppress(OSError):
                     tmp_path.unlink()
 
@@ -306,7 +311,7 @@ class Downloader:
             etag = stream(
                 f"{GMTOOLKIT_RELEASE_URL}/{zip_name}",
                 zip_tmp,
-                self._progress("gmtoolkit"),
+                self._progress(UI_STRINGS["DOWNLOAD_GMTOOLKIT"]),
                 known_etag=etag,
                 space=2,
             )
@@ -322,13 +327,13 @@ class Downloader:
             # Record installed version so future runs detect staleness.
             with manifest.edit() as data:
                 data["gmtoolkit"] = {"etag": etag}
-            self.progress_q.put((1, 1, "gmtoolkit installed", "download"))
+            self.progress_q.put((1, 1, UI_STRINGS["DOWNLOAD_GMTOOLKIT_DONE"], "download"))
             print(f"[GMTOOLKIT] Installed {dest}")
         except Exception as e:
             print(f"[GMTOOLKIT ERROR] {type(e).__name__}: {e}")
             # An older copy still works
             if not dest.exists():
-                self.progress_q.put((0, 1, _error_text(e, "gmtoolkit failed"), "download"))
+                self.progress_q.put((0, 1, _error_text(e, UI_STRINGS["DOWNLOAD_GMTOOLKIT_FAILED"]), "download"))
         finally:
             with suppress(OSError):
                 zip_tmp.unlink()
@@ -344,7 +349,7 @@ class Downloader:
             stream(port.download_url, tmp_path, self._progress(port.title))
             os.replace(tmp_path, zip_path)
             size = zip_path.stat().st_size
-            self.progress_q.put((size, size, f"Downloaded: {port.title}", "download"))
+            self.progress_q.put((size, size, UI_STRINGS["DOWNLOAD_DONE"].format(title=port.title), "download"))
 
             entry = asdict(port)
             entry.update(md5=md5_file(zip_path), size=size)
@@ -367,5 +372,5 @@ class Downloader:
         return report
 
     def _fail(self, port: Port, message: str) -> None:
-        self.progress_q.put((0, 1, f"Failed {port.name}.zip: {message}", "download"))
+        self.progress_q.put((0, 1, UI_STRINGS["DOWNLOAD_FAILED"].format(name=port.name, error=message), "download"))
         print(f"[ERROR] {message}")

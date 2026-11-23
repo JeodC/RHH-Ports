@@ -14,24 +14,13 @@ from typing import List
 
 from autoinstall import PORTS_DIR
 from config import Port
+from strings import UI_REQS, UI_STRINGS
 
 ARMHF_LOADER = "/lib/ld-linux-armhf.so.3"
 DISK_REFRESH = 5  # seconds
 
 # REQS_MAP in buildtools/generate_pm_catalog.py
 REQ_ALIASES = {"!lowpower": "power"}
-REQ_TEXT = {
-    "power": "a faster CPU",
-    "ultra": "a high-end device",
-    "hires": "a larger screen",
-    "wide": "a wide screen",
-    "!lowres": "a 640x480 screen",
-    "opengl": "OpenGL",
-    "vulkan": "Vulkan",
-    "analog_1": "an analog stick",
-    "analog_1|analog_2": "an analog stick",
-    "analog_2": "two analog sticks",
-}
 ASPECTS = {"1:1": 1, "4:3": 4 / 3, "3:2": 3 / 2, "16:9": 16 / 9}
 SCREEN_CAPS = re.compile(r"\d+x\d+|\d+:\d+|hires|lowres|wide|square")
 
@@ -153,9 +142,9 @@ class Device:
     def unmet(self, port: Port) -> List[str]:
         out = []
         if port.arch and not any(a.lower() in self.caps for a in port.arch):
-            out.append(" or ".join(port.arch))
+            out.append(UI_STRINGS["OR"].join(port.arch))
         if self._glibc and _version(port.min_glibc) > self._glibc:
-            out.append(f"glibc {port.min_glibc}")
+            out.append(UI_REQS["glibc"].format(version=port.min_glibc))
         for req in port.reqs:
             req = REQ_ALIASES.get(req.lower(), req.lower())
             names = [n for n in req.lstrip("!").split("|") if n]
@@ -166,55 +155,61 @@ class Device:
     @staticmethod
     def _req_text(req: str) -> str:
         if re.fullmatch(r"\d+gb", req):
-            return f"{req[:-2]} GB RAM"
-        return REQ_TEXT.get(req) or (
-            f"a device other than {req[1:]}" if req.startswith("!") else req.replace("|", " or ")
-        )
+            return UI_REQS["ram"].format(gb=req[:-2])
+        if req not in UI_REQS and req.startswith("!"):
+            return UI_REQS["not"].format(name=req[1:])
+        return UI_REQS.get(req) or req.replace("|", UI_STRINGS["OR"])
 
     # ------------------------------------------------------------------
     # Info
     # ------------------------------------------------------------------
     def _differences(self) -> dict[str, str]:
         reported = {
-            "Screen": "x".join(filter(None, (_reported("DISPLAY_WIDTH"), _reported("DISPLAY_HEIGHT")))),
-            "32-bit": {"Y": "yes", "N": "no"}.get(_reported("DEVICE_HAS_ARMHF"), ""),
-            "glibc": re.sub(r"^(\d)(\d+)$", r"\1.\2", _portmaster("CFW_GLIBC")),
+            "DEVICE_SCREEN": "x".join(filter(None, (_reported("DISPLAY_WIDTH"), _reported("DISPLAY_HEIGHT")))),
+            "DEVICE_ARMHF": {"Y": UI_STRINGS["YES"], "N": UI_STRINGS["NO"]}.get(_reported("DEVICE_HAS_ARMHF"), ""),
+            "DEVICE_GLIBC": re.sub(r"^(\d)(\d+)$", r"\1.\2", _portmaster("CFW_GLIBC")),
         }
         measured = {
-            "Screen": "{}x{}".format(*self.size),
-            "32-bit": "yes" if self.armhf else "no",
-            "glibc": self.glibc,
+            "DEVICE_SCREEN": "{}x{}".format(*self.size),
+            "DEVICE_ARMHF": UI_STRINGS["YES" if self.armhf else "NO"],
+            "DEVICE_GLIBC": self.glibc,
         }
         return {k: v for k, v in reported.items() if v and measured[k] and v != measured[k]}
 
     def _log(self) -> None:
-        print(f"[DEVICE] {'; '.join(f'{label}: {value}' for label, value in self.rows())}")
+        print(f"[DEVICE] {'; '.join(f'{key}: {value}' for key, value in self._values().items())}")
         print(f"[DEVICE] Capabilities: {' '.join(sorted(self.caps))}")
-        for label, value in self._differences().items():
-            print(f"[DEVICE] PortMaster has {label} {value}")
+        for key, value in self._differences().items():
+            print(f"[DEVICE] PortMaster has {key} {value}")
 
     def rows(self) -> List[tuple[str, str]]:
-        w, h = self.size
+        return [(UI_STRINGS[key], value) for key, value in self._values().items()]
+
+    def _values(self) -> dict[str, str]:
         differences = self._differences()
         values = {
-            "CFW": f"{self.cfw} {_portmaster('CFW_VERSION')}",
-            "Device": _portmaster("DEVICE_NAME") or _read("/proc/device-tree/model"),
-            "CPU": f"{self.cpu} ({self.arch})",
-            "32-bit": "yes" if self.armhf else "no",
-            "RAM": f"{self.ram_gb} GB" if self.ram_gb else "",
-            "GPU": f"{_portmaster('GPU_DRIVER')} {_portmaster('GPU_DRIVER_VERSION')}",
-            "Screen": f"{w}x{h} ({_aspect(w, h)}), {self.refresh_rate} Hz" if w and h else "",
-            "Analog sticks": self.sticks,
-            "Storage": self._storage_text(),
-            "glibc": self.glibc,
-            "Kernel": platform.release(),
-            "PortMaster": _portmaster("PM_VERSION"),
+            "DEVICE_CFW": f"{self.cfw} {_portmaster('CFW_VERSION')}",
+            "DEVICE_NAME": _portmaster("DEVICE_NAME") or _read("/proc/device-tree/model"),
+            "DEVICE_CPU": f"{self.cpu} ({self.arch})",
+            "DEVICE_ARMHF": UI_STRINGS["YES" if self.armhf else "NO"],
+            "DEVICE_RAM": UI_STRINGS["DEVICE_RAM_SIZE"].format(gb=self.ram_gb) if self.ram_gb else "",
+            "DEVICE_GPU": f"{_portmaster('GPU_DRIVER')} {_portmaster('GPU_DRIVER_VERSION')}",
+            "DEVICE_SCREEN": self._screen_text(),
+            "DEVICE_STICKS": self.sticks,
+            "DEVICE_STORAGE": self._storage_text(),
+            "DEVICE_GLIBC": self.glibc,
+            "DEVICE_KERNEL": platform.release(),
+            "DEVICE_PORTMASTER": _portmaster("PM_VERSION"),
         }
-        return [
-            (label, value.strip() + (f" [PM: {differences[label]}]" if label in differences else ""))
-            for label, value in values.items()
-            if value.strip()
-        ]
+        for key, portmaster in differences.items():
+            values[key] = UI_STRINGS["DEVICE_DIFFERS"].format(value=values[key], portmaster=portmaster)
+        return {key: value.strip() for key, value in values.items() if value.strip()}
+
+    def _screen_text(self) -> str:
+        w, h = self.size
+        if not w or not h:
+            return ""
+        return UI_STRINGS["DEVICE_SCREEN_SIZE"].format(w=w, h=h, aspect=_aspect(w, h), rate=self.refresh_rate)
 
     def _disk_usage(self):
         usage, checked = self._disk
@@ -228,13 +223,16 @@ class Device:
 
     def _storage_text(self) -> str:
         usage = self._disk_usage()
-        return f"{_size_text(usage.free)} free of {_size_text(usage.total)}" if usage else ""
+        if not usage:
+            return ""
+        return UI_STRINGS["DEVICE_STORAGE_SIZE"].format(free=_size_text(usage.free), total=_size_text(usage.total))
 
     def summary(self) -> str:
         usage = self._disk_usage()
-        return " | ".join(filter(None, (self.cfw, f"{_size_text(usage.free)} free" if usage else "")))
+        free = UI_STRINGS["DEVICE_FREE"].format(free=_size_text(usage.free)) if usage else ""
+        return " | ".join(filter(None, (self.cfw, free)))
 
 
 def _size_text(size: int) -> str:
     mb = size / 1024**2
-    return f"{mb:.0f} MB" if mb < 1024 else f"{mb / 1024:.1f} GB"
+    return UI_STRINGS["SIZE_MB"].format(size=mb) if mb < 1024 else UI_STRINGS["SIZE_GB"].format(size=mb / 1024)
