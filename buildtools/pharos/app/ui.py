@@ -30,6 +30,7 @@ FONT_SIZE = 12
 HEADER_HEIGHT = 25
 FOOTER_HEIGHT = 20
 BUTTON_AREA_HEIGHT = 50
+BUTTON_PADDING = 8
 MAX_TEXTURE_CACHE = 16
 MAX_TEXT_CACHE = 256
 MAX_FONT_SIZE = 20  # fits a row and the button bar
@@ -369,16 +370,25 @@ class UserInterface:
 
     def button_circle(self, pos: Tuple[float, float], button: str, label: str, color: str) -> float:
         """Returns the x where the label ends"""
+        radius, stretch = self._button_size(button)
+        x, y = int(pos[0]) + stretch, int(pos[1])
+        self.draw_circle((x - stretch, y), radius, fill=color)
+        if stretch:
+            self.draw_circle((x + stretch, y), radius, fill=color)
+            self.draw_rectangle((x - stretch, y - radius, 2 * stretch, 2 * radius + 1), fill=color)
+        text_y = y - self.font_size // 2
+        self.draw_text((x - self.get_text_width(button) // 2, text_y), button, theme.btn_text)
+        self.draw_text((x + stretch + radius + BUTTON_PADDING, text_y), label)
+        return pos[0] + self.button_width(button, label)
+
+    def button_width(self, button: str, label: str) -> int:
+        radius, stretch = self._button_size(button)
+        return 2 * stretch + radius + BUTTON_PADDING + self.get_text_width(label)
+
+    def _button_size(self, button: str) -> Tuple[int, int]:
         radius = max(8, self.font_size // 2 + 2)
-        padding = 8
-        self.draw_circle((int(pos[0]), int(pos[1])), radius, fill=color)
-        btn_w = self.get_text_width(button)
-        text_x = int(pos[0] - btn_w // 2)
-        text_y = int(pos[1] - self.font_size // 2)
-        self.draw_text((text_x, text_y), button, theme.btn_text)
-        label_x = int(pos[0] + radius + padding)
-        self.draw_text((label_x, text_y), label)
-        return label_x + self.get_text_width(label)
+        # Wider for a two-letter name
+        return radius, max(0, (self.get_text_width(button) + 8) // 2 - radius)
 
     @functools.lru_cache(maxsize=2048)
     def get_text_width(self, text: str) -> int:

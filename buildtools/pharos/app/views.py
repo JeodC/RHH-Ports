@@ -45,17 +45,13 @@ class View:
         """buttons: (layout buttons separated by spaces, label) pairs"""
         x = 20
         for keys, label in buttons:
-            group = keys.split()
+            group = [(self.app.layout[key]["btn"], getattr(theme, f"btn_{key}")) for key in keys.split()]
+            labels = [""] * (len(group) - 1) + [label]
             # Small screens have no room for the last one
-            if x + self.ui.get_text_width(label) + 24 * len(group) > self.ui.screen_width:
+            if x + sum(self.ui.button_width(b[0], text) + 8 for b, text in zip(group, labels)) > self.ui.screen_width:
                 break
-            for key in group:
-                end = self.ui.button_circle(
-                    (x, self.ui.screen_height - 50),
-                    self.app.layout[key]["btn"],
-                    label if key == group[-1] else "",
-                    getattr(theme, f"btn_{key}"),
-                )
+            for (button, color), text in zip(group, labels):
+                end = self.ui.button_circle((x, self.ui.screen_height - 50), button, text, color)
                 x = int(end) + 8
             x += 14
 
