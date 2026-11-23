@@ -62,6 +62,7 @@ class RepoView(View):
     def __init__(self, app) -> None:
         super().__init__(app)
         self.idx = 0
+        self.slug = ""  # of the repo last moved to
 
         # Loading spinner (only used during repo fetch)
         self.spinner = cycle(["|", "/", "-", "\\"])
@@ -75,27 +76,31 @@ class RepoView(View):
             self.last_spinner = now
             self.spinner_frame = next(self.spinner)
 
+    def _rows(self) -> List[Repository]:
+        # Sources that failed to load or hold nothing aren't listed
+        repos = [r for r in self.app.repositories if not r.loaded or r.items]
+        # One that drops out above the selection doesn't move it to another repo
+        self.idx = next((i for i, r in enumerate(repos) if r.slug == self.slug), max(0, min(self.idx, len(repos) - 1)))
+        return repos
+
     def draw(self) -> None:
         self.ui.draw_header("Select A Repository", color_text)
-        pending = [r for r in self.app.repositories if not r.loaded]
-        if pending:
+        repos = self._rows()
+
+        loading = sum(not r.loaded for r in repos)
+        if loading:
             self._spin()
-            self.ui.draw_log(text=f"{self.spinner_frame} Loading {len(pending)} repo(s)...")
-            self._draw_button_bar([])
-            return
-
-        repos = self.app.listed
-        self.idx = max(0, min(self.idx, len(repos) - 1))
-
-        total_items = sum(len(r.items) for r in repos)
-        self.ui.draw_log(text=self.app.sources_error or f"Loaded {total_items} items in {len(repos)} repositories")
+            self.ui.draw_log(text=f"{self.spinner_frame} Loading {loading} repo(s)...")
+        else:
+            total_items = sum(len(r.items) for r in repos)
+            self.ui.draw_log(text=self.app.sources_error or f"Loaded {total_items} items in {len(repos)} repositories")
 
         start = max(0, self.idx - MAX_ROWS + 1)
         visible = repos[start: start + MAX_ROWS]
         for i, repo in enumerate(visible):
             y = 30 + i * 30
             sel = (start + i) == self.idx
-            txt = f"{repo.slug} ({len(repo.items)} items)"
+            txt = f"{repo.slug} ({len(repo.items)} items)" if repo.loaded else f"{repo.slug} (loading...)"
             self.ui.row_list(txt, (20, y), self.ui.screen_width - 40, 28, sel, color=color_text if sel else color_row_text)
 
         btns = [
@@ -108,8 +113,8 @@ class RepoView(View):
         self._draw_button_bar(btns)
 
     def handle_input(self) -> None:
-        repos = self.app.listed
-        if repos and self._pressed("a"):
+        repos = self._rows()
+        if repos and repos[self.idx].loaded and self._pressed("a"):
             self.app.push(PortsView(self.app, repos[self.idx]))
         elif self._pressed("b"):
             print("[USER] Exit requested via B button")
@@ -117,7 +122,9 @@ class RepoView(View):
         elif self._pressed("x"):
             self.app.push(ServiceView(self.app))
         elif repos:
-            self.idx = self.input.handle_navigation(self.idx, 10, len(repos))
+            idx = self.input.handle_navigation(self.idx, 10, len(repos))
+            if idx != self.idx:
+                self.idx, self.slug = idx, repos[idx].slug
 
 
 # ----------------------------------------------------------------------

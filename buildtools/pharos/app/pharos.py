@@ -82,6 +82,8 @@ class Pharos:
         # Live discount data, populated by a background thread once repos load.
         # Shape: { steam_appid: { shop_name: cut_pct, ... }, ... }, replaced whole.
         self.discounts_by_appid: dict = {}
+        self._discount_appids: set[str] = set()
+        self._discount_lock = threading.Lock()
 
         self._views: List[View] = [RepoView(self)]
 
@@ -128,14 +130,6 @@ class Pharos:
         images.prune(self.repositories)
         for repo in self.repositories:
             _spawn(f"PortsFetcher-{repo.slug}", self._fetch_repo, repo)
-        _spawn("DiscountFetcher", self._fetch_discounts)
-
-    @property
-    def listed(self) -> List[Repository]:
-        """The repos to show, once they've all loaded. Sources that failed or hold nothing aren't."""
-        if not all(r.loaded for r in self.repositories):
-            return []
-        return [r for r in self.repositories if r.items]
 
     # ------------------------------------------------------------------
     # Fetch ports.json / winecask.json
@@ -205,16 +199,16 @@ class Pharos:
             repo.loaded = True
             if not repo.items:
                 print(f"[Sources] No ports found in {repo.slug}")
+        self._fetch_discounts(repo)
 
     # Pulls ITAD-tracked discounts from the RHH-Ports Cloudflare Worker for every
-    # Steam appid in the catalog into self.discounts_by_appid. Fails silently.
-    def _fetch_discounts(self) -> None:
+    # Steam appid in the repo into self.discounts_by_appid. Fails silently.
+    def _fetch_discounts(self, repo: Repository) -> None:
         WORKER = "https://rhh-ports-discounts.jeodc.workers.dev/"
         COUNTRY = "US"
-        repos = self.repositories
-        while not all(r.loaded for r in repos):
-            time.sleep(0.5)
-        appids = sorted({p.appid for r in repos for p in r.ports if p.appid})
+        with self._discount_lock:
+            appids = sorted({p.appid for p in repo.ports if p.appid} - self._discount_appids)
+            self._discount_appids.update(appids)
         # Worker returns { appid: { shop: {cut, url} } }. Flatten to { appid: { shop: cut } }.
         flattened: dict = {}
         for i in range(0, len(appids), DISCOUNTS_PER_REQUEST):
@@ -230,7 +224,9 @@ class Pharos:
                         flattened[appid] = per_shop
             except Exception:
                 pass
-        self.discounts_by_appid = flattened
+        with self._discount_lock:
+            if flattened:
+                self.discounts_by_appid = {**self.discounts_by_appid, **flattened}
 
     # ------------------------------------------------------------------
     # Main Loop
