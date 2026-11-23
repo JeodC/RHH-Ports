@@ -2901,9 +2901,9 @@
       "porter": [
         "Jeod"
       ],
-      "desc": "Pharos is a tool for downloading ports and wine bottles hosted outside of PortMaster. Modify the included .sources file to point to GitHub repositories.\nAn optional background service can be installed to check for port updates and surface notifications via the EmulationStation or MuOS overlay.",
+      "desc": "Pharos is a tool for downloading ports and wine bottles hosted outside of PortMaster. Modify the included sources.json file to point to GitHub or GitLab repositories.\nAn optional background service can be installed to check for port updates and surface notifications via the EmulationStation or MuOS overlay.",
       "desc_md": null,
-      "inst": "Add repository URLs to the .sources file to have Pharos check them for ports.",
+      "inst": "Add repositories to the sources.json file to have Pharos check them for ports.",
       "inst_md": null,
       "genres": [
         "app"
@@ -2924,12 +2924,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/apps/pharos/pharos/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/apps/pharos/pharos/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pharos.zip",
-      "date_updated": "2026-11-23T15:02",
+      "date_updated": "2026-11-23T20:06",
       "first_seen": "2026-01-29",
-      "md5": "a1acc0917e45c196543f4e768bfac622",
-      "size": 21860167,
+      "md5": "bba4823164c242c11efa4f6857fad146",
+      "size": 23828896,
       "lifetime_downloads": 5140,
-      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
+      "last_commit": "[Pharos] Update to v1.3.0"
     }
   },
   {
