@@ -22,6 +22,7 @@ Named after the Lighthouse of Alexandria, **Pharos** is a browser application de
 ## Settings
 - **Filter out ports that aren't compatible with this device**: Hides ports your device can't run. When it's off, Pharos asks before downloading one.
 - **Override PortMaster's device info**: Gives ports the screen size and 32-bit support Pharos measured, if PortMaster reports something different.
+- **Sources**: Add, edit, reorder, turn off or delete repositories.
 - **List Details**: Choose what to show next to port, bottle and repository names.
 - **Pharos Service**: Checks for port updates in the background.
 - **Theme**: Choose Pharos's colors. See [Making a Theme](#making-a-theme).

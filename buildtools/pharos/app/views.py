@@ -3,6 +3,7 @@ Pharos screens
 """
 
 import queue
+import shutil
 import time
 from itertools import cycle
 from typing import List
@@ -12,7 +13,8 @@ import sdl2
 import images
 import manifest
 from autoinstall import WINDOWS_DIR
-from config import Port, Repository
+from config import SOURCES_PATH, Port, Repository, save_json
+from sources import DEFAULT_REPOS, GITLAB, entry_slug, load_entries, parse_repo, repo_address
 from theme import apply_theme, theme, theme_names
 from ui import BUTTON_AREA_HEIGHT, FOOTER_HEIGHT, STORE_ROW_HEIGHT
 
@@ -413,10 +415,11 @@ class PortsView(View):
 class ConfirmView(View):
     WIDTH = 440
 
-    def __init__(self, app, below: View, on_yes, *paragraphs: str) -> None:
+    def __init__(self, app, below: View, on_yes, *paragraphs: str, on_no=None) -> None:
         super().__init__(app)
         self.below = below
         self.on_yes = on_yes
+        self.on_no = on_no
         self.paragraphs = paragraphs
 
     def draw(self) -> None:
@@ -441,6 +444,8 @@ class ConfirmView(View):
             self.on_yes()
         elif self._pressed("b"):
             self.app.pop()
+            if self.on_no:
+                self.on_no()
 
 
 # ----------------------------------------------------------------------
@@ -489,6 +494,7 @@ class SettingsView(MenuView):
                 app.toggle_hide_incompatible,
             ),
             (_check("Override PortMaster's device info", app.override_device_info), app.toggle_override_device_info),
+            ("Sources", lambda: app.push(SourcesView(app))),
             ("List Details", lambda: app.push(DetailsView(app))),
             (f"Pharos Service: {app.service.status_text()}", lambda: app.push(ServiceView(app))),
             (f"Theme: {app.theme}", lambda: app.push(ThemesView(app))),
@@ -550,6 +556,297 @@ class ThemesView(View):
             if idx != self.idx:
                 self.idx = idx
                 apply_theme(self.names[idx])
+
+
+# ----------------------------------------------------------------------
+# Sources
+# ----------------------------------------------------------------------
+class SourcesView(View):
+    def __init__(self, app) -> None:
+        super().__init__(app)
+        self.idx = 0
+        self.msg = ""
+        self.moving: tuple | None = None  # entries and idx before the move
+        self.checking: tuple | None = None  # repo, entry index or None for a new one
+        self.broken = False
+        try:
+            self.entries = load_entries(SOURCES_PATH)
+        except (OSError, ValueError) as e:
+            self.broken = SOURCES_PATH.exists()
+            self.entries = []
+            self.msg = f"Can't read sources.json: {e}"
+
+    def _slugs(self) -> List[str]:
+        return [(entry_slug(e) or "").lower() for e in self.entries]
+
+    def _missing(self) -> List[str]:
+        slugs = self._slugs()
+        return [slug for slug in DEFAULT_REPOS if slug.lower() not in slugs]
+
+    def _save(self) -> None:
+        try:
+            if self.broken:
+                shutil.copyfile(SOURCES_PATH, SOURCES_PATH.with_name(time.strftime("sources-%Y%m%d-%H%M%S.json")))
+                self.broken = False
+            save_json(SOURCES_PATH, self.entries)
+        except OSError as e:
+            self.msg = f"Can't save sources.json: {e.strerror}"
+
+    def _row_text(self, entry) -> str:
+        slug = entry_slug(entry)
+        if not slug:
+            return f"[ ] {ascii(entry)[:100]}"
+        return _check(slug, entry.get("enabled", True))
+
+    def draw(self) -> None:
+        self._draw_header("Sources")
+        count = len(self.entries)
+        rows = (
+            [self._row_text(e) for e in self.entries]
+            + ["Add a repository"]
+            + [f"Add {slug}" for slug in self._missing()]
+        )
+        start = max(0, self.idx - MAX_ROWS + 1)
+        for i, text in enumerate(rows[start : start + MAX_ROWS]):
+            selected = start + i == self.idx
+            self.ui.row_list(
+                text,
+                (20, 30 + i * 30),
+                self.ui.screen_width - 40,
+                28,
+                selected and self.moving is None,
+                highlight=selected,
+                muted=start + i < count and not entry_slug(self.entries[start + i]),
+            )
+        if self.checking:
+            self.ui.draw_log(text=f"Checking {self.checking[0].slug}...")
+            self._draw_button_bar([("b", "Cancel")])
+        elif self.moving is not None:
+            self.ui.draw_log(text="Move with up and down")
+            self._draw_button_bar([("a", "Drop"), ("b", "Cancel")])
+        else:
+            self.ui.draw_log(text=self.msg)
+            buttons = [("b", "Back"), ("x", "Edit"), ("y", "Move")]
+            if self.idx >= count:
+                buttons = [("a", "Add"), ("b", "Back")]
+            elif entry_slug(self.entries[self.idx]):
+                buttons.insert(0, ("a", "Off" if self._enabled() else "On"))
+            self._draw_button_bar(buttons)
+
+    def _enabled(self) -> bool:
+        return bool(self.entries[self.idx].get("enabled", True))
+
+    def handle_input(self) -> None:
+        if self.checking:
+            self._finish_check()
+        elif self.moving is not None:
+            self._move()
+        else:
+            self._browse()
+
+    def _browse(self) -> None:
+        count = len(self.entries)
+        missing = self._missing()
+        on_entry = self.idx < count
+        if self._pressed("b"):
+            self.app.load_sources()
+            self.app.pop()
+        elif self._pressed("a"):
+            self.msg = ""
+            if self.idx == count:
+                self.edit(None, "")
+            elif not on_entry:
+                self._put(missing[self.idx - count - 1], None)
+                if self._missing():
+                    self.idx = len(self.entries) + 1
+            elif entry_slug(self.entries[self.idx]):
+                self.entries[self.idx]["enabled"] = not self._enabled()
+                self._save()
+        elif on_entry and self._pressed("x"):
+            self.app.push(SourceView(self.app, self, self.idx))
+        elif on_entry and self._pressed("y"):
+            self.moving = (list(self.entries), self.idx)
+            self.msg = ""
+        else:
+            self.idx = self.input.handle_navigation(self.idx, 10, count + 1 + len(missing))
+
+    def _move(self) -> None:
+        if self._pressed("a") or self._pressed("y"):
+            self.moving = None
+            self._save()
+        elif self._pressed("b"):
+            (self.entries, self.idx), self.moving = self.moving, None
+        else:
+            idx = self.input.handle_navigation(self.idx, 10, len(self.entries))
+            self.entries.insert(idx, self.entries.pop(self.idx))
+            self.idx = idx
+
+    def edit(self, idx: int | None, slug: str) -> None:
+        self.app.push(KeyboardView(self.app, slug, lambda new: self._check_slug(new, idx)))
+
+    def _check_slug(self, slug: str, idx: int | None) -> str:
+        """Returns an error message or an empty string"""
+        if idx is not None and slug == entry_slug(self.entries[idx]):
+            return ""
+        slugs = self._slugs()
+        if slug.lower() in slugs and slugs.index(slug.lower()) != idx:
+            return "That repository is already in the list"
+        self.checking = (self.app.fetch_repo(slug), idx)
+        return ""
+
+    def _finish_check(self) -> None:
+        repo, idx = self.checking
+        if self._pressed("b"):
+            self.checking = None
+            self.edit(idx, repo.slug)
+        elif repo.loaded:
+            self.checking = None
+            if repo.items:
+                self.app.repositories.append(repo)  # so it isn't fetched again
+                self._put(repo.slug, idx)
+                self.msg = self.msg or f"{len(repo.items)} items found"
+            else:
+                self.app.push(
+                    ConfirmView(
+                        self.app,
+                        self,
+                        lambda: self._put(repo.slug, idx),
+                        f"Nothing found in {repo.slug}.",
+                        "Use it anyway?",
+                        on_no=lambda: self.edit(idx, repo.slug),
+                    )
+                )
+
+    def _put(self, slug: str, idx: int | None) -> None:
+        self.msg = ""
+        if idx is None:
+            idx = self.idx = len(self.entries)
+            self.entries.append(None)
+        entry = self.entries[idx]
+        self.entries[idx] = {**(entry if isinstance(entry, dict) else {"enabled": True}), "repo": repo_address(slug)}
+        self._save()
+
+    def delete(self, idx: int) -> None:
+        del self.entries[idx]
+        self._save()
+
+
+class SourceView(MenuView):
+    TITLE = "Source"
+
+    def __init__(self, app, sources: SourcesView, entry: int) -> None:
+        super().__init__(app)
+        self.sources = sources
+        self.entry = entry
+        self.slug = self.msg = entry_slug(sources.entries[entry]) or ""
+
+    def _rows(self) -> List[tuple]:
+        return [("Edit", self._edit), ("Delete", self._delete)]
+
+    def _edit(self) -> None:
+        self.app.pop()
+        self.sources.edit(self.entry, self.slug)
+
+    def _delete(self) -> None:
+        self.app.pop()
+        self.app.push(
+            ConfirmView(
+                self.app,
+                self.sources,
+                lambda: self.sources.delete(self.entry),
+                f"Delete {self.slug or 'this source'}? Its ports stay installed.",
+            )
+        )
+
+
+class KeyboardView(View):
+    ROWS = ("1234567890", "qwertyuiop", "asdfghjkl-", "zxcvbnm._/")
+    ACTIONS = ("Shift", "Cancel", "Done (Start)")
+    GITHUB = "github.com/"
+
+    def __init__(self, app, slug: str, on_done) -> None:
+        super().__init__(app)
+        self.on_done = on_done
+        self.host = GITLAB if slug.startswith(GITLAB) else self.GITHUB
+        self.text = slug.removeprefix(GITLAB)
+        self.row, self.col = 1, 0
+        self.shift = False
+        self.msg = ""
+
+    def draw(self) -> None:
+        ui = self.ui
+        self._draw_header("Repository")
+        text = f"https://{self.host}{self.text}_"
+        while ui.get_text_width(text) > ui.screen_width - 64 and len(text) > 1:
+            text = text[1:]
+        ui.row_list(text, (20, 50), ui.screen_width - 40, 36)
+        w = (ui.screen_width - 40) // 10
+        for r, keys in enumerate(self.ROWS):
+            for c, key in enumerate(keys):
+                self._draw_key(key.upper() if self.shift else key, 20 + c * w, 110 + r * 52, w - 4, (r, c))
+        w = (ui.screen_width - 40) // len(self.ACTIONS)
+        for c, label in enumerate(self.ACTIONS):
+            self._draw_key(label, 20 + c * w, 110 + 4 * 52, w - 4, (4, c))
+        ui.draw_log(text=self.msg)
+        other = "GitLab" if self.host == self.GITHUB else "GitHub"
+        self._draw_button_bar([("a", "Type"), ("b", "Delete" if self.text else "Cancel"), ("x", "Shift"), ("y", other)])
+
+    def _draw_key(self, label: str, x: int, y: int, w: int, at: tuple) -> None:
+        ui = self.ui
+        selected = at == (self.row, self.col)
+        ui.draw_rectangle((x, y, w, 48), fill=theme.row_selected if selected else theme.row_bg)
+        ui.draw_text(
+            (x + (w - ui.get_text_width(label)) // 2, y + (48 - ui.font_size) // 2),
+            label,
+            theme.row_selected_text if selected else theme.row_text,
+        )
+
+    def handle_input(self) -> None:
+        if self._pressed("a"):
+            self._type()
+        elif self.input.key(self.app.layout["b"]["key"], repeat=bool(self.text)):
+            if self.text:
+                self.text = self.text[:-1]
+            else:
+                self.app.pop()
+        elif self._pressed("x"):
+            self.shift = not self.shift
+        elif self._pressed("y"):
+            self.host = GITLAB if self.host == self.GITHUB else self.GITHUB
+        elif self.input.key("START"):
+            self._done()
+        else:
+            self._navigate()
+
+    def _navigate(self) -> None:
+        rows = len(self.ROWS) + 1
+        columns = [len(keys) for keys in self.ROWS] + [len(self.ACTIONS)]
+        for key, step in (("DY+", 1), ("DY-", -1)):
+            if self.input.key(key, repeat=True):
+                row = (self.row + step) % rows
+                self.col = self.col * columns[row] // columns[self.row]
+                self.row = row
+        for key, step in (("DX+", 1), ("DX-", -1)):
+            if self.input.key(key, repeat=True):
+                self.col = (self.col + step) % columns[self.row]
+
+    def _type(self) -> None:
+        self.msg = ""
+        if self.row < len(self.ROWS):
+            key = self.ROWS[self.row][self.col]
+            self.text += key.upper() if self.shift else key
+        elif self.ACTIONS[self.col] == "Shift":
+            self.shift = not self.shift
+        elif self.ACTIONS[self.col] == "Cancel":
+            self.app.pop()
+        else:
+            self._done()
+
+    def _done(self) -> None:
+        slug = parse_repo(f"https://{self.host}{self.text}")
+        self.msg = self.on_done(slug) if slug else "Enter owner/name"
+        if not self.msg:
+            self.app.pop()
 
 
 # ----------------------------------------------------------------------

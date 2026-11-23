@@ -35,6 +35,7 @@ def save_json(path: Path, data) -> None:
 # User settings
 # ----------------------------------------------------------------------
 SETTINGS_PATH = Path(DATA_DIR) / "settings.json"
+SOURCES_PATH = Path(DATA_DIR) / "sources.json"
 
 
 def _load_settings() -> dict:

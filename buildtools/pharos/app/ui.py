@@ -491,6 +491,12 @@ class UserInterface:
         lines = []
         current_line = ""
         for word in text.split():
+            while len(word) > 1 and self.get_text_width(word) > max_width:
+                fits = len(word) - 1
+                while fits > 1 and self.get_text_width(word[:fits]) > max_width:
+                    fits -= 1
+                lines += [current_line, word[:fits]] if current_line else [word[:fits]]
+                current_line, word = "", word[fits:]
             test_line = f"{current_line} {word}".strip()
             if self.get_text_width(test_line) <= max_width:
                 current_line = test_line

@@ -20,7 +20,7 @@ import sdl2.ext
 import images
 import manifest
 from cfw import set_device_override
-from config import DATA_DIR, INSTALL_DIR, get_controller_layout, get_setting, put_setting, Repository, Port
+from config import INSTALL_DIR, SOURCES_PATH, get_controller_layout, get_setting, put_setting, Repository, Port
 from device import Device
 from input import Input
 from theme import DEFAULT_THEME, apply_theme
@@ -112,7 +112,7 @@ class Pharos:
         _spawn("ServiceRefresh", self._refresh_service_if_stale)
         _spawn("GmtoolkitRefresh", self.downloader.refresh_gmtoolkit_if_installed)
 
-        self._load_sources()
+        self.load_sources()
         _spawn("SelfUpdateCheck", self._check_self_update)
 
     # ------------------------------------------------------------------
@@ -196,17 +196,23 @@ class Pharos:
     # ------------------------------------------------------------------
     # Load sources.json
     # ------------------------------------------------------------------
-    def _load_sources(self) -> None:
+    def load_sources(self) -> None:
         try:
-            slugs = read_sources(os.path.join(DATA_DIR, "sources.json"), warn=lambda msg: print(f"[Sources] {msg}"))
+            slugs = read_sources(SOURCES_PATH, warn=lambda msg: print(f"[Sources] {msg}"))
         except (OSError, ValueError) as e:
             self.sources_error = f"Can't read sources.json: {e}"
             print(f"[Sources] {self.sources_error}")
             return
-        self.repositories = [Repository(slug) for slug in slugs]
+        self.sources_error = ""
+        # Ones that failed are fetched again
+        known = {r.slug: r for r in self.repositories if not r.loaded or r.items}
+        self.repositories = [known.get(slug) or self.fetch_repo(slug) for slug in slugs]
         images.prune(self.repositories)
-        for repo in self.repositories:
-            _spawn(f"PortsFetcher-{repo.slug}", self._fetch_repo, repo)
+
+    def fetch_repo(self, slug: str) -> Repository:
+        repo = Repository(slug)
+        _spawn(f"PortsFetcher-{slug}", self._fetch_repo, repo)
+        return repo
 
     # ------------------------------------------------------------------
     # Fetch ports.json / winecask.json
@@ -323,7 +329,7 @@ class Pharos:
             time.sleep(0.005)
 
     def update(self) -> None:
-        if self.self_update_available:
+        if self.self_update_available and len(self._views) == 1:
             self.self_update_available = False
             self.push(UpdateView(self))
         size = self.ui.window_size()

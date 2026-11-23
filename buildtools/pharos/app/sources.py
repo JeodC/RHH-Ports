@@ -14,15 +14,22 @@ _GITLAB_REPO = re.compile(
     r"(?:https?://)?(?:www\.)?gitlab\.com/([A-Za-z0-9_][A-Za-z0-9._-]*(?:/[A-Za-z0-9_][A-Za-z0-9._-]*)+)",
     re.IGNORECASE,
 )
-_GITLAB = "gitlab.com/"
+GITLAB = "gitlab.com/"
 _FILE_NAME = re.compile(r"[^/\\\x00-\x1f]+")
 
 # Their catalogs are release assets, not files in the repo. The first one hosts
 # the runtimes of both.
 PORTMASTER_REPOS = ("portsmaster/portmaster-new", "portsmaster-mv/portmaster-mv-new")
+DEFAULT_REPOS = (
+    "JeodC/RHH-Ports",
+    "JeodC/RHH-Wine",
+    "NextOs-Ports/nextos-universal-ports",
+    "PortsMaster/PortMaster-New",
+    "PortsMaster-MV/PortMaster-MV-New",
+)
 
 
-def _parse_repo(repo) -> str | None:
+def parse_repo(repo) -> str | None:
     """A repo's slug: owner/name on GitHub, gitlab.com/group/name on GitLab"""
     if not isinstance(repo, str):
         return None
@@ -30,21 +37,34 @@ def _parse_repo(repo) -> str | None:
     if match := _GITHUB_REPO.fullmatch(repo):
         return match.group(1)
     if match := _GITLAB_REPO.fullmatch(repo):
-        return _GITLAB + match.group(1)
+        return GITLAB + match.group(1)
     return None
+
+
+def entry_slug(entry) -> str | None:
+    return parse_repo(entry.get("repo")) if isinstance(entry, dict) else None
+
+
+def repo_address(slug: str) -> str:
+    """The reverse of parse_repo"""
+    return f"https://{slug}" if slug.startswith(GITLAB) else slug
+
+
+def load_entries(path) -> list:
+    # utf-8-sig drops the BOM Notepad adds
+    with open(path, "r", encoding="utf-8-sig", errors="surrogateescape") as f:
+        entries = json.load(f)
+    if not isinstance(entries, list):
+        raise ValueError("not a list")
+    return entries
 
 
 def read_sources(path, warn=print) -> list[str]:
     """Slugs of the enabled entries in a sources.json"""
     out: list[str] = []
     seen: set[str] = set()
-    # utf-8-sig drops the BOM Notepad adds
-    with open(path, "r", encoding="utf-8-sig", errors="replace") as f:
-        entries = json.load(f)
-    if not isinstance(entries, list):
-        raise ValueError("not a list")
-    for entry in entries:
-        slug = _parse_repo(entry.get("repo")) if isinstance(entry, dict) else None
+    for entry in load_entries(path):
+        slug = entry_slug(entry)
         if not slug:
             warn(f"Skipping {ascii(entry)}: expected a GitHub or GitLab repo")
             continue
@@ -63,7 +83,7 @@ def _portmaster_catalog(slug: str) -> str:
 
 
 def release_url(slug: str, tag: str) -> str:
-    if slug.startswith(_GITLAB):
+    if slug.startswith(GITLAB):
         return f"https://{slug}/-/releases/{tag}/downloads"
     return f"https://github.com/{slug}/releases/download/{tag}"
 
@@ -78,9 +98,7 @@ def catalog_urls(slug: str, filename: str = "ports.json") -> list[str]:
     if is_portmaster(slug):
         return [_portmaster_catalog(slug)] if filename == "ports.json" else []
     # HEAD is the default branch
-    base = (
-        f"https://{slug}/-/raw/HEAD" if slug.startswith(_GITLAB) else f"https://raw.githubusercontent.com/{slug}/HEAD"
-    )
+    base = f"https://{slug}/-/raw/HEAD" if slug.startswith(GITLAB) else f"https://raw.githubusercontent.com/{slug}/HEAD"
     return [f"{base}/docs/{filename}", f"{base}/{filename}"]
 
 
