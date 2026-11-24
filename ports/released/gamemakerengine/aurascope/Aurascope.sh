@@ -61,7 +61,7 @@ fi
 
 # Assign configs and load the game
 $GPTOKEYB "gmloadernext.aarch64" xbox360 &
-pm_platform_helper "$GMLOADER/gmloadernext.aarch64" > dev/null
+pm_platform_helper "$GMLOADER/gmloadernext.aarch64" > /dev/null
 "$GMLOADER/gmloadernext.aarch64" -c "gmloader.json"
 
 # Cleanup
