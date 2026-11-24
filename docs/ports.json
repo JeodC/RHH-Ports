@@ -1686,12 +1686,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/haque/haque/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/haque/haque/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/haque.zip",
-      "date_updated": "2026-11-23T15:02",
+      "date_updated": "2026-11-24T23:38",
       "first_seen": "2025-05-18",
-      "md5": "31b9eb05283206648cd9caf97a1a7290",
-      "size": 3102331,
-      "lifetime_downloads": 52,
-      "last_commit": "Fix several launchscripts for Crossmix compatibility and put MDD on 64bit"
+      "md5": "87ac76b70d38744b135a9c2fc7cd39d6",
+      "size": 3102328,
+      "lifetime_downloads": 57,
+      "last_commit": "[HAQUE] Fix port"
     }
   },
   {
