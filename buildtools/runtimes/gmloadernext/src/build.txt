@@ -85,6 +85,14 @@ git_clone_retry --depth 1 --branch n4.4.5 https://git.ffmpeg.org/ffmpeg.git
 VIDEO_PLUGIN="gmloader-next/plugins/video-ffmpeg/build/libgmlvideo-ffmpeg.so"
 [[ -f "$VIDEO_PLUGIN" ]] || { echo "ERROR: video plugin not built at $VIDEO_PLUGIN"; exit 1; }
 
+#### Build dualscreen plugin (opt-in via gmloader.json) ####
+(
+    cd gmloader-next/plugins/dualscreen
+    make ARCH=aarch64-linux-gnu PKG_CONFIG=pkg-config -j"$(nproc)"
+)
+DUALSCREEN_PLUGIN="gmloader-next/plugins/dualscreen/build/libdualscreen.so"
+[[ -f "$DUALSCREEN_PLUGIN" ]] || { echo "ERROR: dualscreen plugin not built at $DUALSCREEN_PLUGIN"; exit 1; }
+
 #### Stage transitive lib closure ####
 declare -A STAGED
 declare -A SYSTEM_LIBS=(
@@ -149,6 +157,7 @@ cp -L gmloader-next/lib/arm64-v8a/*.so lib/arm64-v8a/
 # there's nothing else to stage on its behalf — the plugin file is fully
 # self-contained per gmloader-next's plugin convention.
 cp -L "$VIDEO_PLUGIN" lib/
+cp -L "$DUALSCREEN_PLUGIN" lib/
 
 # Older GameMaker runners (e.g. AM2R 1.6b2's libyoyo.so) DT_NEEDED a
 # libstdc++.so — the Android Bionic C++ stub. They don't actually use any
