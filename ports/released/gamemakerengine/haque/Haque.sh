@@ -19,7 +19,7 @@ get_controls
 # Variables
 GAMEDIR="/$directory/ports/haque"
 
-# CD and set permissions
+# CD and set logging
 cd $GAMEDIR
 > "$GAMEDIR/log.txt" && exec > >(tee "$GAMEDIR/log.txt") 2>&1
 
@@ -38,10 +38,6 @@ fi
 
 export GMLOADER_LIB_PATH="$GMLOADER/lib"
 
-chmod 777 "$GAMEDIR/tools/patchscript"
-chmod 777 "$GAMEDIR/tools/splash"
-chmod 777 "$GMLOADER/gmloadernext.aarch64"
-
 # Exports
 export LD_LIBRARY_PATH="$GMLOADER/lib:$GAMEDIR/lib:$GAMEDIR/libs:$LD_LIBRARY_PATH"
 export SDL_GAMECONTROLLERCONFIG="$sdl_controllerconfig"
@@ -54,6 +50,7 @@ if [ ! -f patchlog.txt ] || [ -f $GAMEDIR/assets/data.win ] || [ -f $GAMEDIR/ass
         export PATCHER_TIME="5 to 10 minutes"
         export controlfolder
         export ESUDO
+        chmod +x "$PATCHER_FILE"
         source "$controlfolder/utils/patcher.txt"
         $ESUDO kill -9 $(pidof gptokeyb)
     else

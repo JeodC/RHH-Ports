@@ -77,11 +77,9 @@ thermal_restore() {
 prepare_files() {
     mkdir -p "$SAVEDIR"
 
-    # Linux/Mac data ships as game.unx/game.ios; gmtoolkit expects data.win
+    # Linux data ships as game.unx; gmtoolkit expects data.win
     if [ -f "$DATADIR/game.unx" ]; then
         mv "$DATADIR/game.unx" "$DATADIR/data.win"
-    elif [ -f "$DATADIR/game.ios" ]; then
-        mv "$DATADIR/game.ios" "$DATADIR/data.win"
     fi
 
     if [ ! -d "$DATADIR/Haque_Text" ]; then
@@ -107,6 +105,9 @@ prepare_files() {
     else
         find "$DATADIR/Haque_Text" -type f -exec sed -i 's/\r$//' {} \;
     fi
+
+    mkdir -p "$SAVEDIR/Haque_Text/Misc"
+    cp "$DATADIR/Haque_Text/Misc/fairness.txt" "$SAVEDIR/Haque_Text/Misc/"
 
     # Delete excess files
     find "$DATADIR" -type f \( \
