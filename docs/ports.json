@@ -200,12 +200,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/aurascope/aurascope/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/aurascope/aurascope/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/aurascope.zip",
-      "date_updated": "2026-11-23T13:01",
+      "date_updated": "2026-11-24T23:42",
       "first_seen": "2025-05-18",
-      "md5": "5123033dd1b57e0124570b233c0ed2dd",
-      "size": 3091289,
-      "lifetime_downloads": 66,
-      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
+      "md5": "ef8ccf2167c31541a46ca4585f982964",
+      "size": 3091295,
+      "lifetime_downloads": 71,
+      "last_commit": "[AURASCOPE] Fix port"
     }
   },
   {
