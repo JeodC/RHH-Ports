@@ -299,12 +299,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/benbowars/benbowars/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/benbowars/benbowars/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/benbowars.zip",
-      "date_updated": "2026-11-23T13:01",
+      "date_updated": "2026-11-25T12:06",
       "first_seen": "2026-07-03",
-      "md5": "c68126d82782c33eab6b9d080709d5cc",
-      "size": 5319562,
-      "lifetime_downloads": 24,
-      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
+      "md5": "5b1263f1da63e8e719b35bdb2321ed80",
+      "size": 5319563,
+      "lifetime_downloads": 28,
+      "last_commit": "Use 4x4 block size for all ports, adjust quality only"
     }
   },
   {
@@ -1308,12 +1308,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/yeotrilogy/fadingafternoon/fadingafternoon/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/yeotrilogy/fadingafternoon/fadingafternoon/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/fadingafternoon.zip",
-      "date_updated": "2026-11-23T12:17",
+      "date_updated": "2026-11-25T12:07",
       "first_seen": "2025-07-02",
-      "md5": "63f6b74d4c9365dc4874197b20362953",
-      "size": 4278158,
-      "lifetime_downloads": 193,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "md5": "0e9f3fb9a70bbe432126c2af6f999097",
+      "size": 4278161,
+      "lifetime_downloads": 200,
+      "last_commit": "Use 4x4 block size for all ports, adjust quality only"
     }
   },
   {
@@ -2692,12 +2692,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/ooo/ooo/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/ooo/ooo/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/ooo.zip",
-      "date_updated": "2026-07-18T15:38",
+      "date_updated": "2026-11-25T12:06",
       "first_seen": "2026-01-01",
-      "md5": "1894861df5ca7d5ea0b9b24491bc7b1b",
-      "size": 5079207,
-      "lifetime_downloads": 35,
-      "last_commit": "Add splash files for ports"
+      "md5": "4c75f9228850615c4c2d8b1ade617fa9",
+      "size": 5079209,
+      "lifetime_downloads": 94,
+      "last_commit": "Use 4x4 block size for all ports, adjust quality only"
     }
   },
   {
@@ -2981,12 +2981,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/pizzatower/pizzatower/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/pizzatower/pizzatower/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pizzatower.zip",
-      "date_updated": "2026-11-23T12:16",
+      "date_updated": "2026-11-25T12:07",
       "first_seen": "2025-05-18",
-      "md5": "3b7514bd5f083a57648e1b24cb50358c",
-      "size": 7366091,
-      "lifetime_downloads": 232,
-      "last_commit": "Consistency: all screenshots sized and png, fix gameinfo.xml files pointing to stale paths"
+      "md5": "fd1d88ca78f02257b72c9810e195eb3c",
+      "size": 7366092,
+      "lifetime_downloads": 239,
+      "last_commit": "Use 4x4 block size for all ports, adjust quality only"
     }
   },
   {
@@ -5297,12 +5297,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/triga/triga/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/triga/triga/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/triga.zip",
-      "date_updated": "2026-07-16T21:22",
+      "date_updated": "2026-11-25T12:07",
       "first_seen": "2025-07-09",
-      "md5": "2e5c37dfa8e4fc8276a9a8e15a5be908",
-      "size": 3621951,
-      "lifetime_downloads": 19,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "md5": "e3dfa592bc2ce5b37cd08586aa735ae2",
+      "size": 3621954,
+      "lifetime_downloads": 35,
+      "last_commit": "Use 4x4 block size for all ports, adjust quality only"
     }
   },
   {
