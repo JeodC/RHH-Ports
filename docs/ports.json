@@ -3277,6 +3277,51 @@
   },
   {
     "version": 4,
+    "name": "pokedaisy.zip",
+    "items": [
+      "PokeDaisy.sh",
+      "pokedaisy"
+    ],
+    "items_opt": [],
+    "attr": {
+      "title": "PokéDaisy",
+      "porter": [
+        "lidor30",
+        "Jeod"
+      ],
+      "desc": "PokéDaisy plays Game Boy, Game Boy Color, Game Boy Advance and DS games, with a live companion for Pokémon games and romhacks: your party, bag, map, guide and Pokédex, read from the game as you play.",
+      "desc_md": null,
+      "inst": "Launch with an internet connection to download PokéDaisy. It lists the Pokémon games in your firmware's rom folders, and anything in `pokedaisy/roms`.",
+      "inst_md": null,
+      "genres": [
+        "app"
+      ],
+      "image": null,
+      "rtr": true,
+      "exp": false,
+      "runtime": [],
+      "store": [],
+      "availability": "free",
+      "reqs": [],
+      "arch": [
+        "aarch64"
+      ],
+      "min_glibc": ""
+    },
+    "source": {
+      "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/apps/pokedaisy/pokedaisy/screenshot.png",
+      "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/apps/pokedaisy/pokedaisy/README.md",
+      "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pokedaisy.zip",
+      "date_updated": "2026-11-25T21:08",
+      "first_seen": "2026-11-25",
+      "md5": "bd5bf2f5ed8ec075908dea49613e321e",
+      "size": 282055,
+      "lifetime_downloads": 0,
+      "last_commit": "[POKEDAISY] Add port"
+    }
+  },
+  {
+    "version": 4,
     "name": "pokewilds.zip",
     "items": [
       "Pokewilds.sh",
