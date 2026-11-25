@@ -1530,12 +1530,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/gunsoffury/gunsoffury/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/gunsoffury/gunsoffury/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/gunsoffury.zip",
-      "date_updated": "2026-11-25T23:08",
+      "date_updated": "2026-11-25T23:14",
       "first_seen": "2025-05-18",
-      "md5": "4e957fb13cc8e1fc8217508e69b8ce51",
-      "size": 5525479,
+      "md5": "c9261f4305cc43d9b4debb196d49237c",
+      "size": 5525577,
       "lifetime_downloads": 236,
-      "last_commit": "[GUNSOFFURY] Dual-screen update"
+      "last_commit": "[GUNS OF FURY] Dual screen update + more map hints"
     }
   },
   {
