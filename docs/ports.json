@@ -1530,12 +1530,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/gunsoffury/gunsoffury/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/gunsoffury/gunsoffury/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/gunsoffury.zip",
-      "date_updated": "2026-07-16T21:22",
+      "date_updated": "2026-11-25T23:08",
       "first_seen": "2025-05-18",
-      "md5": "b0e9bf6c67562bf66ec6655b6135b79a",
-      "size": 5217399,
-      "lifetime_downloads": 82,
-      "last_commit": "[GMS] Add a gmtoolkit binary check for patchscripts and logging"
+      "md5": "4e957fb13cc8e1fc8217508e69b8ce51",
+      "size": 5525479,
+      "lifetime_downloads": 236,
+      "last_commit": "[GUNSOFFURY] Dual-screen update"
     }
   },
   {
