@@ -5,6 +5,14 @@ Buy the game on Steam and add the data to `gunsoffury/assets`
 
 https://store.steampowered.com/app/3099000/Guns_of_Fury/
 
+## Dual screen
+On devices with two screens, the map, HUD and menus are on the second one. Drag or pinch the map to look around, and tap it to return to the player.
+
+`Settings > Second Screen` turns this off. It's only listed when there's a second screen.
+
+## Map hints
+The map marks where to go next, and diamonds mark doorways you haven't been through. `Settings > Map Hints` turns them off.
+
 ## Default Gameplay Controls (Xbox Layout)
 | Button            | Action                                |
 |--                 |--                                     |

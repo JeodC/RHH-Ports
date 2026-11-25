@@ -6,5 +6,8 @@
     "disable_depth" : false,
     "disable_rumble" : false,
     "disable_texhack" : true,
-    "force_platform" : "os_windows"
+    "force_platform" : "os_windows",
+    "plugins" : [
+        { "path" : "libdualscreen.so", "config" : { "title" : "Secondary screen" } }
+    ]
 }

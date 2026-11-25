@@ -9,5 +9,22 @@
     "compress_audio": {
         "bitrate": 64,
         "recompress_ogg": true
-    }
+    },
+    "code_patches": [
+        { "entry": "gml_Object_o_healthbar_Draw_0", "gml": "gml/gml_Object_o_healthbar_Draw_0.gml" },
+        { "entry": "gml_Object_o_transition_Draw_64", "gml": "gml/gml_Object_o_transition_Draw_64.gml" },
+        { "entry": "gml_Object_obj_text2_Create_0", "gml": "gml/gml_Object_obj_text2_Create_0.gml" },
+        { "entry": "gml_Object_obj_text2_Draw_64", "gml": "gml/gml_Object_obj_text2_Draw_64.gml" }
+    ],
+    "functions": [
+        "DualScreen_Available",
+        "DualScreen_Enable",
+        "DualScreen_Ready",
+        "DualScreen_Width",
+        "DualScreen_Height",
+        "DualScreen_Begin",
+        "DualScreen_Draw",
+        "DualScreen_End",
+        "DualScreen_Touch"
+    ]
 }
