@@ -41,12 +41,12 @@ if [ "${DEVICE_RAM:-0}" -le 2 ]; then
     THREADS_FLAG="--threads 1"
 fi
 
-# Pick ASTC block/quality based on display size. Smaller screens don't need 4x4 medium.
+# Pick ASTC quality based on display size. Keep 4x4 blocks; larger ones destroy small sprites and fonts.
 SCREEN_PIXELS=$(( ${DISPLAY_WIDTH:-640} * ${DISPLAY_HEIGHT:-480} ))
 if [ "$SCREEN_PIXELS" -le 480000 ]; then
-    BLOCK_FLAGS="--block 6x6 --quality fastest"
+    BLOCK_FLAGS="--block 4x4 --quality fastest"
 elif [ "$SCREEN_PIXELS" -le 1000000 ]; then
-    BLOCK_FLAGS="--block 5x5 --quality fast"
+    BLOCK_FLAGS="--block 4x4 --quality fast"
 else
     BLOCK_FLAGS=""
 fi
