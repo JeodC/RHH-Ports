@@ -1,3 +1,7 @@
+<div align=center>
+<img width="320" alt="Guns of Fury" src="https://raw.githubusercontent.com/JeodC/RHH-Ports/refs/heads/main/ports/released/gamemakerengine/gunsoffury/gunsoffury/cover.png" />
+</div>
+
 # Guns of Fury
 
 ## Installation
