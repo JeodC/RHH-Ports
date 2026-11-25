@@ -56,8 +56,8 @@
 			match: function (t) { return t.getMonth() === 7 && t.getDate() >= 13 && t.getDate() <= 16; },
 			fx: { kind: 'lanterns', colors: ['#ff8a3c', '#ffb347', '#ff6b4a', '#ffd27a', '#e8552e'] } },
 
-		{ id: 'autumn',                 // Sep 22 - Nov 23 (fallback)
-			match: function (t) { var m = md(t); return m >= 922 && m <= 1123; },
+		{ id: 'autumn',                 // Sep 22 - Nov 30 (fallback)
+			match: function (t) { var m = md(t); return m >= 922 && m <= 1130; },
 			fx: { kind: 'leaves', colors: ['#c1440e', '#e8720c', '#b5651d', '#8a5a24', '#d99a2b'] } },
 
 		{ id: 'christmas', night: true, // Dec 1 - 26
