@@ -11,11 +11,12 @@
       "title": "AM2R",
       "porter": [
         "Johnny on Flame",
-        "Jeod"
+        "Jeod",
+        "PatchDev"
       ],
       "desc": "Another Metroid 2 Remake.  An action-adventure game developed by Argentinian programmer Milton Guasti (also known as DoctorM64).",
       "desc_md": null,
-      "inst": "You'll need to provide your own am2r android apk into the ports/am2r/gamedata folder.  Make sure it is named am2r.apk.  The name is case sensitive.",
+      "inst": "Place your original Windows AM2R 1.1 zip in ports/am2r/assets. The port builds AM2ARM from it on first launch and downloads the HQ music.",
       "inst_md": null,
       "genres": [
         "action",
@@ -40,12 +41,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/am2r/am2r/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/am2r/am2r/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/am2r.zip",
-      "date_updated": "2026-11-23T13:38",
+      "date_updated": "2026-11-26T21:34",
       "first_seen": "2025-05-18",
-      "md5": "c322704da39aca56192e5fe984fb5d95",
-      "size": 3268527,
-      "lifetime_downloads": 518,
-      "last_commit": "[AM2R] Launchscript formatting"
+      "md5": "0d147e032bdf48aa63c494c64e729d70",
+      "size": 35000522,
+      "lifetime_downloads": 539,
+      "last_commit": "[AM2R] Update to dual screen support via AM2ARM"
     }
   },
   {
