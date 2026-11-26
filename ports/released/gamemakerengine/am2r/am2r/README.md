@@ -1,28 +1,36 @@
-# AM2R - 64-bit
-The latest AM2R experience is v1.6b2. Follow the below steps to obtain this version and use it with your retro device.
+# AM2R - AM2ARM
+This port runs [AM2ARM](https://github.com/PatchDev-AM2ARM/AM2ARM), PatchDev's 64-bit build of AM2R Community Updates 1.5.5. It includes PatchDev's game build, but none of AM2R's files. You provide AM2R 1.1, and the port builds the game from it.
 
 ## Installation
-You will need the following **zip files** (copy all files to `ports/am2r/assets`):
+Place your original Windows AM2R 1.1 zip in `ports/am2r/assets`. Any filename works. Launch the port with an internet connection and 650 MB free. The port builds AM2ARM 1.6.2 from your zip, and downloads the HQ music (about 245 MB) from the [AM2R Community Autopatcher](https://github.com/AM2R-Community-Developers/AM2R-Autopatcher-Windows).
 
-- `am2r-another-metroid-2-remake-1-1.zip` -- The base game's Windows version (search for this on the web, DoctorM64 is a known and trusted source)
-- **MANDATORY:** The **AM2R 1.6b Patch File**: This patch, 1.6b2, is what makes AM2R 64-bit.
-  - Download: [AM2R 1.6b patch](https://github.com/AM2R-Community-Developers/ProfessorG64/releases/download/1.6b2/AM2R_1.6b2_windows.zip)
-- **OPTIONAL:** The **HQ Audio / Autopatcher Data**: Use this if you want the High-Quality in-game music.
-  - Download: [1.5.5 Autopatcher zip](https://github.com/AM2R-Community-Developers/AM2R-Autopatcher-Windows/archive/refs/heads/master.zip)
+Keep the zip in `assets`, since updates are built from it.
 
-Copy all zip files to `ports/am2r/assets` and run the port. It may take some time to install.
+## Dual screen
+On devices with two screens, gameplay is on one and the map on the other. `Options > Display > Dual Screen` turns this on or off, and is greyed out without a second screen. The card can move between devices.
+
+## Updates
+New AM2ARM versions come with updates to this port.
+
+## Manual / offline patching
+Without an internet connection, the port can take the music from the Autopatcher's zip instead.
+
+1. Download the [AM2R Community Autopatcher zip](https://github.com/AM2R-Community-Developers/AM2R-Autopatcher-Windows/archive/refs/heads/master.zip).
+2. Place it in `ports/am2r/assets` with your AM2R 1.1 zip. Don't extract it.
+3. Launch the port. You can delete the Autopatcher zip afterward.
+
+## Notes
+Folder sync from AM2ARM's Android version is not available. Saves are in `ports/am2r/saves`, and `Options > Data` backs them up to `saves/backup`.
+
+Nano, in Display Options, is on by default on RK3326 devices and the RG DS.
 
 ## Runtimes
 
-This port requires the following:
-
-- [gmtoolkit.aarch64](https://github.com/JeodC/gmtoolkit/releases/latest) placed in the `PortMaster/` folder.
-- [gmloadernext.squashfs](https://github.com/JeodC/RHH-Ports/raw/main/runtimes/gmloadernext.squashfs) placed in the `PortMaster/libs/` folder.
-
-[Pharos](https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pharos.zip) will fetch these automatically when installing the port. Otherwise download them manually and add them to the correct folders.
+This port requires [gmloadernext.squashfs](https://github.com/JeodC/RHH-Ports/raw/main/runtimes/gmloadernext.squashfs) placed in the `PortMaster/libs/` folder. [Pharos](https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/pharos.zip) fetches it automatically when installing the port.
 
 ## Thanks
-AM2R Team -- The game  
+DoctorM64 and the AM2R team -- The game  
+AM2R Community Developers -- Community Updates and the HQ music  
+PatchDev -- AM2ARM  
 JohnnyOnFlame -- GMLoader-Next and original AM2R port  
-Jeod -- Enhancements to GMLoader-Next and 64-bit port update  
-hotcereal -- The 3:2 aspect ratio patch  
+Jeod -- GMLoader-Next enhancements and dual-screen plugin

@@ -10,11 +10,12 @@
     "title": "AM2R",
     "porter": [
       "Johnny on Flame",
-      "Jeod"
+      "Jeod",
+      "PatchDev"
     ],
     "desc": "Another Metroid 2 Remake.  An action-adventure game developed by Argentinian programmer Milton Guasti (also known as DoctorM64).",
     "desc_md": null,
-    "inst": "You'll need to provide your own am2r android apk into the ports/am2r/gamedata folder.  Make sure it is named am2r.apk.  The name is case sensitive.",
+    "inst": "Place your original Windows AM2R 1.1 zip in ports/am2r/assets. The port builds AM2ARM from it on first launch and downloads the HQ music.",
     "inst_md": null,
     "genres": [
       "action",

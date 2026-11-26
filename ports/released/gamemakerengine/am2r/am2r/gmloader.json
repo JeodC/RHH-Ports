@@ -8,5 +8,8 @@
     "disable_rumble" : false,
     "disable_texhack" : true,
     "rumble_scale" : 4.0,
-    "force_platform" : "os_windows"
+    "force_platform" : "os_android",
+    "plugins" : [
+        { "path" : "libdualscreen.so", "config" : { "title" : "Secondary screen" } }
+    ]
 }

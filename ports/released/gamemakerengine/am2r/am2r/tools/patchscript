@@ -18,151 +18,203 @@ emit_fail_msg() {
     FAIL_MSG_SET=1
 }
 
-
-# Exports
-export DATADIR="$GAMEDIR/assets"
-export DATAFILE="am2r.port"
-export TMPDIR="$GAMEDIR/tmp"
+# Variables
+DATADIR="$GAMEDIR/assets"
+TMPDIR="$GAMEDIR/tmp"
+PATCH_VERSION_FILE="$GAMEDIR/.patch_version"
+UPDATE_CHECK_FILE="$GAMEDIR/.update_check"
+SEVENZIP="$controlfolder/7zzs.${DEVICE_ARCH}"
+XDELTA="$controlfolder/xdelta3"
+MUSIC_ZIP="AM2ARM-music.zip"
+MUSIC_URL="${UPSTREAM_ZIP%/*}/$MUSIC_ZIP"
+HQ_URL="https://raw.githubusercontent.com/AM2R-Community-Developers/AM2R-Autopatcher-Windows/537a68fe7e47905af5a8d88a41f70af42d391555/data/HDR_HQ_in-game_music"
 
 prepare_system() {
-    # Test for python
-    PYTHON=$(command -v python3)
-    if [ -z "$PYTHON" ]; then
-        emit_fail_msg "Missing Python!"
+    if [ ! -x "$SEVENZIP" ] || [ ! -x "$XDELTA" ]; then
+        emit_fail_msg "7zzs or xdelta3 is missing. Update PortMaster."
         return 1
-    fi
-    
-    # Define 7zzs binary
-    SEVENZIP="$controlfolder/7zzs.${DEVICE_ARCH}"
-    if [ ! -x "$SEVENZIP" ]; then
-        emit_fail_msg "7zzs binary not found at $SEVENZIP"
-        return 1
-    fi
-    
-    # Attempt to get SAVEDIR from gmloader.json using jq
-    if command -v jq >/dev/null 2>&1; then
-        SAVEDIR=$(jq -r '.save_dir // empty' "$GAMEDIR/gmloader.json" 2>/dev/null)
-    else
-        SAVEDIR="$GAMEDIR/saves"
     fi
 
-    export PYTHON
-    export SAVEDIR
-    export SEVENZIP
+    rm -rf "$TMPDIR"
+    local need=400
+    ls "$DATADIR"/mus*.ogg >/dev/null 2>&1 || need=650
+    if [ "$(df -Pk "$GAMEDIR" | awk 'NR==2 {print $4}')" -lt $((need * 1024)) ]; then
+        emit_fail_msg "Not enough free space. $need MB is needed."
+        return 1
+    fi
+    mkdir -p "$TMPDIR/port" "$TMPDIR/music"
 }
 
-unzip_archives() {
-    # Create folders
-    mkdir -p "$DATADIR/am2r" "$DATADIR/am2rpatch"
-    AM2R_ZIP=""
-    AUTOPATCHER_ZIP=""
-    AM2R16B_ZIP="AM2R_1.6b2_windows.zip"
+manifest() {
+    sed -n "s/.*\"$1\": \"\([^\"]*\)\".*/\1/p" "$TMPDIR/port/manifest.json"
+}
 
-    # Bail early if we don't have 1.6b
-    if [ ! -f "$DATADIR/$AM2R16B_ZIP" ]; then
-        emit_fail_msg "AM2R 1.6b patch not found."
-        return 1
+download_release() {
+    local tries
+    [ -n "$UPSTREAM_ZIP" ] || return 1
+    for tries in 1 2 3; do
+        curl -fsSL -C - --max-time 600 -o "$1" "$UPSTREAM_ZIP" && return 0
+    done
+    return 1
+}
+
+# A zip in assets is used for the first install, or when there's no connection, and the one in tools/ otherwise
+get_release() {
+    local zip found
+    for zip in "$GAMEDIR"/tools/AM2ARM-gmloader-*.zip "$DATADIR"/AM2ARM-gmloader-*.zip; do
+        [ -f "$zip" ] && found="$zip"
+    done
+    zip="$found"
+    if [ -f "$zip" ] && { [ -z "$UPSTREAM_ZIP" ] || [ ! -f "$PATCH_VERSION_FILE" ] || [ "${zip##*/}" = "${UPSTREAM_ZIP##*/}" ]; }; then
+        echo "Using ${zip#"$GAMEDIR"/}."
+        [ "${zip##*/}" = "${UPSTREAM_ZIP##*/}" ] || UPSTREAM_TAG=""
+    else
+        zip="$TMPDIR/release.zip"
+        echo "Downloading ${UPSTREAM_ZIP##*/}..."
+        if ! download_release "$zip"; then
+            emit_fail_msg "Download failed. Check your internet connection, or drop the AM2ARM-gmloader zip into assets/ for offline install."
+            return 1
+        fi
     fi
 
-    # Determine authenticity of other zips
-    for zip in "$DATADIR"/*.zip; do
+    if ! "$SEVENZIP" x -y -o"$TMPDIR/port" "$zip" >/dev/null || [ -z "$(manifest version)" ]; then
+        emit_fail_msg "Could not extract ${zip##*/} - the download may be incomplete."
+        return 1
+    fi
+    rm -f "$TMPDIR/release.zip"
+}
 
-        # Identify AM2R zip (data.win in root)
-        if "$SEVENZIP" l "$zip" | grep -q 'data.win'; then
-            AM2R_ZIP="$zip"
-        # Identify autopatcher zip (has AM2R-Autopatcher-Windows-master/data/)
-        elif "$SEVENZIP" l "$zip" | grep -q 'AM2R-Autopatcher-Windows-master/data'; then
-            AUTOPATCHER_ZIP="$zip"
+# Match data.win by hash, so the zip can have any name
+find_base() {
+    local zip
+    for zip in "$DATADIR"/*.zip; do
+        "$SEVENZIP" e -y -o"$TMPDIR" "$zip" -r data.win >/dev/null 2>&1
+        if [ "$(sha256sum "$TMPDIR/data.win" 2>/dev/null | cut -d' ' -f1)" = "$(manifest datawin_sha256)" ]; then
+            echo "AM2R 1.1 found: $(basename "$zip")"
+            return
         fi
     done
-
-    # Report results
-    [ -n "$AM2R_ZIP" ] || { echo "Missing AM2R base zip"; return 1; }
-
-    # HQ audio is optional
-    if [ -n "$AUTOPATCHER_ZIP" ]; then
-        echo "Autopatcher zip detected: $AUTOPATCHER_ZIP"
-    else
-        echo "No Autopatcher zip found. Will proceed without HQ audio."
-    fi
-
-    # Unzip AM2R and autopatcher
-    "$SEVENZIP" x -y "$AM2R_ZIP" -o"$DATADIR/am2r" >/dev/null
-    [ -n "$AUTOPATCHER_ZIP" ] && "$SEVENZIP" x -y "$AUTOPATCHER_ZIP" -o"$DATADIR/am2rpatch" >/dev/null 2>&1
+    emit_fail_msg "AM2R 1.1 not found. Place the original Windows AM2R 1.1 zip in am2r/assets."
+    return 1
 }
 
-prepare_files() {
-    # Remove unnecessary files
-    rm -rf "$DATADIR/am2r/"*.exe "$DATADIR/am2r/"*.dll "$DATADIR/.gitkeep" "$DATADIR/am2r/"*.txt
+build_port() {
+    local port="$TMPDIR/am2r.port" hash
+    (cd "$TMPDIR/port" && "$SEVENZIP" a -tzip -mx=1 "$port" assets lib >/dev/null) || return 1
 
-    # Apply autopatcher files if present
-    if [ -n "$AUTOPATCHER_ZIP" ]; then
-        cp -rf "$DATADIR/am2rpatch/AM2R-Autopatcher-Windows-master/data/files_to_copy/"* "$DATADIR/am2r/"
-    fi
-
-    # Unzip 1.6b patch
-    "$SEVENZIP" x -y "$DATADIR/$AM2R16B_ZIP" -o"$DATADIR/am2r16b" >/dev/null
-    cp -rf "$DATADIR/am2r16b/files_to_copy/"* "$DATADIR/am2r/"
-    [ -n "$AUTOPATCHER_ZIP" ] && cp -rf "$DATADIR/am2rpatch/AM2R-Autopatcher-Windows-master/data/HDR_HQ_in-game_music/"* "$DATADIR/am2r/"
-}
-
-apply_xdelta() {
-    local data="$1"
-    local patch_file="$2"
-    local tmp_out="${data}.patched"
-    local output
-
-    if [ ! -f "$data" ]; then
-        emit_fail_msg "Source file not found: $data"
+    # gmloadernext maps game.droid from the .port when it isn't compressed
+    "$XDELTA" -d -c -s "$TMPDIR/data.win" "$TMPDIR/port/game.xdelta" |
+        "$SEVENZIP" a -tzip -mx=0 -siassets/game.droid "$port" >/dev/null
+    hash=$("$SEVENZIP" e -so "$port" assets/game.droid 2>/dev/null | sha256sum | cut -d' ' -f1)
+    if [ "$hash" != "$(manifest sha256)" ]; then
+        emit_fail_msg "The game could not be rebuilt."
         return 1
     fi
-
-    output=$("$controlfolder/xdelta3" -d -s "$data" "$patch_file" "$tmp_out" 2>&1)
-    if [ $? -ne 0 ]; then
-        emit_fail_msg "Failed to apply patch: $patch_file"
-        echo "$output"
-        rm -f "$tmp_out"
-        return 1
-    fi
-
-    mv "$tmp_out" "$data"
-    echo "Patch applied successfully."
 }
 
-clean_files() {  
-    mkdir -p "$TMPDIR"
-
-    # Move everything from am2r into TMPDIR
-    if [ -d "$DATADIR/am2r" ]; then
-        mv "$DATADIR/am2r/"* "$TMPDIR/" 2>/dev/null
-        mv "$DATADIR/am2r/".* "$TMPDIR/" 2>/dev/null || true  # Hidden files (except . and ..)
-        rmdir "$DATADIR/am2r" 2>/dev/null || true
-    fi
-
-    # Preserve splash.png
-    [ -f "$DATADIR/splash.png" ] && mv "$DATADIR/splash.png" "$TMPDIR/" 2>/dev/null
-
-    # Clean all contents of assets directory (DATADIR)
-    rm -rf "$DATADIR/"*
-
-    # Move everything back from TMPDIR to DATADIR
-    mv "$TMPDIR/"* "$DATADIR/" 2>/dev/null
-    mv "$TMPDIR/".* "$DATADIR/" 2>/dev/null || true
-
-    # Clean TMPDIR
-    rm -rf "$TMPDIR/"*
-    
+# List the tracks that are missing or changed
+missing_tracks() {
+    "$SEVENZIP" h -scrcCRC32 "$DATADIR"/*.ogg "$TMPDIR"/music/*.ogg 2>/dev/null | awk -v tracks="$TMPDIR/port/music.txt" '
+        NF == 3 { sub(/.*\//, "", $3); have[$1 " " $3] = 1 }
+        END { while ((getline < tracks) > 0) if (!(($1 " " $2) in have)) print $2 }'
 }
 
-# Zip it all into the .port file
-zip_archive() {
-    [ -f "$DATADIR/data.win" ] && mv "$DATADIR/data.win" "$DATADIR/game.droid"
-    if "$SEVENZIP" a -tzip -aoa -mx=0 "$GAMEDIR/$DATAFILE" "$DATADIR" >/dev/null; then
-        rm -rf "$DATADIR"/*
-    else
-        emit_fail_msg "Failed to create $DATAFILE."
-        return 1
+# List each track's offset, end and name. They aren't compressed, so one can be downloaded alone
+music_index() {
+    local size
+    size=$(curl -fsSL --max-time 30 -r 0-0 -D - -o /dev/null "$MUSIC_URL" | tr -d '\r' | sed -n 's/^[Cc]ontent-[Rr]ange:.*\///p')
+    [ -n "$size" ] || return 1
+    set -- $(curl -fsSL --max-time 30 -r "$((size - 22))-$((size - 1))" "$MUSIC_URL" | od -An -tu4 -j12 -N8)
+    [ $# -eq 2 ] || return 1
+    curl -fsSL --max-time 30 -r "$2-$(($1 + $2 - 1))" "$MUSIC_URL" | od -An -v -tu1 | awk '
+        function num(p, n, v) { v = 0; while (n--) v = v * 256 + b[p + n]; return v }
+        { for (i = 1; i <= NF; i++) b[len++] = $i + 0 }
+        END {
+            for (p = 0; p < len; p += 46 + num(p + 28, 2) + num(p + 30, 2) + num(p + 32, 2)) {
+                name = ""
+                for (i = 0; i < num(p + 28, 2); i++) name = name sprintf("%c", b[p + 46 + i])
+                start = num(p + 42, 4) + 30 + num(p + 28, 2)
+                print start, start + num(p + 24, 4) - 1, name
+            }
+        }'
+}
+
+show_progress() {
+    while kill -0 "$1" 2>/dev/null; do
+        sleep 5
+        echo "Getting music, $(du -sm "$TMPDIR/music" | cut -f1) MB..."
+    done
+}
+
+# One curl for every track keeps the connection open between them
+download_tracks() {
+    awk -v url="$MUSIC_URL" -v dir="$TMPDIR/music" '
+        NR == FNR { want[$1] = 1; next }
+        $3 in want {
+            if (count++) print "next"
+            printf "url = \"%s\"\noutput = \"%s/%s\"\nrange = %d-%d\n", url, dir, $3, $1, $2
+            print "location\nfail\nsilent\nshow-error\nmax-time = 300"
+        }' "$TMPDIR/tracks" "$TMPDIR/index" | curl -K - &
+    show_progress $!
+}
+
+# The AM2R Community Developers' Autopatcher has the same tracks, with capitals in their names
+download_hq() {
+    awk -v url="$HQ_URL" -v dir="$TMPDIR/music" '
+        NR == FNR { want[$1] = 1; next }
+        tolower($1) in want {
+            if (count++) print "next"
+            printf "url = \"%s/%s\"\noutput = \"%s/%s\"\n", url, $1, dir, tolower($1)
+            print "location\nfail\nsilent\nshow-error\nmax-time = 300"
+        }' "$TMPDIR/tracks" "$GAMEDIR/tools/hq-music.txt" | curl -K - &
+    show_progress $!
+}
+
+# The Autopatcher's own zip, for offline installs
+extract_hq() {
+    local zip track
+    for zip in "$DATADIR"/*.zip; do
+        "$SEVENZIP" l "$zip" 2>/dev/null | grep -q 'HDR_HQ_in-game_music' || continue
+        echo "Using the HQ music in ${zip##*/}."
+        "$SEVENZIP" e -y -o"$TMPDIR/hq" "$zip" -r '*HDR_HQ_in-game_music/*.ogg' >/dev/null 2>&1
+        for track in "$TMPDIR"/hq/*.ogg; do
+            [ -f "$track" ] && mv -f "$track" "$TMPDIR/music/$(basename "$track" | tr '[:upper:]' '[:lower:]')"
+        done
+        rm -rf "$TMPDIR/hq"
+        return
+    done
+}
+
+get_music() {
+    local tries
+    missing_tracks > "$TMPDIR/tracks"
+    if [ -s "$TMPDIR/tracks" ] && [ -f "$DATADIR/$MUSIC_ZIP" ]; then
+        echo "Using manually-placed $MUSIC_ZIP from assets/."
+        "$SEVENZIP" e -y -o"$TMPDIR/music" "$DATADIR/$MUSIC_ZIP" $(cat "$TMPDIR/tracks") >/dev/null 2>&1
+        missing_tracks > "$TMPDIR/tracks"
     fi
+    if [ -s "$TMPDIR/tracks" ]; then
+        extract_hq
+        missing_tracks > "$TMPDIR/tracks"
+    fi
+
+    for tries in 1 2 3; do
+        [ -s "$TMPDIR/tracks" ] || return 0
+        if [ -n "$UPSTREAM_ZIP" ]; then
+            music_index > "$TMPDIR/index" && download_tracks
+        else
+            download_hq
+        fi
+        missing_tracks > "$TMPDIR/tracks"
+    done
+    [ -s "$TMPDIR/tracks" ] || return 0
+    emit_fail_msg "Music download failed. Check your internet connection, or drop the AM2R Community Autopatcher zip into assets/ for offline install."
+    return 1
+}
+
+install_files() {
+    mv -f "$TMPDIR"/music/*.ogg "$DATADIR/" 2>/dev/null
+    mv -f "$TMPDIR/am2r.port" "$GAMEDIR/am2r.port"
 }
 
 # Cleanup function
@@ -170,23 +222,34 @@ cleanup() {
     rm -rf "$TMPDIR"
 }
 
-process_game() {
-    echo "Checking for dependencies..."
-    prepare_system || { cleanup; return 1; }
-    echo "Unzipping archives..."
-    unzip_archives || { cleanup; return 1; }
-    echo "Preparing game..."
-    prepare_files || { cleanup; return 1; }
-    echo "Applying 1.6b2 patch..."
-    apply_xdelta "$DATADIR/am2r/data.win" "$DATADIR/am2r16b/data.xdelta" || { cleanup; return 1; }
-    if [ "$ASPECTPATCH" ]; then
-        echo "Applying 3:2 patch..."
-        apply_xdelta "$DATADIR/am2r/data.win" "$GAMEDIR/tools/am2r16b2_3-2.xdelta" || { cleanup; return 1; }
+record_patch_version() {
+    local version="${UPSTREAM_TAG:-v$(manifest version)}"
+    echo "$version" > "$PATCH_VERSION_FILE"
+    echo "Recorded patch version: $version"
+}
+
+record_update_preference() {
+    if [ -n "$UPDATE_CHECK" ]; then
+        echo "$UPDATE_CHECK" > "$UPDATE_CHECK_FILE"
+        echo "Recorded update-check preference: $UPDATE_CHECK"
     fi
-    echo "Cleaning excess files..."
-    clean_files || { cleanup; return 1; }
+}
+
+process_game() {
+    echo "Preparing system..."
+    prepare_system || return 1
+    echo "Getting AM2ARM..."
+    get_release || return 1
+    echo "Checking game files..."
+    find_base || return 1
+    echo "Building the game..."
+    build_port || return 1
+    echo "Checking music..."
+    get_music || return 1
     echo "Finishing up..."
-    zip_archive || { cleanup; return 1; }
+    install_files || return 1
+    record_patch_version
+    record_update_preference
 }
 
 # Call the function
