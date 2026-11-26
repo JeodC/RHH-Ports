@@ -21,7 +21,7 @@ GAMEDIR="/$directory/ports/pokedaisy"
 GAME="$GAMEDIR/pokedaisy-linux"
 PATCH_VERSION_FILE="$GAMEDIR/.patch_version"
 UPDATE_CHECK_FILE="$GAMEDIR/.update_check"
-RELEASE_URL="https://github.com/lidor30/pokedaisy/releases/latest/download/pokedaisy-portmaster-aarch64.zip"
+RELEASE_URL="https://codeberg.org/pokedaisy/pokedaisy/releases/latest/download/pokedaisy-portmaster-aarch64.zip"
 
 # CD and set logging
 cd "$GAMEDIR"
