@@ -2351,12 +2351,12 @@
       "screenshot_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/metroidprimeorigins/metroidprimeorigins/screenshot.png",
       "readme_url": "https://raw.githubusercontent.com/JeodC/RHH-Ports/main/ports/released/gamemakerengine/metroidprimeorigins/metroidprimeorigins/README.md",
       "download_url": "https://github.com/JeodC/RHH-Ports/releases/download/ports-latest/metroidprimeorigins.zip",
-      "date_updated": "2026-11-23T13:01",
+      "date_updated": "2026-11-26T00:32",
       "first_seen": "2026-09-09",
-      "md5": "473124d2c6ce1a976abdc5b96adeb5bc",
-      "size": 5370057,
-      "lifetime_downloads": 222,
-      "last_commit": "Fix several invalid or wrong gameinfo.xml files"
+      "md5": "066f97663cd067f7141c72e0db531b5e",
+      "size": 5235511,
+      "lifetime_downloads": 234,
+      "last_commit": "[MPO] Add dual-screen support"
     }
   },
   {
