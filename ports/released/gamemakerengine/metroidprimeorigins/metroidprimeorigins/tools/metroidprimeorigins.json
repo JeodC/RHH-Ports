@@ -14,6 +14,21 @@
         {
             "entry": "gml_GlobalScript___InputInitializeSteam",
             "gml": "gml/gml_GlobalScript___InputInitializeSteam.gml"
+        },
+        {
+            "entry": "gml_Object_system_Draw_0",
+            "gml": "gml/gml_Object_system_Draw_0.gml"
         }
+    ],
+    "functions": [
+        "DualScreen_Available",
+        "DualScreen_Enable",
+        "DualScreen_Ready",
+        "DualScreen_Width",
+        "DualScreen_Height",
+        "DualScreen_Begin",
+        "DualScreen_Draw",
+        "DualScreen_End",
+        "DualScreen_Touch"
     ]
 }
